@@ -1,0 +1,14 @@
+# Path: backend/app/templates/welcome_email.txt
+SUBJECT: Welcome to ${app_name} — next steps
+
+Hi ${name},
+
+Welcome to ${app_name}! We're excited to have you.
+
+You can complete your profile and start using the platform here:
+${action_url}
+
+If you need help, reply to this email or visit our help docs.
+
+Cheers,
+${app_name} Team

@@ -1,9 +1,51 @@
+/* globals.css */
 @import "tailwindcss";
 
+
 :root {
+  /* 🎨 Color Variables */
+  --primary: #4f46e5;
+  --primary-light: #6366f1;
+  --primary-lightest: #e0e3ff; /* From the first block */
+  --primary-dark: #4338ca;
+  --secondary: #10b981;
+  --accent: #f59e0b;
+  
+  --text: #1e293b;
+  --text-light: #64748b;
+  --text-primary: #1e293b; /* From the first block */
+  --text-secondary: #64748b;
+  
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #171717; /* From the first block */
+  --surface: #f8fafc;
+  --bg-light: #f8fafc; /* From the first block */
+  --border: #e2e8f0;
+  --border-light: #f1f5f9; /* From the first block */
+  
+  --error: #dc2626;
+  --success: #10b981;
+  --warning: #f59e0b;
+
+  /* 🌑 Shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* From the second block */
+  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+             0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+                0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+                0 10px 10px -5px rgba(0, 0, 0, 0.04);
+
+  /* 🟦 Radii */
+  --radius-sm: 0.25rem;
+  --radius: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+  --radius-full: 9999px;
 }
+
+
 
 @theme inline {
   --color-background: var(--background);
@@ -20,7 +62,71 @@
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  -webkit-print-color-adjust: exact; /* Keep colors */
+  print-color-adjust: exact;
+}
+
+/* global.css */
+
+/* 1. Hide scrollbar for WebKit browsers (Chrome, Safari, Opera) */
+::-webkit-scrollbar {
+  display: none;
+}
+
+/* 2. Hide scrollbar for Firefox */
+* {
+  scrollbar-width: none;
+  -ms-overflow-style: none; /* IE & legacy Edge */
+}
+
+/* Custom animations for error pages */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+@keyframes float-small {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-15px);
+  }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-float-small {
+  animation: float-small 3s ease-in-out infinite;
+}
+
+input, textarea, select {
+  outline: none;
+}
+
+
+.page-content {
+  padding: 64px 32px;
+  background-color: #F6F4FF;
+  /* border: 10px solid red !important; */
+}
+
+.page-content>div {
+  width: 100%;
+  /* background: transparent !important; */
+  /* display: flex; */
+  /* justify-content: center; */
+  margin: 0 auto;
+}
+
+@media (max-width: 500px) {
+  .page-content {
+    padding: 16px 5px;
+  }
 }

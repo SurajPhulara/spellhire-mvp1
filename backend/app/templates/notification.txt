@@ -1,0 +1,9 @@
+# Path: backend/app/templates/notification.txt
+SUBJECT: Notification from ${app_name}
+
+Hi,
+
+${message}
+
+Best,
+${app_name} Team

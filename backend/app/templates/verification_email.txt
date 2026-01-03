@@ -1,0 +1,22 @@
+# Path: backend/app/templates/verification_email.txt
+SUBJECT: Verify your email for ${app_name}
+
+Hi${name},
+
+Thanks for signing up for ${app_name}!
+
+Your verification code is:
+
+    ${otp}
+
+This code will expire in 10 minutes (${expires_at}).
+
+Enter this code on the verification page to activate your account.
+
+If you did not create an account on ${app_name}, you can safely ignore this email.
+
+Thanks,
+${app_name} Team
+
+---
+Need help? Contact us at ${support_email}

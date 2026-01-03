@@ -1,0 +1,193 @@
+// // API Module - Main entry point for all API-related functionality
+// export { default as apiClient } from './client';
+// export { AuthService } from './services/auth';
+// export { ProfileService } from './services/profile';
+// export { FileService } from './services/files';
+// export { JobService } from './services/jobs';
+// export { ApplicationService } from './services/applications';
+// export { MessageService } from './services/messages';
+
+
+// // Re-export types for convenience
+// export type {
+//   // Base types
+//   ApiResponse,
+//   ApiError,
+//   ApiException,
+//   RequestMethod,
+//   RequestConfig,
+//   ApiClientConfig,
+  
+//   // Auth types
+//   AuthRequest,
+//   GoogleAuthRequest,
+//   VerifyEmailRequest,
+//   ForgotPasswordRequest,
+//   ResetPasswordRequest,
+//   ChangePasswordRequest,
+//   AuthResponse,
+//   RefreshTokenResponse,
+//   MeResponse,
+//   SessionInfo,
+//   SessionsResponse,
+  
+//   // Profile types
+//   CandidateProfile,
+//   CandidateProfileRequest,
+//   CandidateProfileResponse,
+//   CandidateProfilePublicResponse,
+//   EmployerProfile,
+//   EmployerRequest,
+//   EmployerResponse,
+//   Organization,
+//   OrganizationRequest,
+//   OrganizationResponse,
+//   OrganizationPublicResponse,
+  
+//   // Job types
+//   Job,
+//   JobRequest,
+//   JobResponse,
+//   JobPublicResponse,
+//   JobSearchFilters,
+//   JobListResponse,
+//   JobListPublicResponse,
+//   JobStatusUpdateRequest,
+//   JobManagementFilters,
+//   JobStats,
+//   JobLocation,
+//   JobStatus,
+//   ApplicationStatus,
+  
+//   // Application types
+//   PipelineStage,
+//   PipelineStageCreate,
+//   PipelineStageUpdate,
+//   Pipeline,
+//   PipelineCreate,
+//   PipelineUpdate,
+//   PipelineResponse,
+//   Application,
+//   ApplicationCreate,
+//   ApplicationUpdate,
+//   ApplicationResponse,
+//   ApplicationListResponse,
+//   ApplicationWithCandidate,
+//   ApplicationWithCandidateResponse,
+//   ApplicationWithCandidateListResponse,
+//   ApplicationStageHistory,
+//   ApplicationStageHistoryResponse,
+//   KanbanColumn,
+//   KanbanBoard,
+//   KanbanBoardResponse,
+//   BulkStageUpdate,
+//   BulkStatusUpdate,
+//   BulkOperationResponse,
+//   ApplicationFilters,
+//   ApplicationStats,
+//   ApplicationStatsResponse,
+//   CandidateApplicationListResponse,
+//   CurrentStageInfoResponse,
+//   ApplicationManagementFilters,
+  
+//   // Message types
+//   ConversationType,
+//   MessageType,
+//   Conversation,
+//   ConversationCreate,
+//   ConversationUpdate,
+//   ConversationResponse,
+//   ConversationListResponse,
+//   ConversationWithDetails,
+//   ConversationWithDetailsResponse,
+//   ConversationWithDetailsListResponse,
+//   ConversationParticipant,
+//   ConversationParticipantCreate,
+//   ConversationParticipantResponse,
+//   ConversationParticipantListResponse,
+//   Message,
+//   MessageCreate,
+//   MessageUpdate,
+//   MessageResponse,
+//   MessageListResponse,
+//   SocketMessage,
+//   SocketTyping,
+//   SocketReadReceipt,
+//   SocketNewMessage,
+//   SocketUserTyping,
+//   SocketMessageRead,
+//   SocketConversationUpdate,
+//   SocketNotification,
+//   SocketOnlineUsers,
+//   SocketError,
+//   SocketConfirmation,
+//   MessageFilters,
+//   ConversationFilters,
+//   MessageStats,
+//   MessageStatsResponse,
+//   SocketConnectionConfig,
+//   SocketConnectionStatus,
+//   MessageComposerState,
+//   MessageAttachment,
+//   ConversationListItem,
+//   ConversationListState,
+//   MessageListItem,
+//   MessageListState,
+//   RealTimeEvent,
+//   TypingIndicator,
+//   ReadReceipt,
+//   MessageSearchResult,
+//   MessageSearchResponse,
+//   ConversationCreateRequest,
+//   ConversationInviteRequest,
+//   ConversationLeaveRequest,
+//   MessageReaction,
+//   MessageReactionSummary,
+//   MessageThread,
+//   MessageTimeFormat,
+//   ConversationSortOptions,
+//   MessageGroupingOptions,
+//   MessageError,
+//   ConversationError,
+  
+//   // Enums
+//   UserType,
+//   Gender,
+//   AuthMethod,
+//   UserStatus,
+//   JobType,
+//   WorkMode,
+//   ExperienceLevel,
+//   SkillLevel,
+//   EmployerRole,
+//   CompanySize,
+  
+//   // Base schemas
+//   TokenResponse,
+//   PaginationMeta,
+//   PaginatedResponse,
+//   UserSummary,
+//   Skill,
+//   Experience,
+//   Education,
+//   Language,
+//   Certification,
+  
+//   // Auth context types
+//   AuthState,
+//   AuthContextType,
+// } from '@/types';
+
+
+
+// // Re-export context
+// export {
+//   AuthProvider,
+//   useAuth,
+//   useIsAuthenticated,
+//   useCurrentUser as useAuthCurrentUser,
+//   useUserType,
+//   useIsCandidate,
+//   useIsEmployer,
+// } from '../../contexts/AuthContext';
+

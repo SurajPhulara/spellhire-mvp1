@@ -1,0 +1,29 @@
+fastapi  # FastAPI framework for building APIs
+uvicorn[standard]  # ASGI server to serve the FastAPI app (with performance improvements)
+python-multipart  # For handling multipart/form-data (file uploads)
+python-jose[cryptography]  # JSON Web Token (JWT) library with cryptography support
+passlib[bcrypt]  # Password hashing library using bcrypt algorithm
+bcrypt==4.0.1  # Bcrypt password hashing algorithm (version constraint)
+python-dotenv  # Loads environment variables from .env files
+asyncpg  # Asynchronous PostgreSQL database driver
+alembic  # Database migration tool for SQLAlchemy
+redis  # Redis client for caching, session storage, etc.
+# sendgrid  # Email service API client for SendGrid
+# resend  # Email service API client for Resend
+boto3  # AWS SDK for Python (interact with AWS services like S3, EC2)
+cloudinary  # Cloud-based media management (images/videos) service
+# pillow  # Python Imaging Library (PIL) for image processing
+pydantic[email]  # Pydantic for data validation, includes email validation
+pydantic-settings  # Pydantic-based settings management library
+# celery  # Asynchronous task queue/job queue system (for background tasks)
+slowapi  # Rate limiting for FastAPI to prevent abuse
+httpx  # Async HTTP client for making requests to external services
+# python-socketio[asyncio_client]  # Client for real-time WebSocket communication
+pytest  # Testing framework for writing and running tests
+pytest-cov  # Coverage plugin for pytest to measure test coverage
+pytest-asyncio  # Pytest plugin for testing asynchronous code
+python-dateutil  # Date and time utilities (parsing, timezone support)
+google-auth  # Google authentication library for OAuth2 integration with Google APIs
+google-auth-oauthlib  # OAuth2 helper for google-auth to authenticate with Google APIs
+google-auth-httplib2  # Integration of google-auth with httplib2 for HTTP requests to Google APIs
+psycopg
