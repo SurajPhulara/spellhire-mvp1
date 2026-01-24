@@ -36,23 +36,12 @@ export class AuthService {
   // they are easy to mock in tests.
 
   // Candidate Registration
-  static async registerCandidate(data: AuthRequest): Promise<ApiResponse<AuthResponse>> {
-    return apiClient.post<AuthResponse>('/auth/candidate/register', data);
+  static async register(data: AuthRequest): Promise<ApiResponse<AuthResponse>> {
+    return apiClient.post<AuthResponse>('/auth/register', data);
   }
 
-  // Candidate Login
-  static async loginCandidate(data: AuthRequest): Promise<ApiResponse<AuthResponse>> {
-    return apiClient.post<AuthResponse>('/auth/candidate/login', data);
-  }
-
-  // Employer Registration
-  static async registerEmployer(data: AuthRequest): Promise<ApiResponse<AuthResponse>> {
-    return apiClient.post<AuthResponse>('/auth/employer/register', data);
-  }
-
-  // Employer Login
-  static async loginEmployer(data: AuthRequest): Promise<ApiResponse<AuthResponse>> {
-    return apiClient.post<AuthResponse>('/auth/employer/login', data);
+  static async login(data: AuthRequest): Promise<ApiResponse<AuthResponse>> {
+    return apiClient.post<AuthResponse>('/auth/login', data);
   }
 
   // Google OAuth - Candidate

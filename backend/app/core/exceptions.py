@@ -36,6 +36,8 @@ Design goals:
 from __future__ import annotations
 from typing import Any, Optional, Dict
 
+from fastapi import status
+
 
 class AppException(Exception):
     """
@@ -221,3 +223,15 @@ class NotFoundError(AppException):
         details: Optional[Any] = None
     ):
         super().__init__(message=message, status_code=404, details=details)
+
+
+
+class FileUploadError(AppException):
+    """File upload related errors"""
+    
+    def __init__(self, message: str = "File upload failed", details: Optional[Any] = None):
+        super().__init__(
+            message=message,
+            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+            details=details
+        )

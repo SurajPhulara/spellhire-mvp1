@@ -66,7 +66,7 @@ def _set_refresh_cookie(resp: Response, refresh_token: str, max_age_seconds: int
         secure=secure_flag,
         samesite="lax",
         max_age=max_age_seconds,
-        path="/api/v1/auth/refresh",  # limit cookie to refresh endpoint (optional)
+        path="/api/v1/auth/",  # limit cookie to refresh endpoint (optional)
     )
 
 
@@ -76,7 +76,7 @@ def _set_refresh_cookie(resp: Response, refresh_token: str, max_age_seconds: int
 
 @router.post("/register", status_code=status.HTTP_201_CREATED)
 async def register(
-    request: AuthRequest,
+    payload: AuthRequest,
     response: Response,
     background_tasks: BackgroundTasks,
     db: AsyncSession = Depends(get_db),
@@ -90,10 +90,14 @@ async def register(
     """
     try:
         # AuthService.register should create user, persist and return {"user": User, "tokens": {...}}
-        result = await AuthService.register_user(db=db, email=request.email, password=request.password, user_type=request.user_type, background_tasks=background_tasks)
+        result = await AuthService.register_user(db=db, email=payload.email, password=payload.password, user_type=payload.user_type, background_tasks=background_tasks)
 
         user = result["user"]
         tokens = result["tokens"]
+
+        # 🔐 CRITICAL: commit before issuing tokens
+        await db.commit()
+        # await db.refresh(user)
 
         # Set refresh token cookie if present
         refresh_token = tokens.get("refresh_token")
@@ -116,7 +120,7 @@ async def register(
 
 @router.post("/login", status_code=status.HTTP_200_OK)
 async def login(
-    request: AuthRequest,
+    payload: AuthRequest,
     response: Response,
     background_tasks: BackgroundTasks,
     db: AsyncSession = Depends(get_db),
@@ -127,9 +131,13 @@ async def login(
     - Sets refresh token in HttpOnly cookie (if tokens include refresh_token).
     """
     try:
-        result = await AuthService.login_user(db=db, email=request.email, password=request.password, user_type=request.user_type, background_tasks=background_tasks)
+        result = await AuthService.login_user(db=db, email=payload.email, password=payload.password, user_type=payload.user_type, background_tasks=background_tasks)
         user = result["user"]
         tokens = result["tokens"]
+
+        # 🔐 commit before setting cookie
+        await db.commit()
+        # await db.refresh(user)
 
         # Set refresh token cookie if present
         refresh_token = tokens.get("refresh_token")
@@ -144,7 +152,7 @@ async def login(
             response=response,
         )
     except AppException as e:
-        logger.info("Login failed for %s: %s", request.email, e)
+        logger.info("Login failed for %s: %s", payload.email, e)
         return error_response(message=str(e), status_code=e.status_code, errors=e.details)
 
 
@@ -175,15 +183,38 @@ async def google_auth(
         return error_response(message=str(e), status_code=e.status_code, errors=e.details)
 
 
+@router.get("/me", status_code=status.HTTP_200_OK)
+async def me(request: Request, response: Response, db: AsyncSession = Depends(get_db), current_user: dict = Depends(get_current_user)):
+    """
+    Get current user information.
+    Note: the frontend should call this endpoint while sending the Authorization header.
+    """
+    try:
+        user_id = current_user["sub"]
+        user_type = current_user["user_type"]
+        email = current_user["email"]
+        # Revoke current session if AuthService can handle it (e.g. reads jti from access token)
+        result = await AuthService.refetch_user(db=db, user_id=user_id, email=email, user_type=user_type)
+
+    except AppException as e:
+        logger.info("fetching user data failed ", e)
+        return error_response(message=str(e), status_code=e.status_code, errors=e.details)
+
+    return success_response(message="ok", data={"user" : result["user"]}, response=response,)
+
+
+
+
 @router.post("/logout", status_code=status.HTTP_200_OK)
-async def logout(request: dict, response: Response, db: AsyncSession = Depends(get_db), current_user: dict = Depends(get_current_user)):
+async def logout(request: Request, response: Response, db: AsyncSession = Depends(get_db), current_user: dict = Depends(get_current_user)):
     """
     Logout current user: revoke current session (if any) & clear cookie.
     Note: the frontend should call this endpoint while sending the Authorization header.
     """
     try:
         # Revoke current session if AuthService can handle it (e.g. reads jti from access token)
-        await AuthService.logout(db=db, current_user=current_user)
+        await AuthService.logout_user(db=db, user_id=current_user["sub"], refresh_token=request.cookies.get("refresh_token"))
+        await db.commit()
     finally:
         # Always clear refresh cookie client-side
         response.delete_cookie("refresh_token", path="/api/v1/auth/refresh")
@@ -191,7 +222,7 @@ async def logout(request: dict, response: Response, db: AsyncSession = Depends(g
 
 
 @router.post("/refresh", status_code=status.HTTP_200_OK)
-async def refresh_token(request: dict, response: Response, refresh_token: Optional[str] = None, db: AsyncSession = Depends(get_db)):
+async def refresh_token(request: Request, response: Response, refresh_token: Optional[str] = None, db: AsyncSession = Depends(get_db)):
     """
     Exchange refresh token (from cookie or body) for a new access token.
     - By default the client should rely on HttpOnly cookie; we accept explicit token param for testing.
@@ -217,7 +248,7 @@ async def refresh_token(request: dict, response: Response, refresh_token: Option
 
 
 @router.post("/forgot-password", status_code=status.HTTP_200_OK)
-async def forgot_password(request: dict, background_tasks: BackgroundTasks, db: AsyncSession = Depends(get_db)):
+async def forgot_password(request: Request, background_tasks: BackgroundTasks, db: AsyncSession = Depends(get_db)):
     """
     Trigger password reset email. Body expected: {"email": "...", "user_type": "CANDIDATE"|"EMPLOYER"}
     """
@@ -230,7 +261,7 @@ async def forgot_password(request: dict, background_tasks: BackgroundTasks, db: 
 
 
 @router.post("/reset-password", status_code=status.HTTP_200_OK)
-async def reset_password(request: dict, db: AsyncSession = Depends(get_db)):
+async def reset_password(request: Request, db: AsyncSession = Depends(get_db)):
     """
     Reset password endpoint.
     Body expected: {"email": "...", "user_type": "...", "otp": "...", "new_password": "..."}
@@ -280,7 +311,7 @@ async def resend_verification(request: Request, background_tasks: BackgroundTask
 # ------------------------
 # @limiter.limit("10/minute")
 @router.get("/sessions", status_code=status.HTTP_200_OK)
-async def get_sessions(request: dict, db: AsyncSession = Depends(get_db), current_user: dict = Depends(get_current_user)):
+async def get_sessions(request: Request, db: AsyncSession = Depends(get_db), current_user: dict = Depends(get_current_user)):
     """
     List sessions for current user (for "Manage sessions" UI).
     Delegates to session_service.list_user_sessions (which returns DB rows).
@@ -296,7 +327,7 @@ async def get_sessions(request: dict, db: AsyncSession = Depends(get_db), curren
 
 # @limiter.limit("10/minute")
 @router.post("/sessions/{session_id}/revoke", status_code=status.HTTP_200_OK)
-async def revoke_session(request: dict, session_id: str, db: AsyncSession = Depends(get_db), current_user: dict = Depends(get_current_user)):
+async def revoke_session(request: Request, session_id: str, db: AsyncSession = Depends(get_db), current_user: dict = Depends(get_current_user)):
     """
     Revoke a single session by id (soft revoke).
     """

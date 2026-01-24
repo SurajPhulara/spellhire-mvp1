@@ -6,7 +6,7 @@ import Link from 'next/link';
 import gsap from 'gsap';
 import Lenis from 'lenis';
 import styles from './page.module.css';
-import { FiMenu, FiX } from 'react-icons/fi';
+import { FiMenu, FiX, FiBriefcase } from 'react-icons/fi';
 import { PrimaryButton } from '@/components/ui/buttons/PrimaryButton';
 import Image from 'next/image';
 import { useAuth } from '@/contexts/AuthContext';
@@ -48,7 +48,6 @@ export default function Navbar() {
     }, []);
 
     const navigateOrScrollTop = (href: string) => {
-        router.push(href);
         if (pathname === href) {
             window.scrollTo({ top: 0, behavior: 'smooth' });
             setIsOpen(false);
@@ -83,7 +82,7 @@ export default function Navbar() {
         { label: 'Home', href: '/' },
         { label: 'Jobs', href: '/jobs' },
         { label: 'About Us', href: '/about-us' },
-        { label: 'Contact Us', href: '/contact-us' },
+        { label: 'Contact Us', href: '/contact-us' }
     ];
 
     return (
@@ -92,11 +91,8 @@ export default function Navbar() {
                 <div className={styles.container}>
                     {/* Logo */}
                     <div className={styles.logoContainer} onClick={() => navigateOrScrollTop('/')}>
-                        {/* <div className={styles.logo}></div>
-            <div className={styles.logoText}>LOGO</div> */}
                         <Image src="/logo.png" alt="logo" width={24} height={24} />
                         <span className={styles.logoText}>spellhire</span>
-                        {/* <Image src="/logo_primary.png" alt="logo spellhire" width={120} height={38} className={styles.logoImage} /> */}
                     </div>
 
                     {/* Desktop Menu */}
@@ -110,6 +106,27 @@ export default function Navbar() {
                                 {label}
                             </button>
                         ))}
+                        
+                        {/* Conditional Employer/Candidate Link in Navigation */}
+                        {!isAuthenticated && (
+                            pathname.includes('/employer') ? (
+                                <button 
+                                    className={`${styles.navLink} ${styles.employerNavLink}`}
+                                    onClick={() => router.push('/login')}
+                                >
+                                    <FiBriefcase size={16} />
+                                    <span>For Candidates</span>
+                                </button>
+                            ) : (
+                                <button 
+                                    className={`${styles.navLink} ${styles.employerNavLink}`}
+                                    onClick={() => router.push('/employer/login')}
+                                >
+                                    <FiBriefcase size={16} />
+                                    <span>For Employers</span>
+                                </button>
+                            )
+                        )}
                     </div>
 
                     {/* Desktop Auth Buttons */}
@@ -125,8 +142,8 @@ export default function Navbar() {
                             </>
                         ) : (
                             <>
-                                <Link href="/login" className={styles.loginBtn}>Login</Link>
-                                <PrimaryButton onClick={() => router.push('/register')}>Register</PrimaryButton>
+                                <Link href={pathname.includes('/employer')? "/employer/login":"/login"} className={styles.loginBtn}>Login</Link> 
+                                <PrimaryButton onClick={() => router.push(pathname.includes('/employer')? "/employer/register":"/register")}>Register</PrimaryButton>
                             </>
                         )}
                     </div>
@@ -182,10 +199,30 @@ export default function Navbar() {
                                     </>
                                 ) : (
                                     <>
-                                        <Link href="/login" className={styles.drawerLoginBtn} onClick={closeDrawer}>Login</Link>
-                                        <PrimaryButton onClick={() => { closeDrawer(); router.push('/register'); }}>
-                                            Register
-                                        </PrimaryButton>
+                                        <div className={styles.employerSection}>
+                                            <button 
+                                                className={styles.employerCard}
+                                                onClick={() => { closeDrawer(); router.push(pathname.includes('/employer')?'/login':'/employer/login'); }}
+                                            >
+                                                <div className={styles.employerCardIcon}>
+                                                    <FiBriefcase size={24} />
+                                                </div>
+                                                <div className={styles.employerCardContent}>
+                                                    <h3>{pathname.includes('/employer')? "For Candidates" : "For Employers"}</h3>
+                                                    <p>Post jobs and hire talent</p>
+                                                </div>
+                                            </button>
+                                        </div>
+                                        
+                                        <div className={styles.candidateSection}>
+                                            <div className={styles.sectionLabel}>For Job Seekers</div>
+                                            <Link href="/login" className={styles.drawerLoginBtn} onClick={closeDrawer}>
+                                                Login
+                                            </Link>
+                                            <PrimaryButton onClick={() => { closeDrawer(); router.push('/register'); }}>
+                                                Register
+                                            </PrimaryButton>
+                                        </div>
                                     </>
                                 )}
                             </div>

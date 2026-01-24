@@ -79,7 +79,7 @@ class EmployerService:
         # Only set allowed fields to prevent unexpected kwargs
         allowed = {
             "organization_id", "reporting_manager_id", "first_name", "last_name",
-            "phone", "gender", "department", "profile_picture_url", "job_title",
+            "phone", "gender", "department", "job_title",
             "employment_type", "role", "hire_date", "work_phone", "work_location",
             "bio", "has_recruiter_permission", "can_interview", "skills",
             "is_active", "is_profile_complete"
@@ -121,6 +121,7 @@ class EmployerService:
 
         if updated:
             profile.updated_at = datetime.utcnow()
+            profile.is_profile_complete = True
             await db.flush()
 
         return profile

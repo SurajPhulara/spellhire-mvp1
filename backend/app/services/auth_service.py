@@ -22,10 +22,12 @@ from datetime import datetime, timedelta, timezone
 import secrets
 import random
 from typing import Optional, Dict, Any
+import uuid
 
 from fastapi import BackgroundTasks
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from app.core.security import SecurityService
 from app.core.config import settings
@@ -42,9 +44,10 @@ from app.models.enums import UserType, UserStatus
 from app.services.email_service import EmailService
 from app.services.token_service import TokenService
 from app.schemas.user import UserSummary
+from app.services.organization_service import OrganizationService
 
 
-def user_to_summary(user: "User") -> Dict[str, Any]:
+def user_to_summary(user: "User") -> UserSummary:
     """
     Flatten a SQLAlchemy User model into a dictionary suitable for UserSummary.
     Combines User, CandidateProfile, and EmployerProfile.
@@ -53,18 +56,24 @@ def user_to_summary(user: "User") -> Dict[str, Any]:
     candidate = user.candidate_profile
     employer = user.employer_profile
 
-    data = {
-        "id": str(user.id),
-        "first_name": candidate.first_name if candidate else (employer.first_name if employer else ""),
-        "last_name": candidate.last_name if candidate else (employer.last_name if employer else ""),
-        "email": user.email,
-        "email_verified": user.email_verified_at is not None,
-        "user_type": user_type,
-        "status": user.status,
-        "profile_picture_url": user.profile_picture_url,
-        "organization_name": employer.organization.name if employer and employer.organization else None,
-        "is_profile_complete": user.is_profile_complete,
-    }
+    data = UserSummary(
+        id=uuid.UUID(str(user.id)),
+        first_name=candidate.first_name if candidate else (employer.first_name if employer else None),
+        last_name=candidate.last_name if candidate else (employer.last_name if employer else None),
+        email=user.email,
+        email_verified=user.email_verified_at is not None,
+        user_type=user_type,
+        status=user.status,
+        profile_picture_url=user.profile_picture_url,
+        organization_name=employer.organization.name if employer and employer.organization else None,
+        organization_logo=employer.organization.logo_url if employer and employer.organization and employer.organization.logo_url else None,
+        is_profile_complete=(
+            candidate.is_profile_complete
+            if candidate
+            else (employer.is_profile_complete if employer else None)
+        ),
+    )
+
 
     return data
 
@@ -80,15 +89,43 @@ class AuthService:
         return ''.join([str(random.randint(0, 9)) for _ in range(length)])
 
     @staticmethod
-    async def _get_user_by_email(
-        db: AsyncSession, 
-        email: str, 
-        role: Optional[UserType] = None
+    async def _get_user(
+        db: AsyncSession,
+        *,
+        user_id: Optional[str] = None,
+        email: Optional[str] = None,
+        user_type: Optional[UserType] = None,
     ) -> Optional[User]:
-        """Fetch user by email, optionally filtered by role."""
-        q = select(User).where(User.email == email)
-        if role is not None:
-            q = q.join(UserRole).where(UserRole.role == role)
+        """
+        Fetch user by id or email (at least one required).
+        Optionally filters by user_type (role).
+
+        Always eager-loads relationships to avoid async lazy-load issues.
+        """
+        if not user_id and not email:
+            raise AppException(
+                "Either user_id or email must be provided",
+                status_code=500,  # programmer error, not client error
+            )
+
+        q = select(User)
+
+        if user_id:
+            q = q.where(User.id == user_id)
+
+        if email:
+            q = q.where(User.email == email)
+
+        if user_type:
+            q = q.join(UserRole).where(UserRole.role == user_type)
+
+        q = q.options(
+            selectinload(User.roles),
+            selectinload(User.candidate_profile),
+            selectinload(User.employer_profile),
+            selectinload(User.employer_profile).selectinload(EmployerProfile.organization),
+        )
+
         res = await db.execute(q)
         return res.scalars().first()
 
@@ -199,7 +236,7 @@ class AuthService:
             AppException: Invalid parameters or registration failure
         """
         # 1. Check for existing user
-        existing = await AuthService._get_user_by_email(db, email)
+        existing = await AuthService._get_user(db, email=email)
         if existing:
             raise ConflictError(f"Email {email} is already registered")
 
@@ -217,7 +254,6 @@ class AuthService:
             provider=provider,
             provider_id=None,
             status=UserStatus.PENDING_VERIFICATION,
-            is_profile_complete=False,
             created_at=datetime.now(timezone.utc),
             updated_at=datetime.now(timezone.utc),
         )
@@ -234,6 +270,9 @@ class AuthService:
             db.add(profile)
         elif user_type == UserType.EMPLOYER:
             if not organization_id:
+                organization = await OrganizationService.create_organization(db)
+                organization_id = organization.id
+
                 # For MVP: allow None, but in production you might require it
                 # raise AppException("Organization ID is required for employer registration", status_code=400)
                 pass
@@ -265,7 +304,7 @@ class AuthService:
             )
 
         return {
-            "user": UserSummary.from_orm(user_to_summary(user)),
+            "user": UserSummary.model_validate(user_to_summary(user)),
             "tokens": tokens
         }
 
@@ -303,7 +342,7 @@ class AuthService:
             AuthenticationError: Invalid credentials, suspended account, etc.
         """
         # 1. Fetch user by email and role
-        user = await AuthService._get_user_by_email(db, email, user_type)
+        user = await AuthService._get_user(db, email=email, user_type=user_type)
         if not user:
             raise AuthenticationError("Invalid credentials")
 
@@ -345,9 +384,64 @@ class AuthService:
             )
 
         return {
-            "user": UserSummary.from_orm(user_to_summary(user)),
+            "user": UserSummary.model_validate(user_to_summary(user)),
             "tokens": tokens,
         }
+
+
+    @staticmethod
+    async def refetch_user(
+        *,
+        db: AsyncSession,
+        user_id: str,
+        email: str,
+        user_type: UserType,
+        user_agent: Optional[str] = None,
+        ip_address: Optional[str] = None,
+        background_tasks: Optional[BackgroundTasks] = None,
+    ) -> Dict[str, Any]:
+        """
+        """
+        # 1. Fetch user by id
+        user = await AuthService._get_user(db, email=email, user_id=user_id, user_type=user_type)
+        
+        if not user:
+            raise AuthenticationError("Invalid credentials please log out and log in again")
+
+        if str(user.id) != user_id:
+            raise AuthenticationError("Invalid credentials please log out and log in again")
+
+        # 2. Check account status
+        if user.status == UserStatus.SUSPENDED:
+            raise AuthenticationError("Your account has been suspended. Please contact support.")
+        
+        if user.status == UserStatus.DEACTIVATED:
+            raise AuthenticationError("Your account has been deactivated.")
+
+        return {
+            "user": UserSummary.model_validate(user_to_summary(user))
+        }
+
+    @staticmethod
+    async def set_profile_picture(
+        db: AsyncSession,
+        user_id: str,
+        profile_picture_url: str,
+    ) :
+        profile = await AuthService._get_user(db, user_id=user_id)
+
+        if not profile:
+            profile = User(
+                user_id=user_id,
+                profile_picture_url=profile_picture_url
+            )
+            db.add(profile)
+        else:
+            profile.profile_picture_url = profile_picture_url
+            profile.updated_at = datetime.now(timezone.utc)
+
+        await db.flush()
+
 
     @staticmethod
     async def logout_user(
@@ -475,7 +569,7 @@ class AuthService:
 
         return {
             "message": "Email verified successfully",
-            # "user": UserSummary.from_orm(user_to_summary(user))
+            # "user": UserSummary.model_validate(user_to_summary(user))
         }
 
     @staticmethod

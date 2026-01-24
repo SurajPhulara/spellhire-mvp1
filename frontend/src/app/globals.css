@@ -113,8 +113,11 @@ input, textarea, select {
 
 .page-content {
   padding: 64px 32px;
-  background-color: #F6F4FF;
-  /* border: 10px solid red !important; */
+}
+
+.page-content:has(.homepage-content) {
+  /* padding: 64px 32px; */
+  background-color: #F6F4FF;;
 }
 
 .page-content>div {

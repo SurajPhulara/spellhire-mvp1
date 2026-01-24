@@ -1,3 +1,4 @@
+# app/models/organization.py
 import uuid
 from datetime import datetime
 from sqlalchemy import Column, String, Boolean, DateTime, Date, Index, Enum as SQLEnum
@@ -21,7 +22,7 @@ class Organization(Base):
     company_size = Column(SQLEnum(CompanySize), default=CompanySize.SIZE_1_10, nullable=True)
     headquarters_location = Column(String(255), default="", nullable=True)
     website = Column(String(500), default="", nullable=True)
-    contact_email = Column(String(255), unique=True, default="", nullable=True)
+    contact_email = Column(String(255), unique=True, nullable=True)
     phone = Column(String(50), default="", nullable=True)
     additional_locations = Column(ARRAY(String), default=[], nullable=True)
     founded_on = Column(Date, nullable=True)

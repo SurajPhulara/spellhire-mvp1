@@ -1,3 +1,4 @@
+# app/core/database.py
 """Database connection and session management"""
 from app.models.base import (
     connect_db,

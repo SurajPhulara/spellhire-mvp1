@@ -17,10 +17,12 @@ from datetime import datetime
 from sqlalchemy import select, or_, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.exceptions import NotFoundError, ConflictError
+from app.core.exceptions import AppException, NotFoundError, ConflictError
 from app.models.organization import Organization
 import logging
 import uuid
+from app.models.user import EmployerProfile
+
 
 logger = logging.getLogger(__name__)
 
@@ -44,16 +46,39 @@ class OrganizationService:
         return res.scalars().first()
 
     @staticmethod
-    async def create_organization(db: AsyncSession, payload: Dict[str, Any]) -> Organization:
+    async def get_organization_for_user(
+        db: AsyncSession,
+        user_id,
+    ) -> Organization:
+        """
+        Fetch the organization associated with an employer (by user_id).
+        """
+
+        stmt = (
+            select(Organization)
+            .join(EmployerProfile, EmployerProfile.organization_id == Organization.id)
+            .where(EmployerProfile.user_id == user_id)
+        )
+
+        result = await db.execute(stmt)
+        org = result.scalar_one_or_none()
+
+        if not org:
+            raise NotFoundError("Organization not found for this user")
+
+        return org
+
+    @staticmethod
+    async def create_organization(db: AsyncSession, payload: Dict[str, Any]={}) -> Organization:
         """
         Create a new organization.
         - If contact_email provided and already exists -> ConflictError.
         """
-        contact_email = payload.get("contact_email")
-        if contact_email:
-            existing = await OrganizationService.get_by_contact_email(db, contact_email)
-            if existing:
-                raise ConflictError("Organization with this contact_email already exists")
+        # contact_email = payload.get("contact_email")
+        # if contact_email:
+        #     existing = await OrganizationService.get_by_contact_email(db, contact_email)
+        #     if existing:
+        #         raise ConflictError("Organization with this contact_email already exists")
 
         allowed = {
             "name", "description", "industry", "company_size", "headquarters_location",
@@ -77,10 +102,9 @@ class OrganizationService:
         allowed = {
             "name", "description", "industry", "company_size", "headquarters_location",
             "website", "contact_email", "phone", "additional_locations", "founded_on",
-            "mission", "benefits_overview", "company_culture", "logo_url",
+            "mission", "benefits_overview", "company_culture",
             "is_profile_complete", "is_active"
         }
-
         updated = False
         for k, v in payload.items():
             if k in allowed:

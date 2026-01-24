@@ -121,10 +121,10 @@ export interface Organization {
   company_culture?: string;
   logo_url?: string;
   id: string;
-  is_profile_complete: boolean;
+  is_profile_complete?: boolean;
   is_active: boolean;
-  created_at: string; // ISO date string
-  updated_at: string; // ISO date string
+  created_at?: string; // ISO date string
+  updated_at?: string; // ISO date string
 }
 
 export interface OrganizationRequest {

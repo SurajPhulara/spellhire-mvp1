@@ -23,7 +23,6 @@ class User(Base):
     status = Column(SQLEnum(UserStatus), default=UserStatus.PENDING_VERIFICATION, nullable=False)
     email_verified_at = Column(DateTime(timezone=True), nullable=True)
     last_login_at = Column(DateTime(timezone=True), nullable=True)
-    is_profile_complete = Column(Boolean, default=False, nullable=False)
     profile_picture_url = Column(String(500), nullable=True)
     created_at = Column(DateTime(timezone=True), default=datetime.utcnow, nullable=False)
     updated_at = Column(DateTime(timezone=True), default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
@@ -160,7 +159,7 @@ class EmployerProfile(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), unique=True, nullable=False)
-    organization_id = Column(UUID(as_uuid=True), ForeignKey("organizations.id", ondelete="CASCADE"), nullable=False)
+    organization_id = Column(UUID(as_uuid=True), ForeignKey("organizations.id", ondelete="CASCADE"), nullable=True)
     reporting_manager_id = Column(UUID(as_uuid=True), ForeignKey("employer_profiles.id"), nullable=True)
 
     # Basic fields (minimal placeholder)
@@ -185,6 +184,14 @@ class EmployerProfile(Base):
 
     # Skills
     skills = Column(JSON, default=[], nullable=True)
+    # Structure: [
+    #   {
+    #     "name": "Python",
+    #     "level": "advanced",  // beginner, intermediate, advanced, expert
+    #     "years_experience": 4,  // optional
+    #     "last_used": 2024       // optional
+    #   }
+    # ]
 
     # Status
     is_active = Column(Boolean, default=True, nullable=False)

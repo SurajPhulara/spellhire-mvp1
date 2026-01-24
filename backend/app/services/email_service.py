@@ -122,6 +122,7 @@ class EmailService:
         - from_name/from_email default to settings.EMAIL_FROM_NAME / settings.EMAIL_FROM
         - raise_on_error controls whether to raise exceptions to caller or just log them.
         """
+        return
         from_email = from_email or settings.EMAIL_FROM
         from_name = from_name or settings.EMAIL_FROM_NAME
         sender = f"{from_name} <{from_email}>" if from_name else from_email

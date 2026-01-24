@@ -8,6 +8,7 @@ import { UserType, AccessTokenResponse, UserSummary } from './base';
 export interface AuthRequest {
   email: string;
   password: string;
+  user_type: UserType;
 }
 
 export interface GoogleAuthRequest {
@@ -67,6 +68,7 @@ export interface AuthContextType extends AuthState {
   register: (email: string, password: string, userType: UserType) => Promise<void>;
   googleAuth: (googleToken: string, userType: UserType) => Promise<void>;
   logout: () => Promise<void>;
+  refreshAuth: () => Promise<void>;
 
   // forgotPassword: (email: string, userType: UserType) => Promise<void>;
   // resetPassword: (

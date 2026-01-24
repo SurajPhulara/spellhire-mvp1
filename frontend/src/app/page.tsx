@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { FaRocket, FaUsers, FaChartLine, FaMagic, FaSearch, FaStar, FaBriefcase, FaGraduationCap, FaHeart, FaBell, FaShieldAlt, FaTrophy, FaHandshake, FaLightbulb, FaCheckCircle, FaArrowRight, FaPlay } from 'react-icons/fa';
 import styles from './page.module.css';
 import { FiBriefcase, FiUser } from 'react-icons/fi';
+import { useRouter } from 'next/navigation';
 
 const recruiterFeatures = [
   {
@@ -69,6 +70,7 @@ const candidateFeatures = [
 
 export default function DynamicLandingPage() {
   const [selected, setSelected] = useState('recruiter');
+  const router = useRouter()
 
   const getHeroContent = () => {
     if (selected === 'recruiter') {
@@ -112,7 +114,7 @@ export default function DynamicLandingPage() {
   const featuresContent = getFeaturesContent();
 
   return (
-    <div className="w-full overflow-x-hidden text-slate-800 font-sans mb-12">
+    <div className="homepage-content w-full overflow-x-hidden text-slate-800 font-sans mb-12" >
       {/* Hero Section */}
       <div className="bg-linear-to-br from-slate-50 to-slate-100 pb-16 relative rounded-tr-lg rounded-tl-lg pt-12">
         {/* Background Pattern */}
@@ -121,34 +123,6 @@ export default function DynamicLandingPage() {
         }} />
 
         {/* Toggle */}
-        {/* <div className="flex justify-center pt-16 relative z-10">
-          <div className="relative w-80 h-14 bg-white rounded-full flex overflow-hidden font-semibold shadow-lg border border-slate-200">
-            <div
-              className={`absolute top-1 left-1 w-39 h-12 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full transition-transform duration-300 ease-out ${
-                selected === 'candidate' ? 'translate-x-39' : ''
-              }`}
-              style={{ width: '156px', transform: selected === 'candidate' ? 'translateX(156px)' : 'translateX(0)' }}
-            />
-            <button
-              className={`relative z-10 w-1/2 h-full flex justify-center items-center font-semibold text-base transition-colors duration-300 ${
-                selected === 'recruiter' ? 'text-white' : 'text-slate-500'
-              }`}
-              onClick={() => setSelected('recruiter')}
-            >
-              Job provider
-            </button>
-            <button
-              className={`relative z-10 w-1/2 h-full flex justify-center items-center font-semibold text-base transition-colors duration-300 ${
-                selected === 'candidate' ? 'text-white' : 'text-slate-500'
-              }`}
-              onClick={() => setSelected('candidate')}
-            >
-              Job seeker
-            </button>
-          </div>
-        </div> */}
-
-
         <div className={styles.toggleContainer}>
           <div className={styles.toggle}>
             <div

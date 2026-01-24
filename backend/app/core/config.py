@@ -86,6 +86,17 @@ class Settings(BaseSettings):
         "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
     )
 
+    # File Storage (AWS S3)
+    AWS_ACCESS_KEY_ID: Optional[str] = None
+    AWS_SECRET_ACCESS_KEY: Optional[str] = None
+    AWS_BUCKET_NAME: Optional[str] = None
+    AWS_REGION: str = "us-east-1"
+    
+    # Alternative File Storage (Cloudinary)
+    CLOUDINARY_CLOUD_NAME: Optional[str] = None
+    CLOUDINARY_API_KEY: Optional[str] = None
+    CLOUDINARY_API_SECRET: Optional[str] = None
+
     # ------------------------------------------------------------------
     # Rate Limiting
     # ------------------------------------------------------------------

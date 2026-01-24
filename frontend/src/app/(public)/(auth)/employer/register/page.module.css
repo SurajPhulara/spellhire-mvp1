@@ -1,0 +1,71 @@
+/* Add to your page.module.css */
+@import '../login/page.module.css'; /* ✅ Import shared variables and styles */
+
+
+/* Password Requirements */
+.passwordRequirements {
+  background: var(--background-light);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem;
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+}
+
+.passwordRequirements h4 {
+  margin: 0 0 0.75rem 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.passwordRequirements ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.passwordRequirements li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  transition: color 0.2s ease;
+}
+
+.requirementMet {
+  color: var(--success);
+}
+
+.requirementFailed {
+  color: var(--error);
+}
+
+.passwordRequirements svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 480px) {
+  .toggle {
+    width: 100%;
+    max-width: 300px;
+  }
+  
+  .option {
+    font-size: 0.85rem;
+  }
+  
+  .passwordRequirements {
+    padding: 0.75rem;
+  }
+  
+  .passwordRequirements li {
+    font-size: 0.75rem;
+  }
+}

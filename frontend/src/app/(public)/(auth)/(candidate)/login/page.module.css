@@ -1,0 +1,360 @@
+ /* app/(public)/(auth)/login/page.module.css */
+
+  
+  /* Loading Spinner */
+  .loadingContainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    width: 100%;
+  }
+  
+  .loadingSpinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid rgba(79, 70, 229, 0.1);
+    border-top: 4px solid var(--primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+  
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+  
+  /* Auth Container */
+  .authContainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 50px 0;
+    min-height: fit-content;
+    padding: 1rem;
+
+    width: 100%;
+  }
+  
+  .verification .authCard {
+    max-width: 480px;
+  }
+  
+  .authCard {
+    background-color: var(--background);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    padding: 2.5rem;
+    width: 100%;
+    max-width: 420px;
+    text-align: center;
+  }
+  
+  .authCard h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--text);
+  }
+  
+  .authSubtitle {
+    color: var(--text-light);
+    margin-bottom: 2rem;
+    font-size: 0.95rem;
+  }
+  
+  /* Input Groups */
+  .inputGroup {
+    position: relative;
+    margin-bottom: 1rem;
+  }
+  
+  .inputIcon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-light);
+    font-size: 1.1rem;
+  }
+  
+  .inputGroup input {
+    width: 100%;
+    padding: 0.75rem 1rem 0.75rem 2.5rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+  }
+  
+  .inputGroup input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+  }
+  
+  /* Buttons */
+  .authButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 0.75rem;
+    border-radius: var(--radius);
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-bottom: 1rem;
+    border: none;
+  }
+  
+  .primary {
+    background-color: var(--primary);
+    color: white;
+  }
+  
+  .primary:hover {
+    background-color: var(--primary-dark);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow);
+  }
+  
+  .secondary {
+    background-color: white;
+    color: var(--primary);
+    border: 1px solid var(--border);
+  }
+  
+  .secondary:hover {
+    background-color: var(--surface);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
+  }
+  
+  .google {
+    background-color: white;
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+  
+  .google:hover {
+    background-color: var(--surface);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
+  }
+  
+  .googleIcon {
+    font-size: 1.25rem;
+    margin-right: 0.5rem;
+  }
+  
+  .textButton {
+    background: none;
+    border: none;
+    color: var(--primary);
+    font-weight: 500;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: color 0.2s ease;
+    padding: 0.25rem 0.5rem;
+  }
+  
+  .textButton:hover {
+    color: var(--primary-dark);
+    text-decoration: underline;
+  }
+  
+  .textButton.secondary {
+    color: var(--text-light);
+  }
+  
+  .textButton.secondary:hover {
+    color: var(--text);
+    text-decoration: none;
+  }
+  
+  .backIcon {
+    margin-right: 0.25rem;
+    vertical-align: middle;
+  }
+  
+  /* Divider */
+  .authDivider {
+    display: flex;
+    align-items: center;
+    margin: 1.5rem 0;
+    color: var(--text-light);
+    font-size: 0.85rem;
+  }
+  
+  .authDivider::before,
+  .authDivider::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid var(--border);
+  }
+  
+  .authDivider::before {
+    margin-right: 0.5rem;
+  }
+  
+  .authDivider::after {
+    margin-left: 0.5rem;
+  }
+  
+  /* Footer */
+  .authFooter {
+    margin-top: 1.5rem;
+    color: var(--text-light);
+    font-size: 0.9rem;
+  }
+  
+  /* Error */
+  .authError {
+    display: flex;
+    align-items: center;
+    background-color: #ffebee;
+    color: var(--error);
+    padding: 0.75rem;
+    border-radius: var(--radius-sm);
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+    text-align: left;
+  }
+  
+  .errorIcon {
+    margin-right: 0.5rem;
+    flex-shrink: 0;
+  }
+  
+  /* Forgot Password */
+  .forgotPassword {
+    display: block;
+    text-align: right;
+    margin-bottom: 1rem;
+    font-size: 0.85rem;
+  }
+  
+  .forgotPasswordContainer {
+    background-color: #e3f2fd;
+    border: 1px solid #bbdefb;
+    border-radius: var(--radius);
+    padding: 1rem;
+    margin-bottom: 1rem;
+    text-align: left;
+  }
+  
+  .forgotPasswordMessage {
+    color: #1565c0;
+    font-size: 0.9rem;
+    margin-bottom: 0.75rem;
+  }
+  
+  .forgotPasswordActions {
+    display: flex;
+    gap: 0.75rem;
+  }
+  
+  /* Verification */
+  .verificationHeader {
+    margin-bottom: 1.5rem;
+  }
+  
+  .verificationSubtitle {
+    color: var(--text-light);
+    font-size: 0.95rem;
+    margin-bottom: 0.25rem;
+  }
+  
+  .verificationEmail {
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 1.5rem;
+  }
+  
+  .verificationTimer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    background-color: #f5f5f5;
+    border-radius: var(--radius);
+    margin-bottom: 1.5rem;
+    font-size: 0.9rem;
+  }
+  
+  .warning {
+    background-color: #ffebee;
+    color: var(--error);
+  }
+  
+  .timerIcon {
+    font-size: 1rem;
+  }
+  
+  .expired {
+    color: var(--error);
+  }
+  
+  .verificationActions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 1rem;
+  }
+  
+  /* Responsive */
+  @media (max-width: 480px) {
+    .authCard {
+      padding: 1.5rem;
+    }
+  
+    .verification .authCard {
+      padding: 2rem 1.5rem;
+    }
+  
+    .forgotPasswordActions {
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+  
+    .secondary {
+      margin-bottom: 0.5rem;
+    }
+  }
+  
+
+
+
+
+  .passwordToggle {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #666;
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    transition: color 0.2s;
+  }
+  
+  .passwordToggle:hover {
+    color: #333;
+  }
+  
+  .inputGroup {
+    position: relative;
+  }

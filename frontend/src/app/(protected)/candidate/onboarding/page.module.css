@@ -1,0 +1,138 @@
+/* Background Gradient */
+.bgGradient {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 3rem 1rem;
+}
+
+/* Container for the main content */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Card Styles */
+.card {
+  background-color: white;
+  border-radius: 1.5rem;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+  text-align: center;
+  animation: fadeIn 0.5s ease-out;
+}
+
+/* Header Text */
+.headerText {
+  font-size: 2.5rem;
+  font-weight: bold;
+  background: linear-gradient(to right, #6a4c9c, #533f91);
+  -webkit-background-clip: text;
+  color: transparent;
+  margin-bottom: 1rem;
+}
+
+/* Description */
+.description {
+  font-size: 1.125rem;
+  color: #4a4a4a;
+  max-width: 35rem;
+  margin: 0 auto;
+}
+
+/* Badge Container */
+.badgesContainer {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+/* Individual Badge */
+.badge {
+  background-color: #f3e5f5;
+  color: #6a4c9c;
+  padding: 0.5rem 1rem;
+  border-radius: 9999px;
+  font-size: 1rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Error Message Container */
+.errorContainer {
+  margin-bottom: 2rem;
+}
+
+/* Error Card */
+.errorCard {
+  background-color: white;
+  border-left: 4px solid #e53e3e;
+  border-radius: 1.25rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 1.5rem;
+}
+
+/* Error Icon */
+.errorIcon {
+  background-color: #fed7d7;
+  border-radius: 50%;
+  padding: 1rem;
+}
+
+.errorIconSVG {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: #e53e3e;
+}
+
+/* Error Text */
+.errorText {
+  flex-grow: 1;
+}
+
+.errorHeading {
+  font-size: 1.25rem;
+  color: #e53e3e;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.errorMessage {
+  font-size: 1rem;
+  color: #e53e3e;
+}
+
+/* Close Button */
+.closeButton {
+  background: none;
+  border: none;
+  color: #e53e3e;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+
+.closeButton:hover {
+  color: #c53030;
+}
+
+/* Close Icon */
+.closeIcon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+  
+/* Fade-In Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

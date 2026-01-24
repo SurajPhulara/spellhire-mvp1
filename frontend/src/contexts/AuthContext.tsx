@@ -17,6 +17,7 @@ import {
   UserType,
   AccessTokenResponse,
 } from '@/types';
+import { useRouter } from 'next/navigation';
 
 // ============================================================================
 // CONTEXT
@@ -45,6 +46,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
+  const router = useRouter()
+
   // ============================================================================
   // BOOTSTRAP AUTH (runs once on app load)
   // ============================================================================
@@ -57,39 +60,39 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // - We DO NOT store userType in localStorage
   // - Backend is the source of truth for roles
 
+  const refreshAuth = async () => {
+    try {
+      // 1. Check if tokens exist
+      const rawTokens = localStorage.getItem('auth_tokens');
+      if (!rawTokens) return;
+
+      // 2. Parse and register tokens with API client
+      const parsedTokens: AccessTokenResponse = JSON.parse(rawTokens);
+      AuthService.setAuthTokens(parsedTokens);
+      setTokens(parsedTokens);
+
+      // 3. Fetch current user (includes user_type)
+      const me = await AuthService.getCurrentUser();
+
+      setUser(me.data.user);
+      setIsAuthenticated(true);
+    } catch {
+      // If anything fails (expired token, bad data, network error):
+      // - Clear tokens
+      // - Reset auth state
+      localStorage.removeItem('auth_tokens');
+      AuthService.clearAuthTokens();
+
+      setUser(null);
+      setTokens(null);
+      setIsAuthenticated(false);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const initAuth = async () => {
-      try {
-        // 1. Check if tokens exist
-        const rawTokens = localStorage.getItem('auth_tokens');
-        if (!rawTokens) return;
-
-        // 2. Parse and register tokens with API client
-        const parsedTokens: AccessTokenResponse = JSON.parse(rawTokens);
-        AuthService.setAuthTokens(parsedTokens);
-        setTokens(parsedTokens);
-
-        // 3. Fetch current user (includes user_type)
-        const me = await AuthService.getCurrentUser();
-
-        setUser(me.data.user);
-        setIsAuthenticated(true);
-      } catch {
-        // If anything fails (expired token, bad data, network error):
-        // - Clear tokens
-        // - Reset auth state
-        localStorage.removeItem('auth_tokens');
-        AuthService.clearAuthTokens();
-
-        setUser(null);
-        setTokens(null);
-        setIsAuthenticated(false);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    initAuth();
+    refreshAuth();
   }, []);
 
   // ============================================================================
@@ -128,24 +131,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = async (
     email: string,
     password: string,
-    userType: UserType
+    user_type: UserType
   ) => {
     setIsLoading(true);
     try {
-      const res =
-        userType === UserType.CANDIDATE
-          ? await AuthService.loginCandidate({ email, password })
-          : await AuthService.loginEmployer({ email, password });
+      const res = await AuthService.login({email, password, user_type })
+      
+      if(!res.success)
+        toast.error(res.message);
+      else {
 
-      const { user, tokens } = res.data;
 
-      saveTokens(tokens);
-      setUser(user);
-      setTokens(tokens);
-      setIsAuthenticated(true);
+        const { user, tokens } = res.data;
 
-      toast.success('Logged in successfully');
+        saveTokens(tokens);
+        setUser(user);
+        setTokens(tokens);
+        setIsAuthenticated(true);
+        
+        toast.success('Logged in successfully');
+      }
     } catch (err) {
+      alert(err)
       toast.error('Login failed');
       throw err;
     } finally {
@@ -156,23 +163,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const register = async (
     email: string,
     password: string,
-    userType: UserType
+    user_type: UserType
   ) => {
     setIsLoading(true);
     try {
-      const res =
-        userType === UserType.CANDIDATE
-          ? await AuthService.registerCandidate({ email, password })
-          : await AuthService.registerEmployer({ email, password });
+      const res = await AuthService.register({ email, password, user_type });
 
-      const { user, tokens } = res.data;
+      if(!res.success)
+        toast.error(res.message);
+      else {
 
-      saveTokens(tokens);
-      setUser(user);
-      setTokens(tokens);
-      setIsAuthenticated(true);
+        const { user, tokens } = res.data;
 
-      toast.success('Account created');
+        saveTokens(tokens);
+        setUser(user);
+        setTokens(tokens);
+        setIsAuthenticated(true);
+
+        toast.success('Account created');
+      }
     } catch (err) {
       toast.error('Registration failed');
       throw err;
@@ -259,6 +268,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     logout,
 
     // updateUser,
+    refreshAuth
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

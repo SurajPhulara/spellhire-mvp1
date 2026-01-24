@@ -29,6 +29,16 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+# Build profile row; only set known keys to avoid unexpected columns
+allowed = {
+            "first_name", "last_name", "phone", "date_of_birth", "gender",
+            "address", "professional_summary", "total_experience",
+            "current_salary", "expected_salary", "preferred_job_type",
+            "preferred_work_mode", "preferred_locations", "notice_period",
+            "skills", "experience", "education", "languages", "certifications",
+            "portfolio_url", "linkedin_url", "github_url", "resume_url",
+            "is_active", "is_available_for_work"
+        }
 
 class CandidateService:
     @staticmethod
@@ -72,15 +82,6 @@ class CandidateService:
         if not user:
             raise NotFoundError("User not found")
 
-        # Build profile row; only set known keys to avoid unexpected columns
-        allowed = {
-            "first_name", "last_name", "phone", "date_of_birth", "gender",
-            "address", "professional_summary", "total_experience",
-            "current_salary", "expected_salary", "preferred_job_type",
-            "preferred_work_mode", "preferred_locations", "notice_period",
-            "skills", "experience", "education", "languages", "certifications",
-            "portfolio_url", "linkedin_url", "github_url", "resume_url",
-        }
         profile_kwargs = {k: v for k, v in payload.items() if k in allowed}
 
         profile = CandidateProfile(user_id=user_id, **profile_kwargs)
@@ -96,17 +97,8 @@ class CandidateService:
         - Only updates allowed fields and updates updated_at timestamp.
         Note: caller must commit the transaction.
         """
+        
         profile = await CandidateService.get_profile(db, user_id)
-
-        allowed = {
-            "first_name", "last_name", "phone", "date_of_birth", "gender",
-            "address", "professional_summary", "total_experience",
-            "current_salary", "expected_salary", "preferred_job_type",
-            "preferred_work_mode", "preferred_locations", "notice_period",
-            "skills", "experience", "education", "languages", "certifications",
-            "portfolio_url", "linkedin_url", "github_url", "resume_url",
-            "is_active", "is_available_for_work", "is_profile_complete"
-        }
 
         updated = False
         for k, v in payload.items():
@@ -116,6 +108,7 @@ class CandidateService:
 
         if updated:
             profile.updated_at = datetime.utcnow()
+            profile.is_profile_complete = True
             await db.flush()
 
         return profile

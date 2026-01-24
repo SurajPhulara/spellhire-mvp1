@@ -28,9 +28,8 @@ export class ProfileService {
 
   // Update Candidate Profile
   static async updateCandidateProfile(data: CandidateProfileRequest): Promise<ApiResponse<CandidateProfileResponse>> {
-
-    console.log("sjdgjhsga gahsdgajdsghaj")
-    return await apiClient.put<CandidateProfileResponse>('/candidate', data);
+    console.log("data.candidate", data.candidate)
+    return await apiClient.patch<CandidateProfileResponse>('/candidate', data.candidate);
   }
 
   // Get Candidate Profile (Public)
@@ -49,7 +48,7 @@ export class ProfileService {
 
   // Update Employer Profile
   static async updateEmployerProfile(data: EmployerRequest): Promise<ApiResponse<EmployerResponse>> {
-    return await apiClient.put<EmployerResponse>('/employer', data);
+    return await apiClient.patch<EmployerResponse>('/employer', data.employer);
   }
 
   // ============================================================================
@@ -63,7 +62,7 @@ export class ProfileService {
 
   // Update Organization Profile
   static async updateOrganizationProfile(data: OrganizationRequest): Promise<ApiResponse<OrganizationResponse>> {
-    return await apiClient.put<OrganizationResponse>('/organization', data);
+    return await apiClient.put<OrganizationResponse>('/organization', data.organization);
   }
 
   // Get Organization Profile (Public)

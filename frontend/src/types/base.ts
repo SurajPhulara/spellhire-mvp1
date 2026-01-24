@@ -53,10 +53,10 @@ export enum ExperienceLevel {
 }
 
 export enum SkillLevel {
-  BEGINNER = "beginner",
-  INTERMEDIATE = "intermediate",
-  ADVANCED = "advanced",
-  EXPERT = "expert",
+  BEGINNER = "BEGINNER",
+  INTERMEDIATE = "INTERMEDIATE",
+  ADVANCED = "ADVANCED",
+  EXPERT = "EXPERT",
 }
 
 export enum EmployerRole {
@@ -74,13 +74,20 @@ export enum CompanySize {
   SIZE_1000_PLUS = "SIZE_1000_PLUS",
 }
 
+
+export enum LanguageProficiency {
+  BASIC = "BASIC",
+  CONVERSATIONAL = "CONVERSATIONAL",
+  FLUENT = "FLUENT",
+  NATIVE = "NATIVE"
+}
+
 // ============================================================================
 // BASE TYPES
 // ============================================================================
 
 export interface TokenResponse {
   access_token: string;
-  refresh_token: string;
   token_type: string;
   expires_in: number;
 }
@@ -115,6 +122,7 @@ export interface UserSummary {
   status: UserStatus;
   profile_picture_url?: string;
   organization_name?: string;
+  organization_logo?:string;
   is_profile_complete: boolean;
 }
 
@@ -125,6 +133,7 @@ export interface UserSummary {
 export interface Skill {
   name: string;
   level: SkillLevel;
+  years_experience?: number;
 }
 
 export interface Experience {
@@ -147,7 +156,7 @@ export interface Education {
 
 export interface Language {
   name: string;
-  proficiency: string; // basic, conversational, fluent, native
+  proficiency: LanguageProficiency; // basic, conversational, fluent, native
 }
 
 export interface Certification {

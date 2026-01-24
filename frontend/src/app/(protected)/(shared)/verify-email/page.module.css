@@ -1,0 +1,251 @@
+/* app/(public)/(auth)/verify-email/page.module.css */
+
+/* Loading Spinner */
+.loadingContainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    width: 100%;
+  }
+  
+  .loadingSpinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid rgba(79, 70, 229, 0.1);
+    border-top: 4px solid var(--primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+  
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+  
+  /* Auth Container */
+  .authContainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 50px 0;
+    min-height: fit-content;
+    padding: 1rem;
+    width: 100%;
+  }
+  
+  .authCard {
+    background-color: var(--background);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    padding: 2.5rem;
+    width: 100%;
+    max-width: 480px;
+    text-align: center;
+  }
+  
+  .authCard h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--text);
+  }
+  
+  .authSubtitle {
+    color: var(--text-light);
+    margin-bottom: 2rem;
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+  
+  /* Verification Header */
+  .verificationHeader {
+    margin-bottom: 2rem;
+  }
+  
+  .iconWrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 1.5rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 50%;
+  }
+  
+  .mailIcon {
+    font-size: 2.5rem;
+    color: white;
+  }
+  
+  /* OTP Input Container */
+  .otpContainer {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+  }
+  
+  .otpInput {
+    width: 50px;
+    height: 56px;
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: 600;
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
+    transition: all 0.2s ease;
+    background-color: white;
+    color: var(--text);
+  }
+  
+  .otpInput:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+  }
+  
+  .otpInput:disabled {
+    background-color: var(--surface);
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+  
+  /* Buttons */
+  .authButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 0.75rem;
+    border-radius: var(--radius);
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-bottom: 1rem;
+    border: none;
+  }
+  
+  .primary {
+    background-color: var(--primary);
+    color: white;
+  }
+  
+  .primary:hover:not(:disabled) {
+    background-color: var(--primary-dark);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow);
+  }
+  
+  .primary:disabled {
+    background-color: #d1d5db;
+    cursor: not-allowed;
+    transform: none;
+  }
+  
+  .textButton {
+    background: none;
+    border: none;
+    color: var(--primary);
+    font-weight: 500;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: color 0.2s ease;
+    padding: 0.25rem 0.5rem;
+  }
+  
+  .textButton:hover:not(:disabled) {
+    color: var(--primary-dark);
+    text-decoration: underline;
+  }
+  
+  .textButton:disabled {
+    color: var(--text-light);
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+  
+  .textButton.secondary {
+    color: var(--text-light);
+  }
+  
+  .textButton.secondary:hover:not(:disabled) {
+    color: var(--text);
+    text-decoration: none;
+  }
+  
+  .backButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 1rem;
+  }
+  
+  .backIcon {
+    margin-right: 0.25rem;
+    vertical-align: middle;
+  }
+  
+  /* Error */
+  .authError {
+    display: flex;
+    align-items: center;
+    background-color: #ffebee;
+    color: var(--error);
+    padding: 0.75rem;
+    border-radius: var(--radius-sm);
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+    text-align: left;
+  }
+  
+  .errorIcon {
+    margin-right: 0.5rem;
+    flex-shrink: 0;
+  }
+  
+  /* Resend Text */
+  .resendText {
+    color: var(--text-light);
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+    text-align: center;
+  }
+  
+  .countdownText {
+    color: var(--text-light);
+    font-weight: 500;
+  }
+  
+  /* Responsive */
+  @media (max-width: 480px) {
+    .authCard {
+      padding: 1.5rem;
+    }
+  
+    .otpContainer {
+      gap: 0.5rem;
+    }
+  
+    .otpInput {
+      width: 42px;
+      height: 48px;
+      font-size: 1.25rem;
+    }
+  
+    .iconWrapper {
+      width: 70px;
+      height: 70px;
+    }
+  
+    .mailIcon {
+      font-size: 2rem;
+    }
+  }
