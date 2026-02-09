@@ -40,7 +40,7 @@ from app.models.user import (
     Token as TokenModel,
     UserSession,
 )
-from app.models.enums import UserType, UserStatus
+from app.models.enums import AuthMethod, UserType, UserStatus
 from app.services.email_service import EmailService
 from app.services.token_service import TokenService
 from app.schemas.user import UserSummary
@@ -202,7 +202,7 @@ class AuthService:
         background_tasks: Optional[BackgroundTasks] = None,
         send_verification: bool = True,
         create_tokens: bool = True,
-        provider: str = "EMAIL",
+        provider: AuthMethod = AuthMethod.EMAIL,
         organization_id: Optional[str] = None,  # For employer registration
     ) -> Dict[str, Any]:
         """
@@ -242,7 +242,7 @@ class AuthService:
 
         # 2. Hash password (if using email provider)
         password_hash = None
-        if provider.upper() == "EMAIL":
+        if provider == AuthMethod.EMAIL:
             if not password:
                 raise AppException("Password is required for email registration", status_code=400)
             password_hash = SecurityService.hash_password(password)
@@ -287,7 +287,7 @@ class AuthService:
         await db.flush()
 
         # 6. Generate and send OTP (using helper to avoid duplication)
-        if send_verification:
+        if send_verification and provider.upper() == "EMAIL":
             await AuthService._create_and_send_verification_otp(
                 db=db,
                 user=user,
@@ -302,10 +302,185 @@ class AuthService:
                 user_type=user_type,
                 db=db,
             )
+        else:
+            # Refresh user to load all relationships (this already happens in TokenService.create_token_pair so no need to refresh in that case)
+            await db.refresh(
+                user,
+                attribute_names=["roles", "candidate_profile", "employer_profile"]
+            )
 
         return {
             "user": UserSummary.model_validate(user_to_summary(user)),
             "tokens": tokens
+        }
+
+    @staticmethod
+    async def google_auth(
+        *,
+        db: AsyncSession,
+        google_token: str,
+        user_type: UserType,
+        user_agent: Optional[str] = None,
+        ip_address: Optional[str] = None,
+        background_tasks: Optional[BackgroundTasks] = None,
+    ) -> Dict[str, Any]:
+        """
+        Authenticate or register user via Google OAuth.
+
+        Flow:
+        1. Verify Google token and extract user info
+        2. Check if user exists by email
+        3. If exists: Login (verify role matches)
+        4. If new: Register with Google provider
+        5. Return user summary and tokens
+        """
+        import httpx
+
+        # 1. Verify Google token and get user info
+        try:
+            async with httpx.AsyncClient() as client:
+                response = await client.get(
+                    f"https://www.googleapis.com/oauth2/v3/userinfo",
+                    headers={"Authorization": f"Bearer {google_token}"}
+                )
+                
+                if response.status_code != 200:
+                    raise AuthenticationError("Invalid Google token")
+                
+                google_user = response.json()
+                
+        except Exception as e:
+            raise AuthenticationError(f"Failed to verify Google token: {str(e)}")
+
+        # Extract user info
+        email = google_user.get("email")
+        google_id = google_user.get("sub")
+        first_name = google_user.get("given_name", "")
+        last_name = google_user.get("family_name", "")
+        profile_picture = google_user.get("picture")
+        email_verified = google_user.get("email_verified", False)
+
+        if not email or not google_id:
+            raise AuthenticationError("Invalid Google user data")
+
+        # 2. Check if user exists
+        user = await AuthService._get_user(db, email=email)    
+        
+        # if not user:
+        #     user = await AuthService.register_user(
+        #         db=db,
+        #         email=email,
+        #         password=None,
+        #         user_type=user_type,
+        #         send_verification=False,
+        #         create_tokens=False,
+        #         background_tasks=background_tasks
+        #     )   
+        #     # user = await AuthService._get_user(db, email=email)
+            
+        #     # if not user:
+        #     #     raise AppException("Failed to create user", status_code=500) 
+
+        if user:
+            # # Existing user
+            has_role = any(role.role.value == user_type.value for role in user.roles)
+            
+            if not has_role:
+                # Add new role
+                role_row = UserRole(user_id=user.id, role=user_type)
+                db.add(role_row)
+                
+                # Create profile for new role
+                if user_type == UserType.CANDIDATE and not user.candidate_profile:
+                    profile = CandidateProfile(
+                        user_id=user.id,
+                        first_name=first_name,
+                        last_name=last_name,
+                    )
+                    db.add(profile)
+                elif user_type == UserType.EMPLOYER and not user.employer_profile:
+                    organization = await OrganizationService.create_organization(db)
+                    profile = EmployerProfile(
+                        user_id=user.id,
+                        organization_id=organization.id,
+                        first_name=first_name,
+                        last_name=last_name,
+                    )
+                    db.add(profile)
+                
+                await db.flush()
+
+            # Update provider info
+            if user.provider != AuthMethod.GOOGLE:
+                user.provider = AuthMethod.GOOGLE
+                user.provider_id = google_id
+            
+            # Update profile picture
+            if not user.profile_picture_url and profile_picture:
+                user.profile_picture_url = profile_picture
+            
+            # Check status
+            if user.status == UserStatus.SUSPENDED:
+                raise AuthenticationError("Your account has been suspended. Please contact support.")
+            
+            if user.status == UserStatus.DEACTIVATED:
+                raise AuthenticationError("Your account has been deactivated.")
+            
+            # Mark email as verified
+            if not user.email_verified_at and email_verified:
+                user.email_verified_at = datetime.now(timezone.utc)
+                user.status = UserStatus.ACTIVE
+                user.password_hash = None
+            
+            user.last_login_at = datetime.now(timezone.utc)
+            await db.flush()
+
+        else:
+            # New user - register
+            result = await AuthService.register_user(
+                db=db,
+                email=email,
+                password=None,
+                user_type=user_type,
+                send_verification=False,
+                create_tokens=False,
+                provider=AuthMethod.GOOGLE,
+                background_tasks=background_tasks
+            )
+            
+            user = await AuthService._get_user(db, email=email)
+            
+            if not user:
+                raise AppException("Failed to create user", status_code=500)
+            
+            # Update Google info
+            user.provider_id = google_id
+            user.profile_picture_url = profile_picture
+            user.email_verified_at = datetime.now(timezone.utc)
+            user.status = UserStatus.ACTIVE
+            
+            # Update profile names
+            if user_type == UserType.CANDIDATE and user.candidate_profile:
+                user.candidate_profile.first_name = first_name
+                user.candidate_profile.last_name = last_name
+            elif user_type == UserType.EMPLOYER and user.employer_profile:
+                user.employer_profile.first_name = first_name
+                user.employer_profile.last_name = last_name
+            
+            await db.flush()
+
+        # Create token pair
+        tokens = await TokenService.create_token_pair(
+            user_id=str(user.id),
+            user_type=user_type,
+            db=db,
+            user_agent=user_agent,
+            ip_address=ip_address,
+        )
+
+        return {
+            "user": UserSummary.model_validate(user_to_summary(user)),
+            "tokens": tokens,
         }
 
     @staticmethod

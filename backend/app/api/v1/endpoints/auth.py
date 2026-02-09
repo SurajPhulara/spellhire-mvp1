@@ -40,7 +40,7 @@ from app.services.session_service import (
     revoke_session_by_id,
     revoke_all_user_sessions,
 )
-from app.schemas.auth import AuthRequest, VerifyEmailRequest
+from app.schemas.auth import AuthRequest, GoogleAuthRequest, VerifyEmailRequest
 from app.schemas.user import UserSummary
 from app.core.security import get_current_user
 from app.core.rate_limit import limiter  # dependency that returns token payload / user claims
@@ -63,8 +63,8 @@ def _set_refresh_cookie(resp: Response, refresh_token: str, max_age_seconds: int
         key="refresh_token",
         value=refresh_token,
         httponly=True,
-        secure=secure_flag,
-        samesite="lax",
+        secure=False,
+        samesite="none",
         max_age=max_age_seconds,
         path="/api/v1/auth/",  # limit cookie to refresh endpoint (optional)
     )
@@ -159,9 +159,10 @@ async def login(
 # @limiter.limit("10/minute")
 @router.post("/google", status_code=status.HTTP_200_OK)
 async def google_auth(
-    token: str,
-    user_type: str,
+    request: Request,
+    payload: GoogleAuthRequest,
     response: Response,
+    background_tasks: BackgroundTasks,
     db: AsyncSession = Depends(get_db),
 ):
     """
@@ -169,13 +170,25 @@ async def google_auth(
     Expects `token` (google id token) and `user_type` ("CANDIDATE"|"EMPLOYER").
     """
     try:
-        result = await AuthService.google_auth(db=db, google_token=token, user_type=user_type)
+        if not payload.token or not payload.user_type:
+            return error_response(
+                message="Missing token or user_type",
+                status_code=400
+            )
+
+        user_agent = request.headers.get("user-agent")
+        ip_address = request.client.host if request.client else None
+
+        result = await AuthService.google_auth(db=db, google_token=payload.token, user_type=payload.user_type, user_agent=user_agent, ip_address=ip_address, background_tasks=background_tasks)
         user = result["user"]
         tokens = result["tokens"]
+
+        await db.commit()
 
         refresh_token = tokens.get("refresh_token")
         if refresh_token:
             _set_refresh_cookie(response, refresh_token, tokens.get("expires_in", settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60))
+            tokens.pop("refresh_token")
 
         return success_response(message="Logged in (google)", data={"user": UserSummary.model_validate(user), "tokens": {k: v for k, v in tokens.items() if k != "refresh_token"}})
     except AppException as e:

@@ -100,3 +100,20 @@ export function useApiCall<T = any>() {
     error,
   };
 }
+
+
+
+
+
+
+
+
+// ✅ Example usage (clean & readable)
+
+// const { call, loading, error } = useApiCall();
+
+// const handleSave = async () => {
+//   await call(() =>
+//     ProfileService.updateCandidateProfile(formData)
+//   );
+// };

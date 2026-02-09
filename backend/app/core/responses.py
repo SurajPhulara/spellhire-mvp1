@@ -19,6 +19,7 @@ from fastapi.encoders import jsonable_encoder
 def success_response(
     message: str = "OK",
     data: Optional[Any] = None,
+    meta: Optional[Any] = None,
     status_code: int = status.HTTP_200_OK,
     response: Optional[Response] = None,
 ) -> JSONResponse:
@@ -36,7 +37,7 @@ def success_response(
     Otherwise, a new JSONResponse is created and returned.
     
     """
-    payload: Dict[str, Any] = {"success": True, "message": message, "data": jsonable_encoder(data)}
+    payload: Dict[str, Any] = {"success": True, "message": message, "data": jsonable_encoder(data), "meta":meta}
 
     if response is not None:
         # FastAPI will serialize this dict using the provided response object

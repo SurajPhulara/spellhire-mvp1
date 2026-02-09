@@ -193,16 +193,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const googleAuth = async (googleToken: string, userType: UserType) => {
     setIsLoading(true);
     try {
-      const res =
-        userType === UserType.CANDIDATE
-          ? await AuthService.googleAuthCandidate({
-              google_token: googleToken,
+      const res = await AuthService.googleAuth({
+              token: googleToken,
               user_type: userType,
             })
-          : await AuthService.googleAuthEmployer({
-              google_token: googleToken,
-              user_type: userType,
-            });
 
       const { user, tokens } = res.data;
 

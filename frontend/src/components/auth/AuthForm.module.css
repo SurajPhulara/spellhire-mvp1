@@ -1,8 +1,5 @@
- /* app/(public)/(auth)/login/page.module.css */
-
-  
-  /* Loading Spinner */
-  .loadingContainer {
+/* Loading Spinner */
+.loadingContainer {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -37,7 +34,6 @@
     margin: 50px 0;
     min-height: fit-content;
     padding: 1rem;
-
     width: 100%;
   }
   
@@ -261,6 +257,76 @@
     gap: 0.75rem;
   }
   
+  /* Password Toggle */
+  .passwordToggle {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #666;
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    transition: color 0.2s;
+  }
+  
+  .passwordToggle:hover {
+    color: #333;
+  }
+  
+  /* Password Requirements */
+  .passwordRequirements {
+    background: var(--background-light);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem;
+    margin-bottom: 1rem;
+    font-size: 0.875rem;
+  }
+  
+  .passwordRequirements h4 {
+    margin: 0 0 0.75rem 0;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text);
+  }
+  
+  .passwordRequirements ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .passwordRequirements li {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+    transition: color 0.2s ease;
+  }
+  
+  .requirementMet {
+    color: var(--success);
+  }
+  
+  .requirementFailed {
+    color: var(--error);
+  }
+  
+  .passwordRequirements svg {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+  }
+  
   /* Verification */
   .verificationHeader {
     margin-bottom: 1.5rem;
@@ -328,33 +394,12 @@
     .secondary {
       margin-bottom: 0.5rem;
     }
-  }
   
-
-
-
-
-  .passwordToggle {
-    position: absolute;
-    right: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    background: none;
-    border: none;
-    color: #666;
-    cursor: pointer;
-    padding: 4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 18px;
-    transition: color 0.2s;
-  }
+    .passwordRequirements {
+      padding: 0.75rem;
+    }
   
-  .passwordToggle:hover {
-    color: #333;
-  }
-  
-  .inputGroup {
-    position: relative;
+    .passwordRequirements li {
+      font-size: 0.75rem;
+    }
   }

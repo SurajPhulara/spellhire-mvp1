@@ -18,8 +18,8 @@ export default function OnboardingPage() {
 
   useEffect(() => {
 
-    // if(user?.is_profile_complete)
-    //   router.push("/candidate/dashboard")
+    if(user?.is_profile_complete)
+      router.push("/candidate/dashboard")
 
     const fetchCandidateProfile = async () => {
       const response = await ProfileService.getCandidateProfile();

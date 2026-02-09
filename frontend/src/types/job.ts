@@ -74,9 +74,22 @@ export interface Job {
 // JOB REQUEST/RESPONSE TYPES
 // ============================================================================
 
-export interface JobRequest {
-  job: Omit<Job, 'id' | 'organization_id' | 'created_by_employer_id' | 'collaborator_employer_ids' | 'view_count' | 'application_count' | 'created_at' | 'updated_at' | 'published_at'>;
-}
+export type JobRequest = Omit<
+  Job,
+  | 'id'
+  | 'organization_id'
+  | 'created_by_employer_id'
+  | 'collaborator_employer_ids'
+  | 'view_count'
+  | 'application_count'
+  | 'created_at'
+  | 'updated_at'
+  | 'published_at'
+>;
+
+// export interface JobRequest {
+//   job: Omit<Job, 'id' | 'organization_id' | 'created_by_employer_id' | 'collaborator_employer_ids' | 'view_count' | 'application_count' | 'created_at' | 'updated_at' | 'published_at'>;
+// }
 
 export interface JobResponse {
   job: Job;

@@ -35,5 +35,7 @@ export default function ProtectedLayout({
     return <Loading message="" />;
   }
 
-  return children;
+  return <div className="min-h-screen min-w-screen page-content">
+    {children}
+  </div>;
 }

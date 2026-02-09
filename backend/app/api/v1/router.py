@@ -24,6 +24,7 @@ from app.api.v1.endpoints.auth import router as auth_router
 from app.api.v1.endpoints.candidate_profile import router as candidate_profile_router
 from app.api.v1.endpoints.employer_profile import router as employer_profile_router
 from app.api.v1.endpoints.organization_profile import router as organization_profile_router
+from app.api.v1.endpoints.jobs import router as jobs_router
 from app.api.v1.endpoints.files_management import router as files_management_router
 
 logger = logging.getLogger(__name__)
@@ -46,15 +47,18 @@ async def api_v1_root(request: Request):
         "path": str(request.url),
     }
 
+
 # ---------------------------------------------------------------------------
 # Authentication routes
 # ---------------------------------------------------------------------------
 api_router.include_router(auth_router, prefix="/auth", tags=["Authentication"], )
 
+
 # ---------------------------------------------------------------------------
 # Candidate profile routes
 # ---------------------------------------------------------------------------
 api_router.include_router(candidate_profile_router, prefix="/candidate", tags=["Candidate Profile"], )
+
 
 # ---------------------------------------------------------------------------
 # Employer profile routes
@@ -63,9 +67,15 @@ api_router.include_router(employer_profile_router, prefix="/employer", tags=["Em
 
 
 # ---------------------------------------------------------------------------
-# Erganization profile routes
+# Organization profile routes
 # ---------------------------------------------------------------------------
 api_router.include_router(organization_profile_router, prefix="/organization", tags=["Organization"], )
+
+
+# ---------------------------------------------------------------------------
+# Jobs routes
+# ---------------------------------------------------------------------------
+api_router.include_router(jobs_router, prefix="/jobs", tags=["Jobs"], )
 
 
 # ---------------------------------------------------------------------------

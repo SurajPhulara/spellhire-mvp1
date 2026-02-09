@@ -1,17 +1,14 @@
-// app/layout.tsx
 import type { Metadata } from "next";
 import { Figtree } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/contexts/AuthContext";
-import Footer from "@/components/Footer/Footer";
-import Navbar from "@/components/Navbar/Navbar";
 import { Toaster } from "react-hot-toast";
 
 const figtree = Figtree({
   variable: '--font-figtree',
   subsets: ['latin'],
-  display: 'swap', // Optimize font loading
-  preload: true, // Preload fonts for better performance
+  display: 'swap',
+  preload: true,
 });
 
 export const metadata: Metadata = {
@@ -21,22 +18,14 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang="en">
-      <body
-        className={`${figtree.variable} antialiased`}
-      >
+      <body className={`${figtree.variable} antialiased`}>
         <AuthProvider>
-          <div className="flex flex-col min-h-screen">
-            <Navbar />
-            <div className="min-h-screen min-w-screen page-content">
-              {children}
-            </div>
-            <Footer />
-          </div>
+          {children}
 
           <Toaster
             position="top-right"
@@ -48,18 +37,6 @@ export default function RootLayout({
                 border: '1px solid var(--border)',
                 boxShadow: 'var(--shadow)',
                 borderRadius: 'var(--radius-md)',
-              },
-              success: {
-                iconTheme: {
-                  primary: 'var(--success)',
-                  secondary: 'white',
-                },
-              },
-              error: {
-                iconTheme: {
-                  primary: 'var(--error)',
-                  secondary: 'white',
-                },
               },
             }}
           />

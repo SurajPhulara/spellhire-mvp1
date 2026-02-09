@@ -12,7 +12,7 @@ export interface AuthRequest {
 }
 
 export interface GoogleAuthRequest {
-  google_token: string;
+  token: string;
   user_type: UserType;
 }
 

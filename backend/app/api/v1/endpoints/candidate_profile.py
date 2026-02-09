@@ -15,6 +15,7 @@ Design notes:
 - Only users of type CANDIDATE may call these endpoints (require_candidate dependency).
 """
 import json
+from time import sleep
 from typing import Dict, Any
 import logging
 
@@ -42,9 +43,11 @@ async def get_my_profile(
     Return the authenticated candidate's profile.
     The require_candidate dependency guarantees the token belongs to a candidate.
     """
+
     user_id = current_user.get("sub")
     try:
         profile = await CandidateService.get_profile(db, user_id)
+        sleep(0.0001)
         return success_response(message="OK", data={"candidate": CandidateProfileSchema.model_validate(profile)})
     except NotFoundError as e:
         return error_response(message=str(e), status_code=status.HTTP_404_NOT_FOUND)
@@ -69,7 +72,7 @@ async def get_my_profile(
 #     """
 #     user_id = current_user.get("sub")
 #     try:
-#         profile = await CandidateService.create_profile(db, user_id, payload.dict(exclude_unset=True))
+#         profile = await CandidateService.create_profile(db, user_id, payload.model_dump(exclude_unset=True))
 #         await db.commit()
 #         await db.refresh(profile)
 #         return success_response(message="Profile created", data={"candidate": CandidateProfileSchema.model_validate(profile)}, status_code=status.HTTP_201_CREATED)

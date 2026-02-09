@@ -54,7 +54,7 @@ async def list_organizations(
     """
     try:
         orgs = await OrganizationService.list_organizations(db, query=q, limit=limit, offset=offset)
-        data = {"organizations": [OrganizationSchema.from_orm(o) for o in orgs]}
+        data = {"organizations": [OrganizationSchema.model_validate(o) for o in orgs]}
         return success_response(message="OK", data=data)
     except AppException as e:
         logger.exception("Error listing organizations: %s", e)
@@ -101,7 +101,7 @@ async def get_organization(
     """
     try:
         org = await OrganizationService.get_organization(db, organization_id)
-        return success_response(message="OK", data={"organization": OrganizationSchema.from_orm(org)})
+        return success_response(message="OK", data={"organization": OrganizationSchema.model_validate(org)})
     except NotFoundError as e:
         return error_response(message=str(e), status_code=status.HTTP_404_NOT_FOUND, errors=e.details)
     except AppException as e:
@@ -123,12 +123,12 @@ async def get_organization(
 #     - Endpoint commits the transaction on success.
 #     """
 #     try:
-#         org = await OrganizationService.create_organization(db, payload.dict(exclude_unset=True))
+#         org = await OrganizationService.create_organization(db, payload.model_dump(exclude_unset=True))
 #         await db.commit()
 #         await db.refresh(org)
 #         return success_response(
 #             message="Organization created",
-#             data={"organization": OrganizationSchema.from_orm(org)},
+#             data={"organization": OrganizationSchema.model_validate(org)},
 #             # some response helpers accept a status_code param; if yours does not, remove it.
 #         )
 #     except ConflictError as e:

@@ -45,15 +45,21 @@ export class AuthService {
   }
 
   // Google OAuth - Candidate
-  static async googleAuthCandidate(data: GoogleAuthRequest): Promise<ApiResponse<AuthResponse>> {
-    return apiClient.post<AuthResponse>('/auth/candidate/google', data);
+  static async googleAuth(data: GoogleAuthRequest): Promise<ApiResponse<AuthResponse>> {
+    console.log("dataaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa   :",data)
+    return apiClient.post<AuthResponse>('/auth/google', data);
   }
 
-  // Google OAuth - Employer
-  // NOTE: fixed missing leading slash if it was present previously.
-  static async googleAuthEmployer(data: GoogleAuthRequest): Promise<ApiResponse<AuthResponse>> {
-    return apiClient.post<AuthResponse>('/auth/employer/google', data);
-  }
+  // Google OAuth - Candidate
+  // static async googleAuthCandidate(data: GoogleAuthRequest): Promise<ApiResponse<AuthResponse>> {
+  //   return apiClient.post<AuthResponse>('/auth/candidate/google', data);
+  // }
+
+  // // Google OAuth - Employer
+  // // NOTE: fixed missing leading slash if it was present previously.
+  // static async googleAuthEmployer(data: GoogleAuthRequest): Promise<ApiResponse<AuthResponse>> {
+  //   return apiClient.post<AuthResponse>('/auth/employer/google', data);
+  // }
 
   // ============================================================================
   // TOKEN MANAGEMENT

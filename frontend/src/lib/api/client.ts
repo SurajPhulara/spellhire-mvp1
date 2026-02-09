@@ -75,8 +75,12 @@ export class ApiClient {
         }
       });
     }
-    
-    return url.toString();
+    // alert(url.toString().replace("http://localhost:8000", ""));
+    // alert(url.toString());
+
+    // just to remove the error in brave and firefox temporarily i am rewrouting it to server destination in next.config.js
+    // return url.toString()
+    return url.toString().replace("http://localhost:8000", "");
   }
 
   // Simple sleep used between retry attempts
@@ -277,6 +281,7 @@ export class ApiClient {
 // Default client instance
 // -----------------------------------------------------------------------------
 export const apiClient = new ApiClient({
+  // baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1/',
   baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1/',
   timeout: 10000,
   retries: 1,

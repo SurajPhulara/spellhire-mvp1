@@ -225,7 +225,7 @@ export default function EmployerSidebar() {
         onClick={() => setShowDrawer(prev => !prev)}
         aria-label="Toggle menu"
       >
-        {showDrawer ? <FiX size={24} /> : <FiMenu size={24} />}
+        {showDrawer ? <FiX size={24} color='white'/> : <FiMenu size={24} color='white'/>}
       </button>
 
       {showDrawer && (
