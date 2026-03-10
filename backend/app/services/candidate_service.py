@@ -18,7 +18,7 @@ Design principles:
 """
 from __future__ import annotations
 from typing import Optional, List, Dict, Any, Iterable
-from datetime import datetime
+from datetime import datetime, timezone
 
 from sqlalchemy import select, update, or_, func
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -107,7 +107,7 @@ class CandidateService:
                 updated = True
 
         if updated:
-            profile.updated_at = datetime.utcnow()
+            profile.updated_at = datetime.now(timezone.utc)
             profile.is_profile_complete = True
             await db.flush()
 
@@ -128,7 +128,7 @@ class CandidateService:
             return profile
 
         profile.resume_url = resume_url
-        profile.updated_at = datetime.utcnow()
+        profile.updated_at = datetime.now(timezone.utc)
         await db.flush()
         return profile
 

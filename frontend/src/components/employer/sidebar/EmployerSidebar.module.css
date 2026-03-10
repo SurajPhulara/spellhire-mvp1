@@ -13,12 +13,84 @@
   flex-direction: column;
   z-index: 10;
   border: 1px solid var(--border-light);
-  transition: all 0.3s ease;
+  transition: width 0.3s ease, padding 0.3s ease, box-shadow 0.3s ease;
   min-height: fit-content;
+  /* overflow: hidden; */
 }
 
 .sidebar:hover {
   box-shadow: 0 6px 25px rgba(79, 70, 229, 0.1);
+}
+
+/* 🔁 Collapsed State */
+.sidebar.collapsed {
+  width: 4.5rem;
+  padding: 1.5rem 0.75rem;
+  align-items: center;
+}
+
+.sidebar.collapsed .logoSection {
+  justify-content: center;
+}
+
+.sidebar.collapsed .navLink {
+  justify-content: center;
+  padding: 0.75rem;
+}
+
+.sidebar.collapsed .navLink.active {
+  padding-left: 0.75rem;
+  border-left: none;
+  border-radius: 0.75rem;
+  background: rgba(79, 70, 229, 0.1);
+  outline: 2px solid rgba(79, 70, 229, 0.3);
+  outline-offset: -2px;
+}
+
+.sidebar.collapsed .userProfile {
+  justify-content: center;
+  padding: 0.5rem;
+}
+
+.sidebar.collapsed .bottomSection {
+  align-items: center;
+  width: 100%;
+}
+
+/* 🔘 Collapse Toggle Button */
+.collapseBtn {
+  position: absolute;
+  top: 50%;
+  right: -0.85rem;
+  width: 1.75rem;
+  height: 1.75rem;
+  background: white;
+  /* border: 1.5px solid var(--border-light); */
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 20;
+  /* box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); */
+  transition: all 0.2s ease;
+  color: var(--text-secondary);
+}
+
+.collapseBtn:hover {
+  background: var(--primary, #4F46E5);
+  border-color: var(--primary, #4F46E5);
+  color: white;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+  transform: scale(1.1);
+}
+
+.collapseArrow {
+  transition: transform 0.3s ease;
+}
+
+.collapseArrowFlipped {
+  transform: rotate(180deg);
 }
 
 /* 🧱 Overlay */
@@ -66,6 +138,7 @@
   margin-bottom: 2rem;
   padding-bottom: 1.5rem;
   border-bottom: 1px solid var(--border-light);
+  overflow: hidden;
 }
 
 .logoLink {
@@ -75,24 +148,11 @@
   text-decoration: none;
   color: inherit;
   transition: transform 0.2s ease;
+  white-space: nowrap;
 }
 
 .logoLink:hover {
   transform: translateX(3px);
-}
-
-.logoIcon {
-  width: 2.5rem;
-  height: 2.5rem;
-  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-  color: white;
-  border-radius: 0.75rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-  font-size: 1.1rem;
-  box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3);
 }
 
 .logoImage {
@@ -100,6 +160,7 @@
   height: 2.5rem;
   border-radius: 0.75rem;
   object-fit: contain;
+  flex-shrink: 0;
 }
 
 .profileImage {
@@ -116,11 +177,14 @@
   background: linear-gradient(135deg, var(--primary), var(--primary-dark));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
 /* 🧱 Navigation */
 .navigation {
   flex: 1;
+  width: 100%;
 }
 
 .navList {
@@ -152,6 +216,8 @@
   font-size: 0.95rem;
   text-decoration: none;
   position: relative;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 .navLink:hover {
@@ -160,11 +226,15 @@
   transform: translateX(5px);
 }
 
+.sidebar.collapsed .navLink:hover {
+  transform: none;
+}
+
 .navLink:hover .navIcon {
   transform: scale(1.1);
 }
 
-/* 🎯 Active State Styling */
+/* 🎯 Active State */
 .navLink.active {
   background: rgba(79, 70, 229, 0.08);
   color: var(--primary);
@@ -186,6 +256,7 @@
   font-size: 1.1rem;
   width: 1.5rem;
   height: 1.5rem;
+  min-width: 1.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -194,7 +265,8 @@
 
 .navText {
   font-weight: 500;
-  transition: all 0.2s ease;
+  transition: opacity 0.2s ease;
+  overflow: hidden;
 }
 
 /* 🧱 Spacer */
@@ -210,6 +282,7 @@
   gap: 0.5rem;
   border-top: 1px solid var(--border-light);
   padding-top: 1rem;
+  width: 100%;
 }
 
 .logoutBtn {
@@ -221,6 +294,10 @@
   background: #fef2f2 !important;
   color: var(--error) !important;
   transform: translateX(5px) !important;
+}
+
+.sidebar.collapsed .logoutBtn:hover {
+  transform: none !important;
 }
 
 .logoutBtn .navIcon {
@@ -237,11 +314,16 @@
   cursor: pointer;
   transition: all 0.2s ease;
   margin-top: 0.5rem;
+  overflow: hidden;
 }
 
 .userProfile:hover {
   background: var(--bg-light);
   transform: translateX(3px);
+}
+
+.sidebar.collapsed .userProfile:hover {
+  transform: none;
 }
 
 .userAvatar {
@@ -261,6 +343,7 @@
 .userInfo {
   flex: 1;
   overflow: hidden;
+  white-space: nowrap;
 }
 
 .userName {
@@ -322,6 +405,11 @@
     overflow-y: auto;
   }
 
+  /* Hide collapse button on mobile */
+  .collapseBtn {
+    display: none;
+  }
+
   .sidebar.show {
     left: 0;
   }
@@ -339,6 +427,13 @@
   .logoSection {
     display: block;
   }
+
+  /* Always show full sidebar on mobile */
+  .sidebar.collapsed {
+    width: 80%;
+    padding: 1.5rem;
+    align-items: flex-start;
+  }
 }
 
 @media (max-width: 768px) {
@@ -349,7 +444,6 @@
 
   .menuFab {
     padding: 0.875rem;
-    /* right: 1.5rem; */
   }
 
   .navLink {

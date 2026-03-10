@@ -47,7 +47,7 @@ export default function EmployerOnboardingPage() {
 
       if (response.success && response.data) {
         // Employer profile created successfully - redirect to dashboard
-        router.push("/dashboard");
+        router.push("/employer/dashboard");
       } else {
         setError(response?.errors?.[0]?.message || "Failed to create employer profile");
       }

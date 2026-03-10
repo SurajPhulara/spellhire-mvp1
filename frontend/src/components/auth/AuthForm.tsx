@@ -1,13 +1,15 @@
 'use client';
 
 import { useState, useCallback, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { redirect, usePathname, useRouter } from 'next/navigation';
 import styles from './AuthForm.module.css';
 import { FiMail, FiLock, FiAlertCircle, FiCheck, FiX, FiEye, FiEyeOff } from 'react-icons/fi';
 import { useAuth } from '@/contexts/AuthContext';
 import { UserType } from '@/types';
 import Loading from '@/app/loading';
 import GoogleSignInButton from './GoogleSignInButton';
+import { getRedirectPath } from '@/lib/utils';
+import AuthService from '@/lib/api/services/auth';
 
 interface AuthFormProps {
   mode: 'login' | 'register';
@@ -36,7 +38,7 @@ export default function AuthForm({ mode, userType }: AuthFormProps) {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
-  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [showForgotPasswordMenu, setshowForgotPasswordMenu] = useState(false);
   const [showPasswordRequirements, setShowPasswordRequirements] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -48,20 +50,32 @@ export default function AuthForm({ mode, userType }: AuthFormProps) {
   const isRegister = mode === 'register';
   const isCandidate = userType === UserType.CANDIDATE;
 
-  // Redirect logic based on authentication state
-  useEffect(() => {
-    if (isLoading) return;
+  // const pathname = usePathname();
+  // useEffect(() => {
+  //   if (isLoading) return;
+  //   if (isAuthenticated && user) {
+  //     const redirectPath = getRedirectPath(user);
+  //     if (redirectPath !== pathname) {
+  //       redirect(redirectPath);
+  //     }
+  //   }
+  // }, [isAuthenticated, user, isLoading, pathname, user?.email_verified]);
+
+
+  // // Redirect logic based on authentication state
+  // useEffect(() => {
+  //   if (isLoading) return;
     
-    if (isAuthenticated && user) {
-      if (!user?.email_verified) {
-        router.push("/verify-email");
-      } else if (!user.is_profile_complete) {
-        router.push(isCandidate ? "/candidate/onboarding" : "/employer/onboarding");
-      } else {
-        router.push(isCandidate ? "/candidate/dashboard" : "/employer/dashboard");
-      }
-    }
-  }, [isAuthenticated, user, router, isLoading, isCandidate]);
+  //   if (isAuthenticated && user) {
+  //     if (!user?.email_verified) {
+  //       router.push("/verify-email");
+  //     } else if (!user.is_profile_complete) {
+  //       router.push(isCandidate ? "/candidate/onboarding" : "/employer/onboarding");
+  //     } else {
+  //       router.push(isCandidate ? "/candidate/dashboard" : "/employer/dashboard");
+  //     }
+  //   }
+  // }, [isAuthenticated, user, router, isLoading, isCandidate]);
 
   // Password validation
   const passwordValidation = validatePassword(password);
@@ -69,7 +83,7 @@ export default function AuthForm({ mode, userType }: AuthFormProps) {
   // Handle email/password authentication
   const handleEmailAuth = useCallback(async () => {
     setErrorMsg('');
-    setShowForgotPassword(false);
+    setshowForgotPasswordMenu(false);
 
     if (!email || !password) {
       setErrorMsg('Please enter both email and password.');
@@ -103,7 +117,7 @@ export default function AuthForm({ mode, userType }: AuthFormProps) {
       }
     } catch (error: any) {
       if (isRegister) {
-        if (error.response?.status === 409) {
+        if (error?.status === 409) {
           setErrorMsg(
             'An account with this email already exists. Please login instead. If you forgot your password, use the "Forgot Password" option on the login page.'
           );
@@ -111,9 +125,9 @@ export default function AuthForm({ mode, userType }: AuthFormProps) {
           setErrorMsg('An error occurred during registration. Please try again.');
         }
       } else {
-        if (error.response?.status === 401) {
+        if (error?.status === 401) {
           setErrorMsg('Invalid email or password. Please try again or reset your password.');
-          setShowForgotPassword(true);
+          setshowForgotPasswordMenu(true);
         } else {
           setErrorMsg('An error occurred during sign in. Please try again.');
         }
@@ -142,8 +156,9 @@ export default function AuthForm({ mode, userType }: AuthFormProps) {
 
     try {
       // TODO: Implement password reset API call
+      await AuthService.forgotPassword({email, "user_type":userType})
       setErrorMsg('Password reset email sent! Check your inbox.');
-      setShowForgotPassword(false);
+      setshowForgotPasswordMenu(false);
     } catch (error: any) {
       setErrorMsg('Error sending password reset email. Please try again.');
     }
@@ -287,7 +302,7 @@ export default function AuthForm({ mode, userType }: AuthFormProps) {
           </div>
         )}
 
-        {!isRegister && showForgotPassword ? (
+        {!isRegister && showForgotPasswordMenu ? (
           <div className={styles.forgotPasswordContainer}>
             <p className={styles.forgotPasswordMessage}>
               Forgot your password? We can send you a reset link.
@@ -301,7 +316,7 @@ export default function AuthForm({ mode, userType }: AuthFormProps) {
               </button>
               <button
                 className={styles.textButton}
-                onClick={() => setShowForgotPassword(false)}
+                onClick={() => setshowForgotPasswordMenu(false)}
               >
                 Cancel
               </button>
@@ -310,7 +325,7 @@ export default function AuthForm({ mode, userType }: AuthFormProps) {
         ) : !isRegister ? (
           <button
             className={`${styles.textButton} ${styles.forgotPassword}`}
-            onClick={() => setShowForgotPassword(true)}
+            onClick={() => setshowForgotPasswordMenu(true)}
           >
             Forgot password?
           </button>

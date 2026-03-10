@@ -252,7 +252,7 @@ async def delete_resume(current_user: dict = Depends(get_current_user), db: Asyn
 async def delete_profile_picture(current_user: dict = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     try:
         user_id = current_user.get("sub")
-        user = await AuthService._get_user(db, user_id)
+        user = await AuthService._get_user(db=db, user_id=user_id)
         if not user or not getattr(user, "profile_picture_url", None):
             return success_response(message="No profile picture found", data={})
 

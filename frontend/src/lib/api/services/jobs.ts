@@ -57,8 +57,8 @@ export class JobService {
   }
 
   // Update Job Status
-  static async updateJobStatus(jobId: string, data: JobStatusUpdateRequest): Promise<ApiResponse<JobResponse>> {
-    return await apiClient.patch<JobResponse>(`/jobs/${jobId}/status`, data.new_status);
+  static async updateJobStatus(jobId: string, status: JobStatus): Promise<ApiResponse<JobResponse>> {
+    return await apiClient.patch<JobResponse>(`/jobs/${jobId}`, null, {status});
   }
 
   // ============================================================================

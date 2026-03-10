@@ -218,7 +218,7 @@ export default function ManageJobsPage() {
         ) : (
           <>
             {/* Jobs Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            <div className="flex flex-wrap gap-6 mb-8">
               {jobs.map((job) => (
                 <JobCard
                   key={job.id}

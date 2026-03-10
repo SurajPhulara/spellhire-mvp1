@@ -14,7 +14,7 @@ This file exposes:
 """
 
 from __future__ import annotations
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional, Iterable, Callable
 
 import uuid
@@ -71,7 +71,7 @@ class SecurityService:
         - expires_delta: optional custom expiry; otherwise uses settings.ACCESS_TOKEN_EXPIRE_MINUTES
         """
         to_encode = data.copy()
-        expire = datetime.utcnow() + (expires_delta if expires_delta is not None else timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES))
+        expire = datetime.now(timezone.utc) + (expires_delta if expires_delta is not None else timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES))
         to_encode.update({"exp": expire, "type": "access"})
         token = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
         return token
@@ -85,7 +85,7 @@ class SecurityService:
         """
         jti = str(uuid.uuid4())
         to_encode = claims.copy()
-        expire = datetime.utcnow() + (expires_delta if expires_delta is not None else timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS))
+        expire = datetime.now(timezone.utc) + (expires_delta if expires_delta is not None else timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS))
         to_encode.update({"exp": expire, "type": "refresh", "jti": jti})
         token = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
         return token, jti

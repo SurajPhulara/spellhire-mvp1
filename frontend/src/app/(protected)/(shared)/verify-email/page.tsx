@@ -26,7 +26,7 @@ export default function VerifyEmailPage() {
 
   useEffect(() => {
     if (user?.email_verified)
-      router.push(user?.user_type == UserType.CANDIDATE ? "/candidate/onboarding" : "/organization/onboarding")
+      router.push(user?.user_type == UserType.CANDIDATE ? "/candidate/onboarding" : user.organization_name ? "/employer/onboarding" : "/organization/onboarding")
   }, [isLoading, isAuthenticated, user])
 
   // Initialize countdown from localStorage or set new timestamp
@@ -143,9 +143,9 @@ export default function VerifyEmailPage() {
       await AuthService.verifyEmail({ otp: otpString });
       await refreshAuth()
     } catch (error: any) {
-      if (error.response?.status === 400) {
+      if (error?.status === 400) {
         setErrorMsg('Invalid or expired code. Please try again.');
-      } else if (error.response?.status === 404) {
+      } else if (error?.status === 404) {
         setErrorMsg('Verification session not found. Please register again.');
       } else {
         setErrorMsg('An error occurred. Please try again.');

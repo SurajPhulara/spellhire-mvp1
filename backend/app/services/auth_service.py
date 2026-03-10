@@ -47,12 +47,12 @@ from app.schemas.user import UserSummary
 from app.services.organization_service import OrganizationService
 
 
-def user_to_summary(user: "User") -> UserSummary:
+def user_to_summary(user: "User", user_type:UserType) -> UserSummary:
     """
     Flatten a SQLAlchemy User model into a dictionary suitable for UserSummary.
     Combines User, CandidateProfile, and EmployerProfile.
     """
-    user_type = user.roles[0].role if user.roles else None
+    user_type = user_type or user.roles[0].role if user.roles else None
     candidate = user.candidate_profile
     employer = user.employer_profile
 
@@ -69,7 +69,7 @@ def user_to_summary(user: "User") -> UserSummary:
         organization_logo=employer.organization.logo_url if employer and employer.organization and employer.organization.logo_url else None,
         is_profile_complete=(
             candidate.is_profile_complete
-            if candidate
+            if user_type == UserType.CANDIDATE
             else (employer.is_profile_complete if employer else None)
         ),
     )
@@ -310,7 +310,7 @@ class AuthService:
             )
 
         return {
-            "user": UserSummary.model_validate(user_to_summary(user)),
+            "user": UserSummary.model_validate(user_to_summary(user, user_type)),
             "tokens": tokens
         }
 
@@ -469,6 +469,8 @@ class AuthService:
             
             await db.flush()
 
+        await db.refresh(user)
+            
         # Create token pair
         tokens = await TokenService.create_token_pair(
             user_id=str(user.id),
@@ -479,7 +481,7 @@ class AuthService:
         )
 
         return {
-            "user": UserSummary.model_validate(user_to_summary(user)),
+            "user": UserSummary.model_validate(user_to_summary(user, user_type)),
             "tokens": tokens,
         }
 
@@ -518,12 +520,12 @@ class AuthService:
         """
         # 1. Fetch user by email and role
         user = await AuthService._get_user(db, email=email, user_type=user_type)
-        if not user:
+        if not user or not user.password_hash:
             raise AuthenticationError("Invalid credentials")
 
         # 2. Reject OAuth-only users attempting password login
-        if not user.password_hash:
-            raise AuthenticationError("This account uses social login. Please use the appropriate login method.")
+        # if not user.password_hash:
+        #     raise AuthenticationError("This account uses social login. Please use the appropriate login method.")
 
         # 3. Verify password
         if not SecurityService.verify_password(password, user.password_hash):
@@ -559,7 +561,7 @@ class AuthService:
             )
 
         return {
-            "user": UserSummary.model_validate(user_to_summary(user)),
+            "user": UserSummary.model_validate(user_to_summary(user, user_type)),
             "tokens": tokens,
         }
 
@@ -594,7 +596,7 @@ class AuthService:
             raise AuthenticationError("Your account has been deactivated.")
 
         return {
-            "user": UserSummary.model_validate(user_to_summary(user))
+            "user": UserSummary.model_validate(user_to_summary(user, user_type))
         }
 
     @staticmethod
@@ -744,7 +746,7 @@ class AuthService:
 
         return {
             "message": "Email verified successfully",
-            # "user": UserSummary.model_validate(user_to_summary(user))
+            # "user": UserSummary.model_validate(user_to_summary(user, user_type))
         }
 
     @staticmethod
@@ -833,8 +835,8 @@ class AuthService:
             return {"message": success_message}
 
         # Don't send reset email to OAuth users
-        if not user.password_hash:
-            return {"message": success_message}
+        # if not user.password_hash:
+        #     return {"message": success_message}
 
         # 2. Invalidate old reset tokens
         q = select(TokenModel).where(
@@ -867,16 +869,16 @@ class AuthService:
                 background_tasks.add_task(
                     EmailService.send_password_reset_email,
                     to_email=user.email,
-                    token=reset_token,
+                    reset_token=reset_token,
                     expires_at=expires_at,
-                    user_id=str(user.id),
+                    # user_id=str(user.id),
                 )
             else:
                 EmailService.send_password_reset_email(
                     to_email=user.email,
                     token=reset_token,
                     expires_at=expires_at,
-                    user_id=str(user.id),
+                    # user_id=str(user.id),
                 )
         except Exception as e:
             # Log error but don't fail

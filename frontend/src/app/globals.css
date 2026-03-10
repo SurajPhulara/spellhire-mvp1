@@ -56,7 +56,7 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
+    /* --background: #0a0a0a; */
     --foreground: #ededed;
   }
 }
@@ -114,6 +114,9 @@ input, textarea, select {
 .page-content {
   padding: 64px 32px;
   background-color: #F6F4FF;
+  /* border: 2px solid black; */
+  /* width: fit-content; */
+  width: 100vw;
 }
 
 .page-content:has(.homepage-content) {

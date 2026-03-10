@@ -13,7 +13,7 @@ Design notes:
 
 from __future__ import annotations
 from typing import Optional, Dict, Any, Iterable
-from datetime import datetime
+from datetime import datetime, timezone
 
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -120,7 +120,7 @@ class EmployerService:
                 updated = True
 
         if updated:
-            profile.updated_at = datetime.utcnow()
+            profile.updated_at = datetime.now(timezone.utc)
             profile.is_profile_complete = True
             await db.flush()
 
@@ -148,7 +148,7 @@ class EmployerService:
             return profile
 
         profile.organization_id = organization_id
-        profile.updated_at = datetime.utcnow()
+        profile.updated_at = datetime.now(timezone.utc)
         await db.flush()
         return profile
 
@@ -162,7 +162,7 @@ class EmployerService:
         if not hasattr(profile, permission_flag):
             raise AppException(f"Invalid permission flag: {permission_flag}")
         setattr(profile, permission_flag, value)
-        profile.updated_at = datetime.utcnow()
+        profile.updated_at = datetime.now(timezone.utc)
         await db.flush()
         return profile
 

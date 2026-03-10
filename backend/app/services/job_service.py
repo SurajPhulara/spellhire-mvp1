@@ -26,8 +26,35 @@ class JobService:
     """
 
     @staticmethod
+    async def get_job_employer(db: AsyncSession, job_id: str, user_id: str) -> Job:
+        employer : EmployerProfile = await EmployerService.get_employer_profile(db, user_id)
+        q = select(Job).where(
+            (Job.id == job_id) 
+            &
+            (
+                (Job.created_by_employer_id == employer.id) 
+                |
+                (Job.collaborator_employer_ids.any(employer.id))
+            )
+        )
+        res = await db.execute(q)
+        job = res.scalars().first()
+        if not job:
+            raise NotFoundError("Job not found")
+        return job
+
+    @staticmethod
+    async def get_job_organization(db: AsyncSession, job_id: str, org_id: str) -> Job:
+        q = select(Job).where( (Job.id == job_id) & (Job.organization_id == org_id))
+        res = await db.execute(q)
+        job = res.scalars().first()
+        if not job:
+            raise NotFoundError("Job not found")
+        return job
+
+    @staticmethod
     async def get_job(db: AsyncSession, job_id: str) -> Job:
-        q = select(Job).where(Job.id == job_id)
+        q = select(Job).where((Job.id == job_id) & (Job.status != JobStatus.DRAFT))
         res = await db.execute(q)
         job = res.scalars().first()
         if not job:
@@ -219,15 +246,12 @@ class JobService:
         if not org:
             raise NotFoundError("Organization not found")
 
-
-        print("asdfghjkl")
-
         allowed = {
             "organization_id", "title", "description", "requirements", "responsibilities", "vacancies",
             "job_type", "work_mode", "experience_level", "required_skills", "preferred_skills",
             "minimum_years_experience", "location", "salary_min", "salary_max", "salary_currency",
             "salary_period", "category", "department", "benefits", "application_deadline",
-            "application_url", "is_featured", "collaborator_employer_ids"
+            "application_url", "is_featured", "collaborator_employer_ids", "status"
         }
         job_kwargs = {k: v for k, v in payload.items() if k in allowed}
         # ensure organization_id set
@@ -244,7 +268,7 @@ class JobService:
         """
         Update job fields. If employer_user_id provided, ensure the caller is the creator (basic permission).
         """
-        job = await JobService.get_job(db, job_id)
+        job = await JobService.get_job_employer(db, job_id, employer_user_id)
 
         # permission check: verify employer_user_id corresponds to created_by_employer_id
         if employer_user_id:
@@ -270,6 +294,11 @@ class JobService:
                 setattr(job, k, v)
                 updated = True
 
+        # remove status if it's draft
+        if hasattr(job, "status") and getattr(job, "status") == JobStatus.DRAFT:
+            delattr(job, "status")
+
+
         if updated:
             job.updated_at = datetime.now(timezone.utc)
             await db.flush()
@@ -278,14 +307,7 @@ class JobService:
 
     @staticmethod
     async def delete_job(db: AsyncSession, job_id: str, employer_user_id: Optional[str] = None) -> bool:
-        job = await JobService.get_job(db, job_id)
-        if employer_user_id:
-            q = select(EmployerProfile).where(EmployerProfile.user_id == employer_user_id)
-            r = await db.execute(q)
-            employer_profile = r.scalars().first()
-            if not employer_profile or str(job.created_by_employer_id) != str(employer_profile.id):
-                raise AppException("Forbidden: cannot delete job you didn't create", status_code=403)
-
+        job = await JobService.get_job_employer(db, job_id, employer_user_id)
         await db.delete(job)
         return True
 

@@ -12,7 +12,7 @@ Design notes:
 
 from __future__ import annotations
 from typing import Optional, List, Dict, Any
-from datetime import datetime
+from datetime import datetime, timezone
 
 from sqlalchemy import select, or_, func
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -111,8 +111,11 @@ class OrganizationService:
                 setattr(org, k, v)
                 updated = True
 
+        if hasattr(org, "contact_email") and org.contact_email == "":
+            org.contact_email = None
+
         if updated:
-            org.updated_at = datetime.utcnow()
+            org.updated_at = datetime.now(timezone.utc)
             await db.flush()
 
         return org

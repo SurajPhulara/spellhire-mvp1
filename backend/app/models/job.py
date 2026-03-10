@@ -17,7 +17,7 @@ class Job(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     organization_id = Column(UUID(as_uuid=True), ForeignKey("organizations.id", ondelete="CASCADE"), nullable=False)
     created_by_employer_id = Column(UUID(as_uuid=True), ForeignKey("employer_profiles.id"), nullable=False)
-    collaborator_employer_ids = Column(ARRAY(String), default=[], nullable=True)
+    collaborator_employer_ids = Column(ARRAY(UUID(as_uuid=True)), default=list, nullable=True)
     # metadata = Column(JSON, default={}, nullable=True)  # Future-proofing
 
     # Basic job information

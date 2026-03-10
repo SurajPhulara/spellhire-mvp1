@@ -17,7 +17,7 @@ Notes:
 """
 
 from typing import Optional, Iterable
-from datetime import datetime
+from datetime import datetime, timezone
 import uuid
 import hashlib
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -104,5 +104,5 @@ async def list_user_sessions(db: AsyncSession, user_id: uuid.UUID) -> Iterable[U
 
 async def mark_session_last_used(db: AsyncSession, session_id: uuid.UUID) -> None:
     """Update last_used_at timestamp for session."""
-    q = update(UserSession).where(UserSession.id == session_id).values(last_used_at=datetime.utcnow())
+    q = update(UserSession).where(UserSession.id == session_id).values(last_used_at=datetime.now(timezone.utc))
     await db.execute(q)

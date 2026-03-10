@@ -19,10 +19,10 @@ export default function AuthLayout({
   const { user, isAuthenticated, isLoading } = useAuth();
   const pathname = usePathname();
   useEffect(() => {
-    if (isAuthenticated && user && !isLoading) {
+    if (isLoading) return;
+    if (isAuthenticated && user) {
       const redirectPath = getRedirectPath(user);
       if (redirectPath !== pathname) {
-        console.log('redirecting to', redirectPath);
         redirect(redirectPath);
       }
     }

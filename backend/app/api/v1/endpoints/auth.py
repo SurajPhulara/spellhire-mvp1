@@ -40,7 +40,7 @@ from app.services.session_service import (
     revoke_session_by_id,
     revoke_all_user_sessions,
 )
-from app.schemas.auth import AuthRequest, GoogleAuthRequest, VerifyEmailRequest
+from app.schemas.auth import AuthRequest, ForgotPasswordRequest, GoogleAuthRequest, ResetPasswordRequest, VerifyEmailRequest
 from app.schemas.user import UserSummary
 from app.core.security import get_current_user
 from app.core.rate_limit import limiter  # dependency that returns token payload / user claims
@@ -63,8 +63,8 @@ def _set_refresh_cookie(resp: Response, refresh_token: str, max_age_seconds: int
         key="refresh_token",
         value=refresh_token,
         httponly=True,
-        secure=False,
-        samesite="none",
+        secure=True,
+        samesite="lax",
         max_age=max_age_seconds,
         path="/api/v1/auth/",  # limit cookie to refresh endpoint (optional)
     )
@@ -190,7 +190,7 @@ async def google_auth(
             _set_refresh_cookie(response, refresh_token, tokens.get("expires_in", settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60))
             tokens.pop("refresh_token")
 
-        return success_response(message="Logged in (google)", data={"user": UserSummary.model_validate(user), "tokens": {k: v for k, v in tokens.items() if k != "refresh_token"}})
+        return success_response(message="Logged in (google)", data={"user": UserSummary.model_validate(user), "tokens": {k: v for k, v in tokens.items() if k != "refresh_token"}}, response=response,)
     except AppException as e:
         logger.info("Google auth failed: %s", e)
         return error_response(message=str(e), status_code=e.status_code, errors=e.details)
@@ -230,7 +230,7 @@ async def logout(request: Request, response: Response, db: AsyncSession = Depend
         await db.commit()
     finally:
         # Always clear refresh cookie client-side
-        response.delete_cookie("refresh_token", path="/api/v1/auth/refresh")
+        response.delete_cookie("refresh_token", path="/api/v1/auth/")
     return success_response(message="Logged out", data={})
 
 
@@ -261,12 +261,12 @@ async def refresh_token(request: Request, response: Response, refresh_token: Opt
 
 
 @router.post("/forgot-password", status_code=status.HTTP_200_OK)
-async def forgot_password(request: Request, background_tasks: BackgroundTasks, db: AsyncSession = Depends(get_db)):
+async def forgot_password(request: Request, payload: ForgotPasswordRequest, background_tasks: BackgroundTasks, db: AsyncSession = Depends(get_db)):
     """
     Trigger password reset email. Body expected: {"email": "...", "user_type": "CANDIDATE"|"EMPLOYER"}
     """
     try:
-        await AuthService.forgot_password(db=db, email=request.get("email"), user_type=request.get("user_type"), background_tasks=background_tasks)
+        await AuthService.forgot_password(db=db, email=payload.email, background_tasks=background_tasks)
         return success_response(message="Password reset email sent", data={})
     except AppException as e:
         logger.info("Forgot password failed: %s", e)
@@ -274,13 +274,13 @@ async def forgot_password(request: Request, background_tasks: BackgroundTasks, d
 
 
 @router.post("/reset-password", status_code=status.HTTP_200_OK)
-async def reset_password(request: Request, db: AsyncSession = Depends(get_db)):
+async def reset_password(request: Request, payload:ResetPasswordRequest, db: AsyncSession = Depends(get_db)):
     """
     Reset password endpoint.
-    Body expected: {"email": "...", "user_type": "...", "otp": "...", "new_password": "..."}
+    Body expected: {"email": "...", "token": "...", "new_password": "..."}
     """
     try:
-        await AuthService.reset_password(db=db, email=request.get("email"), user_type=request.get("user_type"), otp=request.get("otp"), new_password=request.get("new_password"))
+        await AuthService.reset_password(db=db, token=payload.token, new_password=payload.new_password)
         return success_response(message="Password reset", data={})
     except AppException as e:
         logger.info("Reset password failed: %s", e)
@@ -363,7 +363,7 @@ async def logout_all(db: AsyncSession = Depends(get_db), current_user: dict = De
         await revoke_all_user_sessions(db, user_id)
         # Clear refresh cookie
         if response:
-            response.delete_cookie("refresh_token", path="/api/v1/auth/refresh")
+            response.delete_cookie("refresh_token", path="/api/v1/auth/")
         return success_response(message="Logged out from all devices", data={})
     except AppException as e:
         return error_response(message=str(e), status_code=e.status_code, errors=e.details)

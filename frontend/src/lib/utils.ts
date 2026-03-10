@@ -5,14 +5,14 @@ import { UserType, UserSummary } from "@/types/base";
 /**
  * Check if user is an employer
  */
-export function isEmployer(user: UserSummary | null | undefined): user is UserSummary {
+export function isEmployer(user: UserSummary | null | undefined): boolean {
   return user?.user_type === "EMPLOYER";
 }
 
 /**
  * Check if user is a candidate
  */
-export function isCandidate(user: UserSummary | null | undefined): user is UserSummary {
+export function isCandidate(user: UserSummary | null | undefined): boolean {
   return user?.user_type === "CANDIDATE";
 }
 
@@ -29,12 +29,7 @@ export function isEmailVerified(user: UserSummary | null | undefined): user is U
 export function isProfileComplete(user: UserSummary | null | undefined): user is UserSummary {
   if (!user) return false;
   
-  if (isEmployer(user)) {
-    return user.is_profile_complete === true;
-  }
-  
-  // For candidates, we'll check this via profile endpoint
-  return false;
+  return user.is_profile_complete === true;
 }
 
 /**
@@ -44,7 +39,7 @@ export function getDashboardRoute(user: UserSummary | null | undefined): string 
   if (!user) return "/";
   
   if (isCandidate(user)) {
-    return "/candidate/jobs";
+    return "/candidate/dashboard";
   }
   else {
     return "/employer/dashboard";
@@ -59,10 +54,10 @@ export function getOnboardingRoute(user: UserSummary | null | undefined): string
   if (!user) return "/";
   
   if (isCandidate(user)) {
-    return "/onboarding";
+    return "/candidate/onboarding";
   }
   else {
-    return "/employer/onboarding";
+    return user.organization_name ? "/employer/onboarding" : "/organization/onboarding";
   }
   
 }
@@ -80,7 +75,7 @@ export function getRedirectPath(user: UserSummary | null | undefined): string {
   }
   
   // Check profile completion
-  if (!isProfileComplete(user)) {
+  if (!user.is_profile_complete) {
     return getOnboardingRoute(user);
   }
   

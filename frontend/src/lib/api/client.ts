@@ -181,7 +181,7 @@ export class ApiClient {
           return this.makeRequest(endpoint, config, attempt + 1);
         }
 
-        console.log('error', error);
+        // console.log('error', error);
         throw new ApiException(error.message, error.status, error.errors);
       }
 

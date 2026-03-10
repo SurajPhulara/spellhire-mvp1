@@ -49,9 +49,7 @@ class ForgotPasswordRequest(BaseModel):
 
 
 class ResetPasswordRequest(BaseModel):
-    email: EmailStr = Field(description="Registered user email", example="john.doe@example.com")
-    user_type: UserType = Field(description="User type (candidate or employer)", example="CANDIDATE")
-    otp: str = Field(description="OTP received via email", example="123456")
+    token: str = Field(description="OTP received via email", example="123456")
     new_password: str = Field(min_length=8, max_length=128, description="New password", example="NewSecurePass123!")
 
     @field_validator("new_password")

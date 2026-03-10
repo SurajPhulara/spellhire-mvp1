@@ -46,7 +46,6 @@ export class AuthService {
 
   // Google OAuth - Candidate
   static async googleAuth(data: GoogleAuthRequest): Promise<ApiResponse<AuthResponse>> {
-    console.log("dataaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa   :",data)
     return apiClient.post<AuthResponse>('/auth/google', data);
   }
 

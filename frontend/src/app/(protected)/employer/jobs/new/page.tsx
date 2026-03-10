@@ -114,7 +114,7 @@ export default function NewJobPage() {
           mode="create"
           onSubmit={handleSubmit}
           isSubmitting={isSubmitting}
-          submitButtonText="Post Job"
+          submitButtonText="Publish"
         />
 
         {/* Tips Section */}

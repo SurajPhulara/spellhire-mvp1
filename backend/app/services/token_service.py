@@ -13,7 +13,7 @@ Responsibilities:
 """
 
 from __future__ import annotations
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional, Dict, Any
 
 import uuid
@@ -38,7 +38,7 @@ class TokenService:
     """DB-backed token management using JTI stored in user_sessions."""
 
     @staticmethod
-    async def _fetch_user_claims(user_id: str, db: AsyncSession) -> dict:
+    async def _fetch_user_claims(user_id: str, user_type: UserType, db: AsyncSession) -> dict:
         stmt = (
             select(User)
             .options(
@@ -66,9 +66,23 @@ class TokenService:
         }
 
         # Determine role
-        primary_role = user.roles[0].role if user.roles else None
-        claims["user_type"] = primary_role.value if primary_role else None
+        role = next(
+            (
+                role
+                for role in user.roles
+                if role.role.value == user_type.value
+            ),
+            None,
+        )
 
+        if not role:
+            raise AuthenticationError(
+                f"User does not have role {user_type.value}"
+            )
+
+
+        claims["user_type"] = role.role.value 
+        
         # Candidate
         if user.candidate_profile:
             claims.update({
@@ -106,15 +120,15 @@ class TokenService:
         manage_session = False
         if db is None:
             async with AsyncSessionLocal() as session:
-                result = await TokenService._create_token_pair_internal(user_id, session, user_agent, ip_address, commit=True)
+                result = await TokenService._create_token_pair_internal(user_id, user_type, session, user_agent, ip_address, commit=True)
                 return result
 
-        return await TokenService._create_token_pair_internal(user_id, db, user_agent, ip_address, commit=False)
+        return await TokenService._create_token_pair_internal(user_id, user_type, db, user_agent, ip_address, commit=False)
 
     @staticmethod
-    async def _create_token_pair_internal(user_id: str, db: AsyncSession, user_agent: Optional[str], ip_address: Optional[str], commit: bool) -> Dict[str, Any]:
+    async def _create_token_pair_internal(user_id: str, user_type: UserType, db: AsyncSession, user_agent: Optional[str], ip_address: Optional[str], commit: bool) -> Dict[str, Any]:
         # 1) fetch latest claims for user
-        user_claims = await TokenService._fetch_user_claims(user_id, db)
+        user_claims = await TokenService._fetch_user_claims(user_id=user_id, user_type=user_type, db=db)
 
         # 2) base claims - minimal identity
         base_claims = {"sub": user_id}
@@ -127,14 +141,14 @@ class TokenService:
         refresh_token, jti = SecurityService.create_refresh_token(claims)
 
         # 5) persist session row with jti
-        expires_at = datetime.utcnow() + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
+        expires_at = datetime.now(timezone.utc) + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
         session_row = UserSession(
             user_id=uuid.UUID(user_id),
             jti=jti,
             device=user_agent,
             ip_address=ip_address,
             user_agent=user_agent,
-            created_at=datetime.utcnow(),
+            created_at=datetime.now(timezone.utc),
             expires_at=expires_at,
             revoked_at=None,
             last_used_at=None,
@@ -183,6 +197,7 @@ class TokenService:
             payload = SecurityService.verify_refresh_token(refresh_token)
             jti = payload.get("jti")
             user_id = payload.get("sub")
+            user_type = UserType(payload.get("user_type"))
             if not jti or not user_id:
                 raise AuthenticationError("Invalid refresh token payload")
 
@@ -195,17 +210,17 @@ class TokenService:
             # checks
             if session_row.revoked_at is not None:
                 raise AuthenticationError("Refresh token revoked")
-            if session_row.expires_at < datetime.utcnow():
+            if session_row.expires_at < datetime.now(timezone.utc):
                 raise AuthenticationError("Refresh token expired")
 
             # create new token pair (rotation)
-            new_tokens = await TokenService.create_token_pair(user_id=str(session_row.user_id), db=db, user_agent=user_agent, ip_address=ip_address)
+            new_tokens = await TokenService.create_token_pair(user_id=str(session_row.user_id), user_type=user_type, db=db, user_agent=user_agent, ip_address=ip_address)
 
             # revoke old session
             await db.execute(
                 update(UserSession)
                 .where(UserSession.id == session_row.id)
-                .values(revoked_at=datetime.utcnow())
+                .values(revoked_at=datetime.now(timezone.utc))
             )
 
             if commit:
@@ -233,11 +248,11 @@ class TokenService:
 
             if db is None:
                 async with AsyncSessionLocal() as session:
-                    await session.execute(update(UserSession).where(UserSession.jti == jti).values(revoked_at=datetime.utcnow()))
+                    await session.execute(update(UserSession).where(UserSession.jti == jti).values(revoked_at=datetime.now(timezone.utc)))
                     await session.commit()
                     return True
 
-            await db.execute(update(UserSession).where(UserSession.jti == jti).values(revoked_at=datetime.utcnow()))
+            await db.execute(update(UserSession).where(UserSession.jti == jti).values(revoked_at=datetime.now(timezone.utc)))
             return True
         except AuthenticationError:
             return False
@@ -252,11 +267,11 @@ class TokenService:
             user_uuid = uuid.UUID(user_id)
             if db is None:
                 async with AsyncSessionLocal() as session:
-                    await session.execute(update(UserSession).where(UserSession.user_id == user_uuid).values(revoked_at=datetime.utcnow()))
+                    await session.execute(update(UserSession).where(UserSession.user_id == user_uuid).values(revoked_at=datetime.now(timezone.utc)))
                     await session.commit()
                     return True
 
-            await db.execute(update(UserSession).where(UserSession.user_id == user_uuid).values(revoked_at=datetime.utcnow()))
+            await db.execute(update(UserSession).where(UserSession.user_id == user_uuid).values(revoked_at=datetime.now(timezone.utc)))
             return True
         except Exception as e:
             logger.exception("Error revoking all tokens")

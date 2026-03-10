@@ -92,44 +92,7 @@ class CandidateProfileSchema(BaseModel):
     model_config = {
         "from_attributes": True
     }
-    # class Config:
-    #     orm_mode = True
-    #     title = "Candidate"
-    #     schema_extra = {
-    #         "example": {
-    #             "id": str(uuid.uuid4()),
-    #             "user_id": str(uuid.uuid4()),
-    #             "first_name": "John",
-    #             "last_name": "Doe",
-    #             "phone": "+91-9876543210",
-    #             "date_of_birth": "1996-07-15",
-    #             "gender": "MALE",
-    #             "address": "123 MG Road, Mumbai",
-    #             "profile_picture_url": "https://cdn.example.com/profile/abcd.jpg",
-    #             "professional_summary": "Full-stack developer with 3 years of experience.",
-    #             "total_experience": 3.5,
-    #             "current_salary": 600000.0,
-    #             "expected_salary": 900000.0,
-    #             "preferred_job_type": "FULL_TIME",
-    #             "preferred_work_mode": "REMOTE",
-    #             "preferred_locations": ["Bengaluru", "Pune"],
-    #             "notice_period": 30,
-    #             "skills": ["python", "react", "sql"],
-    #             "experience": [{"company": "Acme", "role": "Developer", "from": "2021-01", "to": "2023-06"}],
-    #             "education": [{"degree": "B.Tech", "institution": "IIT Bombay", "year": 2019}],
-    #             "languages": ["English", "Hindi"],
-    #             "certifications": [{"name": "AWS Certified Developer", "year": 2022}],
-    #             "portfolio_url": "https://portfolio.example.com/john",
-    #             "linkedin_url": "https://www.linkedin.com/in/johndoe",
-    #             "github_url": "https://github.com/johndoe",
-    #             "resume_url": "https://cdn.example.com/resumes/john.pdf",
-    #             "is_active": True,
-    #             "is_available_for_work": True,
-    #             "is_profile_complete": False,
-    #             "created_at": "2025-12-20T12:34:56Z",
-    #             "updated_at": "2025-12-21T08:22:30Z"
-    #         }
-    #     }
+    
 
 
 # ---------------------------
@@ -171,36 +134,3 @@ class EmployerProfileSchema(BaseModel):
     updated_at: Optional[datetime] = Field(None, description="Updated at (UTC)", example="2025-12-21T08:22:30Z")
 
     model_config = ConfigDict(from_attributes=True)
-
-
-    # class Config:
-    #     orm_mode = True
-    #     title = "Employer"
-    #     schema_extra = {
-    #         "example": {
-    #             "id": str(uuid.uuid4()),
-    #             "user_id": str(uuid.uuid4()),
-    #             "organization_id": str(uuid.uuid4()),
-    #             "reporting_manager_id": None,
-    #             "first_name": "Priya",
-    #             "last_name": "Shah",
-    #             "phone": "+91-9123456780",
-    #             "gender": "FEMALE",
-    #             "department": "Engineering",
-    #             "profile_picture_url": "https://cdn.example.com/profile/priya.jpg",
-    #             "job_title": "Head of Talent",
-    #             "employment_type": "FULL_TIME",
-    #             "role": "ADMIN",
-    #             "hire_date": "2020-08-01",
-    #             "work_phone": "+91-1122334455",
-    #             "work_location": "Bengaluru, India",
-    #             "bio": "HR leader with 8 years experience.",
-    #             "has_recruiter_permission": True,
-    #             "can_interview": True,
-    #             "skills": ["hiring", "interviewing"],
-    #             "is_active": True,
-    #             "is_profile_complete": False,
-    #             "created_at": "2025-12-20T12:34:56Z",
-    #             "updated_at": "2025-12-21T08:22:30Z"
-    #         }
-    #     }
