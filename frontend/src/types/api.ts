@@ -1,5 +1,6 @@
 // API Types - API response wrappers, error types, and client configuration
 
+
 // ============================================================================
 // API RESPONSE WRAPPER
 // ============================================================================
@@ -8,12 +9,35 @@ export interface ApiResponse<T = any> {
   success: boolean;
   message: string;
   data: T;
-  // errors?: Record<string, any>;
+
+  /** Optional metadata (pagination, etc.) */
+  meta?: Record<string, any>;
+
   /** Field or grouped errors */
   errors?: any;
+
+  /** Additional details */
   details?: string;
-  meta?: Record<string, any>;
 }
+
+// ============================================================================
+// PAGINATION META (STRICT)
+// ============================================================================
+
+export interface PaginationMeta {
+  total: number;
+  limit: number;
+  offset: number;
+  has_next: boolean;
+  has_prev: boolean;
+}
+
+
+// ============================================================================
+// PAGINATED RESPONSE (GENERIC)
+// ============================================================================
+
+export type PaginatedApiResponse<T> = ApiResponse<T> & { meta: PaginationMeta }
 
 // ============================================================================
 // ERROR TYPES

@@ -78,6 +78,19 @@ class Job(Base):
     )
 
 
+class SavedJob(Base):
+    __tablename__ = "saved_jobs"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    job_id = Column(UUID(as_uuid=True), ForeignKey("jobs.id", ondelete="CASCADE"), nullable=False)
+    candidate_id = Column(UUID(as_uuid=True), ForeignKey("candidate_profiles.id", ondelete="CASCADE"), nullable=False)
+    created_at = Column(DateTime(timezone=True), default=datetime.utcnow, nullable=False)
+
+    __table_args__ = (
+        Index("ix_saved_jobs_candidate_id", "candidate_id"),
+        Index("ix_saved_jobs_job_candidate_unique", "job_id", "candidate_id", unique=True),
+    )
+
 class Pipeline(Base):
     """
     Recruitment pipeline for a job. Defines stages for application tracking.

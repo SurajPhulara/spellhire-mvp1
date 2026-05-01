@@ -4,13 +4,9 @@ import {
   Job,
   JobRequest,
   JobResponse,
-  JobPublicResponse,
   JobSearchFilters,
-  JobListResponse,
-  JobListPublicResponse,
-  JobStatusUpdateRequest,
+  JobListResponse,  
   JobManagementFilters,
-  JobStats,
   JobStatus,
   ApiResponse,
 } from '@/types';
@@ -28,16 +24,16 @@ export class JobService {
   // Get Organization Jobs
   static async getOrganizationJobs(filters?: JobManagementFilters): Promise<ApiResponse<JobListResponse>> {
     const params = new URLSearchParams();
-    
-    if (filters?.page) params.append('page', filters.page.toString());
-    if (filters?.limit) params.append('limit', filters.limit.toString());
-    if (filters?.status_filter) params.append('status_filter', filters.status_filter);
-    if (filters?.sort_by) params.append('sort_by', filters.sort_by);
-    if (filters?.sort_order) params.append('sort_order', filters.sort_order);
-
+  
+    if (filters?.offset !== undefined) params.append('offset', filters.offset.toString());
+    if (filters?.status_filter) params.append('status', filters.status_filter);
+    if (filters?.q) params.append('q', filters.q);
+    // if (filters?.job_type) params.append('job_type', filters.job_type);
+    // if (filters?.work_mode) params.append('work_mode', filters.work_mode);
+  
     const queryString = params.toString();
-    const url = queryString ? `/jobs/?${queryString}` : '/jobs/';
-    
+    const url = `/jobs/organization/?${queryString}`;
+  
     return await apiClient.get<JobListResponse>(url);
   }
 
@@ -61,51 +57,80 @@ export class JobService {
     return await apiClient.patch<JobResponse>(`/jobs/${jobId}`, null, {status});
   }
 
+
+
+  // ============================================================================
+  // SAVED JOBS ENDPOINTS (Candidate Only)
+  // ============================================================================
+
+
+  // apply to a job
+  static async applyToJob(jobId: string): Promise<ApiResponse<any>> {
+    return await apiClient.post<any>(`/jobs/${jobId}/apply`, {});
+  }
+
+  
+  // Save (bookmark) a job
+  static async saveJob(jobId: string): Promise<ApiResponse<{ job_id: string }>> {
+    return await apiClient.post<{ job_id: string }>(`/jobs/${jobId}/save`);
+  }
+
+  // Unsave a job
+  static async unsaveJob(jobId: string): Promise<ApiResponse<{ message: string }>> {
+    return await apiClient.delete<{ message: string }>(`/jobs/${jobId}/save`);
+  }
+
+  // Get saved jobs (paginated)
+  static async getSavedJobs(offset: number = 0): Promise<ApiResponse<JobListResponse>> {
+    const params = new URLSearchParams();
+    params.append('offset', offset.toString());
+
+    const url = `/jobs/saved?${params.toString()}`;
+    return await apiClient.get<JobListResponse>(url);
+  }
+
+
   // ============================================================================
   // JOB SEARCH ENDPOINTS (Public)
   // ============================================================================
 
-  // Search Jobs (Public)
-  static async searchJobs(filters?: JobSearchFilters): Promise<ApiResponse<JobListPublicResponse>> {
+  static async searchJobs(
+    filters?: JobSearchFilters
+  ): Promise<ApiResponse<JobListResponse>> {
     const params = new URLSearchParams();
-    
-    if (filters?.title) params.append('title', filters.title);
-    if (filters?.category) params.append('category', filters.category);
-    if (filters?.job_type) params.append('job_type', filters.job_type);
-    if (filters?.work_mode) params.append('work_mode', filters.work_mode);
-    if (filters?.experience_level) params.append('experience_level', filters.experience_level);
-    if (filters?.location_city) params.append('location_city', filters.location_city);
-    if (filters?.location_country) params.append('location_country', filters.location_country);
-    if (filters?.salary_min) params.append('salary_min', filters.salary_min.toString());
-    if (filters?.salary_max) params.append('salary_max', filters.salary_max.toString());
-    if (filters?.required_skills) params.append('required_skills', filters.required_skills);
-    if (filters?.is_featured !== undefined) params.append('is_featured', filters.is_featured.toString());
-    if (filters?.organization_id) params.append('organization_id', filters.organization_id);
-    if (filters?.page) params.append('page', filters.page.toString());
-    if (filters?.limit) params.append('limit', filters.limit.toString());
-    if (filters?.sort_by) params.append('sort_by', filters.sort_by);
-    if (filters?.sort_order) params.append('sort_order', filters.sort_order);
-
-    const queryString = params.toString();
-    const url = queryString ? `/jobs/candidate/?${queryString}` : '/jobs/candidate/';
-    
-    return await apiClient.get<JobListPublicResponse>(url);
+ 
+    if (filters?.q)                   params.append('q',                filters.q);
+    if (filters?.job_type)            params.append('job_type',         filters.job_type);
+    if (filters?.work_mode)           params.append('work_mode',        filters.work_mode);
+    if (filters?.experience_level)    params.append('experience_level', filters.experience_level);
+    if (filters?.category)            params.append('category',         filters.category);
+    if (filters?.location_city)       params.append('location_city',    filters.location_city);
+    if (filters?.location_country)    params.append('location_country', filters.location_country);
+    if (filters?.salary_min)          params.append('salary_min',       filters.salary_min.toString());
+    if (filters?.required_skills)     params.append('required_skills',  filters.required_skills);
+    if (filters?.is_featured != null) params.append('is_featured',      filters.is_featured.toString());
+    if (filters?.sort_by)             params.append('sort_by',          filters.sort_by);
+    if (filters?.sort_order)          params.append('sort_order',       filters.sort_order);
+    if (filters?.offset != null)      params.append('offset',           filters.offset.toString());
+ 
+    const url = `/jobs/?${params.toString()}`;
+    return await apiClient.get<JobListResponse>(url);
   }
 
   // Get Featured Jobs
-  static async getFeaturedJobs(limit?: number): Promise<ApiResponse<JobListPublicResponse>> {
+  static async getFeaturedJobs(limit?: number): Promise<ApiResponse<JobListResponse>> {
     const params = new URLSearchParams();
     if (limit) params.append('limit', limit.toString());
     
     const queryString = params.toString();
     const url = queryString ? `/jobs/featured?${queryString}` : '/jobs/featured';
     
-    return await apiClient.get<JobListPublicResponse>(url);
+    return await apiClient.get<JobListResponse>(url);
   }
 
   // Get Job Details (Public)
-  static async getJobPublic(jobId: string): Promise<ApiResponse<JobPublicResponse>> {
-    return await apiClient.get<JobPublicResponse>(`/jobs/${jobId}`, undefined, 'same-origin');
+  static async getJobPublic(jobId: string): Promise<ApiResponse<JobResponse>> {
+    return await apiClient.get<JobResponse>(`/jobs/id/${jobId}`, undefined, 'same-origin');
   }
 
   // ============================================================================
@@ -299,29 +324,6 @@ export class JobService {
     });
 
     return params.toString();
-  }
-
-  // Parse search results for display
-  static parseSearchResults(response: ApiResponse<JobListPublicResponse>): {
-    jobs: Job[];
-    pagination: {
-      total: number;
-      page: number;
-      page_size: number;
-      has_next: boolean;
-      has_prev: boolean;
-    };
-  } {
-    return {
-      jobs: response.data.jobs as Job[],
-      pagination: {
-        total: response.data.total,
-        page: response.data.page,
-        page_size: response.data.page_size,
-        has_next: response.data.has_next,
-        has_prev: response.data.has_prev,
-      },
-    };
   }
 }
 

@@ -98,14 +98,6 @@ export interface AccessTokenResponse {
   expires_in: number;
 }
 
-export interface PaginationMeta {
-  page: number;
-  per_page: number;
-  total_pages: number;
-  total_items: number;
-  has_next: boolean;
-  has_prev: boolean;
-}
 
 export interface PaginatedResponse<T = any> {
   data: T[];

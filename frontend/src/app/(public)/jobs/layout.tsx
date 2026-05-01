@@ -12,18 +12,21 @@ export default function CandidateLayout({ children }: { children: React.ReactNod
 
     const {user} = useAuth()
 
-    useEffect(()=>{
-        if(user?.user_type != UserType.CANDIDATE)
-            router.replace("/")
-    },[user])
+    // useEffect(()=>{
+    //     if(user?.user_type != UserType.CANDIDATE)
+    //         router.replace("/")
+    // },[user])
     
 
-    const showSidebar = !pathname.includes("onboarding");
+    const showSidebar = user?.user_type == UserType.CANDIDATE;
 
     return (
-        <div className="flex gap-6" style={{ '--sidebar-top': '50px' }}>
+        <div className="flex gap-6">
             {showSidebar && <CandidateSidebar />}
+
+        <div className="flex-1">
             {children}
+            </div>
         </div>
     );
 }

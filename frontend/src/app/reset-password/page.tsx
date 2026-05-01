@@ -61,7 +61,8 @@ function ResetPasswordForm() {
   const pwMatch  = confirmPw ? newPassword === confirmPw : null;
 
   // If the link is missing the token — show an error state immediately
-  const invalidLink = !token;
+  const invalidLink = !token
+  ;
 
   const canSubmit =
     !invalidLink &&

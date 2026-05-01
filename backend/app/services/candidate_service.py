@@ -20,12 +20,15 @@ from __future__ import annotations
 from typing import Optional, List, Dict, Any, Iterable
 from datetime import datetime, timezone
 
+from pydantic import UUID4
 from sqlalchemy import select, update, or_, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.exceptions import AppException, NotFoundError, ConflictError
 from app.models.user import CandidateProfile, User  # assumes models exist at this path
 import logging
+
+from app.models.job import SavedJob
 
 logger = logging.getLogger(__name__)
 
@@ -171,3 +174,4 @@ class CandidateService:
         stmt = stmt.order_by(CandidateProfile.created_at.desc()).limit(limit).offset(offset)
         res = await db.execute(stmt)
         return res.scalars().all()
+

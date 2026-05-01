@@ -96,7 +96,7 @@ export default function CandidateSidebar() {
     { 
       id: 'dashboard', 
       text: 'Dashboard', 
-      href: '/dashboard', 
+      href: '/candidate/dashboard', 
       icon: (
         <svg className={styles.navIcon} viewBox="0 0 24 24" fill="none">
           <path d="M3 3H10V10H3V3Z" stroke="#4F46E5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -120,7 +120,7 @@ export default function CandidateSidebar() {
     { 
       id: 'applied', 
       text: 'Applied Jobs', 
-      href: '/jobs/applied', 
+      href: '/candidate/jobs/applied', 
       icon: (
         <svg className={styles.navIcon} viewBox="0 0 24 24" fill="none">
           <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="#10B981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -130,7 +130,7 @@ export default function CandidateSidebar() {
     { 
       id: 'saved', 
       text: 'Saved Jobs', 
-      href: '/jobs/saved', 
+      href: '/candidate/jobs/saved', 
       icon: (
         <svg className={styles.navIcon} viewBox="0 0 24 24" fill="none">
           <path d="M5 5C5 3.89543 5.89543 3 7 3H17C18.1046 3 19 3.89543 19 5V21L12 17.5L5 21V5Z" stroke="#EF4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -140,7 +140,7 @@ export default function CandidateSidebar() {
     { 
       id: 'messages', 
       text: 'Messages', 
-      href: '/messages', 
+      href: '/candidate/messages', 
       icon: (
         <svg className={styles.navIcon} viewBox="0 0 24 24" fill="none">
           <path d="M21 15C21 15.5304 20.7893 16.0391 20.4142 16.4142C20.0391 16.7893 19.5304 17 19 17H7L3 21V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H19C19.5304 3 20.0391 3.21071 20.4142 3.58579C20.7893 3.96086 21 4.46957 21 5V15Z" stroke="#8B5CF6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>

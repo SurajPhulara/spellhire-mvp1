@@ -70,6 +70,58 @@ export interface Job {
   published_at?: string; // ISO date string
 }
 
+export interface JobPublic {
+  id: string;
+  organization_id: string;
+
+  // 👇 added fields from backend join
+  organization_name: string;
+  logo_url?: string;
+
+  title: string;
+  description?: string;
+  requirements?: string;
+  responsibilities?: string;
+  vacancies?: number;
+
+  job_type: JobType;
+  work_mode: WorkMode;
+  experience_level: ExperienceLevel;
+
+  required_skills?: string[];
+  preferred_skills?: string[];
+  minimum_years_experience?: number;
+
+  location?: {
+    city?: string;
+    state?: string;
+    country?: string;
+  };
+
+  salary_min?: number;
+  salary_max?: number;
+  salary_currency?: string;
+  salary_period?: string;
+
+  category?: string;
+  department?: string;
+  benefits?: string[];
+
+  application_deadline?: string;
+  application_url?: string;
+
+  status?: JobStatus;
+  is_featured?: boolean;
+  view_count?: number;
+  application_count?: number;
+
+  created_at?: string;
+  updated_at?: string;
+  published_at?: string;
+}
+
+
+
 // ============================================================================
 // JOB REQUEST/RESPONSE TYPES
 // ============================================================================
@@ -92,52 +144,36 @@ export type JobRequest = Omit<
 // }
 
 export interface JobResponse {
-  job: Job;
+  job: Job | JobPublic;
 }
 
-export interface JobPublicResponse {
-  job: Omit<Job, 'created_by_employer_id' | 'collaborator_employer_ids' | 'metadata' | 'view_count' | 'application_count'>;
-}
+// export interface JobPublicResponse {
+//   job: Omit<Job, 'created_by_employer_id' | 'collaborator_employer_ids' | 'metadata' | 'view_count' | 'application_count'>;
+// }
 
 // ============================================================================
 // JOB SEARCH AND FILTERING
 // ============================================================================
 
 export interface JobSearchFilters {
-  title?: string;
-  category?: string;
+  q?: string;                        // search across title + description
   job_type?: JobType;
   work_mode?: WorkMode;
   experience_level?: ExperienceLevel;
+  category?: string;
   location_city?: string;
   location_country?: string;
   salary_min?: number;
-  salary_max?: number;
-  required_skills?: string;
+  required_skills?: string;          // comma-separated: "python,react"
   is_featured?: boolean;
-  organization_id?: string;
-  page?: number;
-  limit?: number;
-  sort_by?: string;
+  sort_by?: 'published_at' | 'salary_min' | 'title' | 'created_at';
   sort_order?: 'asc' | 'desc';
+  offset?: number;
+  // NOTE: limit is hardcoded on the backend — do NOT send it
 }
 
 export interface JobListResponse {
-  jobs: Job[];
-  total: number;
-  page: number;
-  page_size: number;
-  has_next: boolean;
-  has_prev: boolean;
-}
-
-export interface JobListPublicResponse {
-  jobs: Omit<Job, 'created_by_employer_id' | 'collaborator_employer_ids' | 'metadata' | 'view_count' | 'application_count'>[];
-  total: number;
-  page: number;
-  page_size: number;
-  has_next: boolean;
-  has_prev: boolean;
+  jobs: Job[] | JobPublic[];
 }
 
 // ============================================================================
@@ -154,8 +190,9 @@ export interface JobStatusUpdateRequest {
 
 export interface JobManagementFilters {
   page?: number;
-  limit?: number;
+  offset?: number;
   status_filter?: JobStatus;
+  q?: string;
   sort_by?: string;
   sort_order?: 'asc' | 'desc';
 }
@@ -176,26 +213,27 @@ export interface JobStats {
 }
 
 // ============================================================================
-// JOB APPLICATION TYPES (for future use)
+// JOB APPLICATION TYPES 
 // ============================================================================
-
-export interface JobApplication {
+export interface PipelineStage {
   id: string;
-  job_id: string;
-  candidate_id: string;
-  status: ApplicationStatus;
-  cover_letter?: string;
-  resume_url?: string;
-  applied_at: string; // ISO date string
-  updated_at: string; // ISO date string
+  name: string;
+  order: number;
 }
 
-export interface JobApplicationRequest {
-  job_id: string;
-  cover_letter?: string;
-  resume_url?: string;
+export interface AppliedJobItem {
+  id: string; // application id
+  status: string;
+  current_stage_id: string | null;
+  applied_at: string;
+  last_updated_at: string;
+  stage_updated_at?: string;
+  job: Partial<JobPublic>;
+  pipeline: {
+    stages: PipelineStage[];
+  };
 }
 
-export interface JobApplicationResponse {
-  application: JobApplication;
+export interface AppliedJobsResponse {
+  applications: AppliedJobItem[];
 }

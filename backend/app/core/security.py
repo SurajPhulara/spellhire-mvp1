@@ -22,7 +22,7 @@ import logging
 
 from jose import JWTError, jwt
 from passlib.context import CryptContext
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -135,6 +135,21 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
     except Exception as e:
         logger.exception("Unexpected token validation error")
         raise AuthenticationError("Invalid authentication credentials")
+
+async def get_current_user_optional(request: Request) -> Optional[dict]:
+    try:
+        auth = request.headers.get("Authorization")
+        if not auth:
+            return None
+
+        scheme, token = auth.split()
+        if scheme.lower() != "bearer":
+            return None
+
+        return SecurityService.verify_access_token(token)
+
+    except Exception:
+        return None
 
 
 def require_user_type(*allowed_types: str) -> Callable:

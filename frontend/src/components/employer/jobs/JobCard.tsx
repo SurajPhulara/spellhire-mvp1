@@ -319,7 +319,7 @@ export default function JobCard({ job, onStatusUpdate, onDelete }: JobCardProps)
 
             {job.status !== JobStatus.DRAFT ? (
               <button
-                onClick={(e) => { e.preventDefault(); router.push(`/employer/jobs/${job.id}/applications`) }}
+                onClick={(e) => { e.stopPropagation(); e.preventDefault(); router.push(`/employer/jobs/${job.id}/applications`) }}
                 disabled={isUpdating}
                 className={styles.trackButton}
               >

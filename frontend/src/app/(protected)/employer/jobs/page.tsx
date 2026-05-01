@@ -4,6 +4,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import JobCard from "@/components/employer/jobs/JobCard";
+import Pagination from "@/components/ui/Pagination";
 import { JobService } from "@/lib/api/services/jobs";
 import { Job, JobStatus, JobManagementFilters } from "@/types";
 
@@ -13,18 +14,18 @@ export default function ManageJobsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<JobStatus | "">("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pagination, setPagination] = useState({
+  const [offset, setOffset] = useState(0);
+  const [meta, setMeta] = useState({
     total: 0,
-    page: 1,
-    page_size: 9,
+    limit: 9,
+    offset: 0,
     has_next: false,
     has_prev: false,
   });
 
   useEffect(() => {
     fetchJobs();
-  }, [statusFilter, currentPage]);
+  }, [statusFilter, offset]);
 
   const fetchJobs = async () => {
     setIsLoading(true);
@@ -32,24 +33,15 @@ export default function ManageJobsPage() {
 
     try {
       const filters: JobManagementFilters = {
-        page: currentPage,
-        limit: 9,
+        offset,
         status_filter: statusFilter || undefined,
-        sort_by: "created_at",
-        sort_order: "desc",
       };
 
       const response = await JobService.getOrganizationJobs(filters);
 
       if (response.success && response.data) {
         setJobs(response.data.jobs);
-        setPagination({
-          total: response.data.total,
-          page: response.data.page,
-          page_size: response.data.page_size,
-          has_next: response.data.has_next,
-          has_prev: response.data.has_prev,
-        });
+        setMeta(response.meta);
       } else {
         setError(response.errors || "Failed to fetch jobs");
       }
@@ -62,39 +54,33 @@ export default function ManageJobsPage() {
   };
 
   const handleStatusUpdate = (jobId: string, newStatus: JobStatus) => {
-    setJobs((prevJobs) =>
-      prevJobs.map((job) =>
-        job.id === jobId ? { ...job, status: newStatus } : job
-      )
+    setJobs((prev) =>
+      prev.map((job) => (job.id === jobId ? { ...job, status: newStatus } : job))
     );
   };
 
   const handleDelete = (jobId: string) => {
-    setJobs((prevJobs) => prevJobs.filter((job) => job.id !== jobId));
+    setJobs((prev) => prev.filter((job) => job.id !== jobId));
   };
 
   const handleStatusFilterChange = (status: JobStatus | "") => {
     setStatusFilter(status);
-    setCurrentPage(1);
+    setOffset(0);
   };
 
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
+  const handlePageChange = (newOffset: number) => {
+    setOffset(newOffset);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   return (
     <div className="min-h-fit pb-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
+
         {/* Header Card */}
         <div className="mb-8 p-8 bg-white rounded-3xl shadow-2xl animate-fadeIn">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="text-center md:text-left">
-              {/* <div className="inline-block p-4 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-full mb-4">
-                <svg className="w-12 h-12 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                </svg>
-              </div> */}
               <h1
                 className="text-4xl font-bold mb-3"
                 style={{
@@ -126,7 +112,7 @@ export default function ManageJobsPage() {
         <div className="mb-6 bg-white rounded-2xl shadow-lg p-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-3 w-full md:w-auto">
-              <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
               </svg>
               <select
@@ -142,12 +128,17 @@ export default function ManageJobsPage() {
               </select>
             </div>
 
-            {pagination.total > 0 && (
-              <div className="text-sm text-gray-600 font-medium">
-                Showing {jobs.length} of {pagination.total} jobs
+            {meta.total > 0 && (
+              <div className="text-sm text-gray-500 font-medium">
+                Showing{" "}
+                <span className="text-gray-800 font-semibold">
+                  {offset + 1}–{Math.min(offset + meta.limit, meta.total)}
+                </span>
+                {" "}of{" "}
+                <span className="text-gray-800 font-semibold">{meta.total}</span> jobs
                 {statusFilter && (
-                  <span className="ml-1 text-indigo-600 font-semibold">
-                    ({JobService.getJobStatusText(statusFilter as JobStatus)} only)
+                  <span className="ml-2 px-2 py-0.5 bg-indigo-100 text-indigo-700 rounded-full text-xs font-semibold">
+                    {JobService.getJobStatusText(statusFilter as JobStatus)}
                   </span>
                 )}
               </div>
@@ -160,12 +151,10 @@ export default function ManageJobsPage() {
           <div className="mb-6 animate-fadeIn">
             <div className="bg-white rounded-2xl shadow-lg overflow-hidden border-l-4 border-red-500">
               <div className="p-6 flex items-start gap-4">
-                <div className="flex-shrink-0">
-                  <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
-                    <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                  </div>
+                <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
+                  <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
                 </div>
                 <div className="flex-1">
                   <h3 className="text-red-800 font-semibold mb-1">Error Loading Jobs</h3>
@@ -186,13 +175,12 @@ export default function ManageJobsPage() {
         {isLoading ? (
           <div className="flex flex-col items-center justify-center py-20">
             <div className="relative">
-              <div className="w-16 h-16 border-4 border-indigo-200 rounded-full"></div>
-              <div className="w-16 h-16 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin absolute top-0 left-0"></div>
+              <div className="w-16 h-16 border-4 border-indigo-200 rounded-full" />
+              <div className="w-16 h-16 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin absolute top-0 left-0" />
             </div>
             <p className="mt-4 text-gray-600 font-medium">Loading your jobs...</p>
           </div>
         ) : jobs.length === 0 ? (
-          /* Empty State */
           <div className="bg-white rounded-2xl shadow-lg p-12 text-center animate-fadeIn">
             <div className="inline-block p-6 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full mb-6">
               <svg className="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -230,86 +218,24 @@ export default function ManageJobsPage() {
             </div>
 
             {/* Pagination */}
-            {pagination.total > pagination.page_size && (
-              <div className="bg-white rounded-2xl shadow-lg p-6">
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-                  <button
-                    onClick={() => handlePageChange(currentPage - 1)}
-                    disabled={!pagination.has_prev}
-                    className="w-full sm:w-auto px-6 py-3 bg-white text-indigo-600 border-2 border-indigo-600 rounded-xl font-semibold hover:bg-indigo-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white flex items-center justify-center gap-2"
-                  >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                    </svg>
-                    Previous
-                  </button>
-
-                  <div className="flex items-center gap-2">
-                    {Array.from(
-                      { length: Math.min(5, Math.ceil(pagination.total / pagination.page_size)) },
-                      (_, i) => {
-                        const totalPages = Math.ceil(pagination.total / pagination.page_size);
-                        let pageNum;
-
-                        if (totalPages <= 5) {
-                          pageNum = i + 1;
-                        } else if (currentPage <= 3) {
-                          pageNum = i + 1;
-                        } else if (currentPage >= totalPages - 2) {
-                          pageNum = totalPages - 4 + i;
-                        } else {
-                          pageNum = currentPage - 2 + i;
-                        }
-
-                        return (
-                          <button
-                            key={pageNum}
-                            onClick={() => handlePageChange(pageNum)}
-                            className={`w-10 h-10 rounded-lg font-semibold transition-all ${
-                              currentPage === pageNum
-                                ? "bg-indigo-600 text-white shadow-lg"
-                                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                            }`}
-                          >
-                            {pageNum}
-                          </button>
-                        );
-                      }
-                    )}
-                  </div>
-
-                  <button
-                    onClick={() => handlePageChange(currentPage + 1)}
-                    disabled={!pagination.has_next}
-                    className="w-full sm:w-auto px-6 py-3 bg-white text-indigo-600 border-2 border-indigo-600 rounded-xl font-semibold hover:bg-indigo-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white flex items-center justify-center gap-2"
-                  >
-                    Next
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
-                  </button>
-                </div>
-              </div>
-            )}
+            <Pagination
+              offset={meta.offset}
+              limit={meta.limit}
+              total={meta.total}
+              has_next={meta.has_next}
+              has_prev={meta.has_prev}
+              onPageChange={handlePageChange}
+            />
           </>
         )}
       </div>
 
       <style jsx>{`
         @keyframes fadeIn {
-          from {
-            opacity: 0;
-            transform: translateY(10px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
         }
-
-        .animate-fadeIn {
-          animation: fadeIn 0.5s ease-out;
-        }
+        .animate-fadeIn { animation: fadeIn 0.5s ease-out; }
       `}</style>
     </div>
   );

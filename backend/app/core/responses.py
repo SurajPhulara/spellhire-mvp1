@@ -37,7 +37,7 @@ def success_response(
     Otherwise, a new JSONResponse is created and returned.
     
     """
-    payload: Dict[str, Any] = {"success": True, "message": message, "data": jsonable_encoder(data), "meta":meta}
+    payload: Dict[str, Any] = {"success": True, "message": message, "data": jsonable_encoder(data), "meta":jsonable_encoder(meta)}
 
     if response is not None:
         # FastAPI will serialize this dict using the provided response object
