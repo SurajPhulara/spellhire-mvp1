@@ -212,11 +212,49 @@ class JobPublic(BaseModel):
     model_config = {
         "from_attributes": True
     }
-        
+    
 
+class JobPreview(BaseModel):
+    id: uuid.UUID
+    title: str
 
+    # org
+    organization_name: Optional[str] = None
+    logo_url: Optional[str] = None
 
+    # classification
+    job_type: JobType
+    work_mode: WorkMode
+    experience_level: ExperienceLevel
 
+    # grouping
+    department: Optional[str] = None
+    category: Optional[str] = None
+
+    # flags
+    is_featured: Optional[bool] = False
+
+    # location
+    location: Optional[Dict] = None
+
+    # salary
+    salary_min: Optional[float] = None
+    salary_max: Optional[float] = None
+    salary_currency: Optional[str] = None
+
+    # skills
+    required_skills: Optional[List[str]] = None
+
+    # stats
+    application_count: Optional[int] = 0
+    published_at: Optional[datetime] = None
+
+    # user-specific
+    is_saved: Optional[bool] = False
+
+    model_config = {
+        "from_attributes": True
+    }
 
 
 
@@ -293,35 +331,35 @@ class JobPublic(BaseModel):
 
 
 # Application schemas
-class ApplicationCreateSchema(BaseModel):
-    cover_letter: Optional[str] = Field(None)
-    resume_url: Optional[HttpUrl] = Field(None)
-    notes: Optional[str] = None
+# class ApplicationCreateSchema(BaseModel):
+#     cover_letter: Optional[str] = Field(None)
+#     resume_url: Optional[HttpUrl] = Field(None)
+#     notes: Optional[str] = None
 
-    model_config = {
-        "from_attributes": True
-    }
+#     model_config = {
+#         "from_attributes": True
+#     }
 
-class ApplicationReadSchema(BaseModel):
-    id: UUID
-    job_id: UUID
-    candidate_id: UUID
-    pipeline_id: UUID
-    current_stage_id: Optional[str] = None
-    status: str
-    cover_letter: Optional[str] = None
-    resume_url: Optional[str] = None
-    notes: Optional[str] = None
-    applied_at: datetime
-    last_updated_at: datetime
-    stage_updated_at: datetime
-    rejection_reason: Optional[str] = None
-    rejection_feedback: Optional[str] = None
-    hired_at: Optional[datetime] = None
+# class ApplicationReadSchema(BaseModel):
+#     id: UUID
+#     job_id: UUID
+#     candidate_id: UUID
+#     pipeline_id: UUID
+#     current_stage_id: Optional[str] = None
+#     status: str
+#     cover_letter: Optional[str] = None
+#     resume_url: Optional[str] = None
+#     notes: Optional[str] = None
+#     applied_at: datetime
+#     last_updated_at: datetime
+#     stage_updated_at: datetime
+#     rejection_reason: Optional[str] = None
+#     rejection_feedback: Optional[str] = None
+#     hired_at: Optional[datetime] = None
 
-    model_config = {
-        "from_attributes": True
-    }
+#     model_config = {
+#         "from_attributes": True
+#     }
 
 
 # class ApplicationReadSchema(BaseModel):

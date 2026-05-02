@@ -9,6 +9,7 @@ import {
   JobManagementFilters,
   JobStatus,
   ApiResponse,
+  AppliedJobsResponse,
 } from '@/types';
 
 export class JobService {
@@ -69,6 +70,12 @@ export class JobService {
     return await apiClient.post<any>(`/jobs/${jobId}/apply`, {});
   }
 
+  static async getAppliedJobs(offset: number = 0): Promise<ApiResponse<AppliedJobsResponse>> {
+    const params = new URLSearchParams();
+    params.append('offset', offset.toString());
+    return await apiClient.get<AppliedJobsResponse>(`/applications/?${params.toString()}`);
+  }
+
   
   // Save (bookmark) a job
   static async saveJob(jobId: string): Promise<ApiResponse<{ job_id: string }>> {
@@ -88,6 +95,8 @@ export class JobService {
     const url = `/jobs/saved?${params.toString()}`;
     return await apiClient.get<JobListResponse>(url);
   }
+
+
 
 
   // ============================================================================

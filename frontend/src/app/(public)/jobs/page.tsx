@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback, Suspense } from 'react';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { FiSearch, FiX, FiBriefcase } from 'react-icons/fi';
-import { Job } from '@/types/job';
+import {JobPreview } from '@/types/job';
 import { WorkMode, ExperienceLevel, JobType } from '@/types/base';
 import { JobService } from '@/lib/api/services/jobs';
 import CandidateJobCard from '@/components/candidate/job/CandidateJobCard';
@@ -31,7 +31,7 @@ function JobsPageContent() {
   const urlOffset = Number(searchParams.get('offset') ?? 0);
 
   const [localQ, setLocalQ] = useState(urlQ);
-  const [jobs, setJobs] = useState<Job[]>([]);
+  const [jobs, setJobs] = useState<JobPreview[]>([]);
   const [meta, setMeta] = useState({
     total: 0,
     limit: 10,
@@ -61,7 +61,7 @@ function JobsPageContent() {
       });
 
       if (res.success && res.data) {
-        setJobs(res.data.jobs as unknown as Job[]);
+        setJobs(res.data.jobs as unknown as JobPreview[]);
         setMeta({
           total: res.meta?.total ?? 0,
           limit: res.meta?.limit ?? 10,
@@ -220,12 +220,12 @@ function JobsPageContent() {
                     key={job.id}
                     job={job}
                     index={i}
-                    isSaved={Boolean((job as Job & { is_saved?: boolean }).is_saved)}
+                    isSaved={Boolean((job as JobPreview & { is_saved?: boolean }).is_saved)}
                     onSave={(jobId, nextSaved) => {
                       setJobs(prev =>
                         prev.map(j =>
                           j.id === jobId
-                            ? { ...j, is_saved: nextSaved } as Job
+                            ? { ...j, is_saved: nextSaved } as JobPreview
                             : j
                         )
                       );

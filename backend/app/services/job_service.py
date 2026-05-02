@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 import uuid
 import logging
 
-from sqlalchemy import func, select, update, delete
+from sqlalchemy import func, literal, select, update, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
 
@@ -251,18 +251,19 @@ class JobService:
             try:
                 candidate = await CandidateService.get_profile(db, candidate_user_id)
             except:
-                candidate = None  # don't break public API
-                
+                candidate = None
+
         filters = [Job.status == JobStatus.ACTIVE]
 
-        # ── Full-text search across title + description ──────────────────────
+        # ── Search ─────────────────────────────────────
         if q:
             ilike_q = f"%{q}%"
             filters.append(
-                Job.title.ilike(ilike_q) | Job.description.ilike(ilike_q)
+                Job.title.ilike(ilike_q) |
+                Job.description.ilike(ilike_q)
             )
 
-        # ── Enum filters ─────────────────────────────────────────────────────
+        # ── Filters ────────────────────────────────────
         if job_type:
             filters.append(Job.job_type == job_type)
 
@@ -272,47 +273,32 @@ class JobService:
         if experience_level:
             filters.append(Job.experience_level == experience_level)
 
-        # ── Category ─────────────────────────────────────────────────────────
         if category:
             filters.append(Job.category.ilike(f"%{category}%"))
 
-        # ── Location (JSON field: {city, state, country}) ────────────────────
         if location_city:
-            # Postgres JSON ->> operator via cast
-            filters.append(
-                Job.location["city"].astext.ilike(f"%{location_city}%")
-            )
+            filters.append(Job.location["city"].astext.ilike(f"%{location_city}%"))
 
         if location_country:
-            filters.append(
-                Job.location["country"].astext.ilike(f"%{location_country}%")
-            )
+            filters.append(Job.location["country"].astext.ilike(f"%{location_country}%"))
 
-        # ── Salary ───────────────────────────────────────────────────────────
         if salary_min is not None:
-            # Job's max salary must be at least the candidate's minimum ask
             filters.append(Job.salary_max >= salary_min)
 
-        # ── Skills (comma-separated list → match any) ─────────────────────
         if required_skills:
             skill_list = [s.strip().lower() for s in required_skills.split(",") if s.strip()]
             if skill_list:
-                # required_skills is ARRAY(String) on the model
-                # overlap operator && checks if arrays share any element
-                filters.append(
-                    Job.required_skills.overlap(skill_list)
-                )
+                filters.append(Job.required_skills.overlap(skill_list))
 
-        # ── Featured ─────────────────────────────────────────────────────────
         if is_featured is not None:
             filters.append(Job.is_featured == is_featured)
 
-        # ── Count ────────────────────────────────────────────────────────────
+        # ── COUNT ──────────────────────────────────────
         total = await db.scalar(
             select(func.count(Job.id)).where(*filters)
         )
 
-        # ── Sort ─────────────────────────────────────────────────────────────
+        # ── SORT ───────────────────────────────────────
         SORT_COLUMN_MAP = {
             "published_at": Job.published_at,
             "salary_min": Job.salary_min,
@@ -322,23 +308,29 @@ class JobService:
         sort_col = SORT_COLUMN_MAP.get(sort_by, Job.published_at)
         order_expr = sort_col.desc() if sort_order == "desc" else sort_col.asc()
 
-        # ── Data ─────────────────────────────────────────────────────────────
-        # stmt = (
-        #     select(Job, Organization.logo_url, Organization.name)
-        #     .join(Organization, Job.organization_id == Organization.id)
-        #     .where(*filters)
-        #     .order_by(order_expr)
-        #     .limit(limit)
-        #     .offset(offset)
-        # )
-
-        # ── Data ─────────────────────────────────────────────────────────────
+        # ── SELECT (OPTIMIZED) ─────────────────────────
         if candidate:
             stmt = (
                 select(
-                    Job,
-                    Organization.logo_url,
-                    Organization.name,
+                    Job.id,
+                    Job.title,
+                    Job.job_type,
+                    Job.work_mode,
+                    Job.experience_level,
+                    Job.department,
+                    Job.category,
+                    Job.is_featured,
+                    Job.location,
+                    Job.salary_min,
+                    Job.salary_max,
+                    Job.salary_currency,
+                    Job.required_skills,
+                    Job.application_count,
+                    Job.published_at,
+
+                    Organization.name.label("organization_name"),
+                    Organization.logo_url.label("logo_url"),
+
                     (SavedJob.job_id.isnot(None)).label("is_saved")
                 )
                 .join(Organization, Job.organization_id == Organization.id)
@@ -355,10 +347,26 @@ class JobService:
         else:
             stmt = (
                 select(
-                    Job,
-                    Organization.logo_url,
-                    Organization.name,
-                    func.false().label("is_saved")
+                    Job.id,
+                    Job.title,
+                    Job.job_type,
+                    Job.work_mode,
+                    Job.experience_level,
+                    Job.department,
+                    Job.category,
+                    Job.is_featured,
+                    Job.location,
+                    Job.salary_min,
+                    Job.salary_max,
+                    Job.salary_currency,
+                    Job.required_skills,
+                    Job.application_count,
+                    Job.published_at,
+
+                    Organization.name.label("organization_name"),
+                    Organization.logo_url.label("logo_url"),
+
+                    literal(False).label("is_saved")
                 )
                 .join(Organization, Job.organization_id == Organization.id)
                 .where(*filters)
@@ -367,20 +375,13 @@ class JobService:
                 .offset(offset)
             )
 
+        # ── EXECUTE ────────────────────────────────────
         res = await db.execute(stmt)
-        # jobs = res.scalars().all()
+        rows = res.mappings().all()
 
-        rows = res.all()
-
-        jobs = []
-        for job, logo_url, name, is_saved in rows:
-            job.logo_url = logo_url  # attach dynamically
-            job.organization_name = name
-            job.is_saved = is_saved
-            jobs.append(job)
+        jobs = [dict(row) for row in rows]
 
         return jobs, total
-
 
     @staticmethod
     async def create_job(db: AsyncSession, employer_user_id: str, payload: Dict[str, Any]) -> Job:
@@ -585,18 +586,35 @@ class JobService:
     ):
         candidate: CandidateProfile = await CandidateService.get_profile(db, candidate_user_id)
 
-        # ---- COUNT ----
-        count_stmt = select(func.count(SavedJob.job_id)).where(
-            SavedJob.candidate_id == candidate.id
+        # ── COUNT ──────────────────────────────────────
+        total = await db.scalar(
+            select(func.count(SavedJob.job_id))
+            .where(SavedJob.candidate_id == candidate.id)
         )
-        total = await db.scalar(count_stmt)
 
-        # ---- DATA ----
+        # ── SELECT (OPTIMIZED) ─────────────────────────
         stmt = (
             select(
-                Job,
-                Organization.logo_url,
-                Organization.name,
+                Job.id,
+                Job.title,
+                Job.job_type,
+                Job.work_mode,
+                Job.experience_level,
+                Job.department,
+                Job.category,
+                Job.is_featured,
+                Job.location,
+                Job.salary_min,
+                Job.salary_max,
+                Job.salary_currency,
+                Job.required_skills,
+                Job.application_count,
+                Job.published_at,
+
+                Organization.name.label("organization_name"),
+                Organization.logo_url.label("logo_url"),
+
+                literal(True).label("is_saved")
             )
             .join(SavedJob, SavedJob.job_id == Job.id)
             .join(Organization, Job.organization_id == Organization.id)
@@ -606,18 +624,13 @@ class JobService:
             .offset(offset)
         )
 
+        # ── EXECUTE ────────────────────────────────────
         res = await db.execute(stmt)
-        rows = res.all()
+        rows = res.mappings().all()
 
-        jobs = []
-        for job, logo_url, name in rows:
-            job.logo_url = logo_url
-            job.organization_name = name
-            job.is_saved = True   # always true here
-            jobs.append(job)
+        jobs = [dict(row) for row in rows]
 
         return jobs, total
-
 
 
 
@@ -666,140 +679,91 @@ class JobService:
         await db.flush()
         return pipeline
 
-    @staticmethod
-    async def create_application(
-        db: AsyncSession,
-        job_id: str,
-        candidate_user_id: str,
-        payload: Dict[str, Any],
-    ) -> Application:
-        """
-        Candidate applies to a job.
-
-        Guarantees:
-        - Candidate profile exists
-        - No duplicate applications
-        - Pipeline exists (auto-created if needed)
-        - Assigns correct initial stage
-        """
-
-        # ── 1. Get job ─────────────────────────────────────────
-        job = await JobService.get_job(db, job_id)
-
-        # ── 2. Get candidate profile ───────────────────────────
-        candidate: CandidateProfile = await CandidateService.get_profile(db, candidate_user_id)
-
-        # ── 3. Prevent duplicate (DB + app level) ──────────────
-        stmt = select(Application).where(
-            (Application.job_id == job.id) &
-            (Application.candidate_id == candidate.id)
-        )
-        res = await db.execute(stmt)
-
-        if res.scalars().first():
-            raise ConflictError("You have already applied to this job")
-
-        # ── 4. Get / create pipeline ───────────────────────────
-        pipeline = await JobService.get_pipeline(db, job)
-
-        if not pipeline:
-            pipeline = await JobService.create_default_pipeline(db, job)
-
-        # ── 5. Determine default stage ─────────────────────────
-        default_stage_id = None
-
-        if pipeline.stages:
-            # try to find default stage
-            default_stage = next(
-                (s for s in pipeline.stages if s.get("isDefault")),
-                None
-            )
-
-            if default_stage:
-                default_stage_id = default_stage.get("id")
-            else:
-                # fallback → first stage
-                default_stage_id = pipeline.stages[0].get("id")
-
-        # ── 6. Prepare payload ─────────────────────────────────
-        allowed = {"cover_letter", "resume_url", "notes"}
-        app_kwargs = {k: v for k, v in payload.items() if k in allowed}
-
-        # fallback resume from profile if not provided
-        if not app_kwargs.get("resume_url"):
-            app_kwargs["resume_url"] = getattr(candidate, "resume_url", None)
-
-        # ── 7. Create application ──────────────────────────────
-        application = Application(
-            job_id=job.id,
-            candidate_id=candidate.id,
-            pipeline_id=pipeline.id,
-            current_stage_id=default_stage_id,
-            status=ApplicationStatus.APPLIED,
-            stage_updated_at=datetime.now(timezone.utc),
-            **app_kwargs
-        )
-
-        db.add(application)
-
-        # ── 8. Increment job count ─────────────────────────────
-        job.application_count = (job.application_count or 0) + 1
-
-        # ── 9. Flush (important for ID + constraints) ──────────
-        try:
-            await db.flush()
-        except IntegrityError:
-            # handles race condition (double click / retry)
-            raise ConflictError("You have already applied to this job")
-
-        return application
-
     # @staticmethod
     # async def create_application(
     #     db: AsyncSession,
     #     job_id: str,
     #     candidate_user_id: str,
-    #     payload: Dict[str, Any],
+    #     payload: Dict[str, Any]={},
     # ) -> Application:
     #     """
     #     Candidate applies to a job.
-    #     - Ensures candidate profile exists.
-    #     - Prevent duplicate application per candidate+job (unique constraint in DB also).
-    #     - Assigns to pipeline (creates default pipeline if needed).
-    #     - Does NOT commit.
+
+    #     Guarantees:
+    #     - Candidate profile exists
+    #     - No duplicate applications
+    #     - Pipeline exists (auto-created if needed)
+    #     - Assigns correct initial stage
     #     """
+
+    #     # ── 1. Get job ─────────────────────────────────────────
     #     job = await JobService.get_job(db, job_id)
 
-    #     # ensure candidate profile exists
-    #     q = select(CandidateProfile).where(CandidateProfile.user_id == candidate_user_id)
-    #     r = await db.execute(q)
-    #     candidate_profile = r.scalars().first()
-    #     if not candidate_profile:
-    #         raise NotFoundError("Candidate profile not found")
+    #     # ── 2. Get candidate profile ───────────────────────────
+    #     candidate: CandidateProfile = await CandidateService.get_profile(db, candidate_user_id)
 
-    #     # check duplicate
-    #     q = select(Application).where(Application.job_id == job.id, Application.candidate_id == candidate_profile.id)
-    #     r = await db.execute(q)
-    #     if r.scalars().first():
+    #     # ── 3. Prevent duplicate (DB + app level) ──────────────
+    #     stmt = select(Application).where(
+    #         (Application.job_id == job.id) &
+    #         (Application.candidate_id == candidate.id)
+    #     )
+    #     res = await db.execute(stmt)
+
+    #     if res.scalars().first():
     #         raise ConflictError("You have already applied to this job")
 
-    #     # determine pipeline
+    #     # ── 4. Get / create pipeline ───────────────────────────
     #     pipeline = await JobService.get_pipeline(db, job)
+
     #     if not pipeline:
     #         pipeline = await JobService.create_default_pipeline(db, job)
 
-    #     # allowed application fields
+    #     # ── 5. Determine default stage ─────────────────────────
+    #     default_stage_id = None
+
+    #     if pipeline.stages:
+    #         # try to find default stage
+    #         default_stage = next(
+    #             (s for s in pipeline.stages if s.get("isDefault")),
+    #             None
+    #         )
+
+    #         if default_stage:
+    #             default_stage_id = default_stage.get("id")
+    #         else:
+    #             # fallback → first stage
+    #             default_stage_id = pipeline.stages[0].get("id")
+
+    #     # ── 6. Prepare payload ─────────────────────────────────
     #     allowed = {"cover_letter", "resume_url", "notes"}
     #     app_kwargs = {k: v for k, v in payload.items() if k in allowed}
-    #     app_kwargs["job_id"] = job.id
-    #     app_kwargs["candidate_id"] = candidate_profile.id
-    #     app_kwargs["pipeline_id"] = pipeline.id
-    #     app_kwargs["status"] = ApplicationStatus.APPLIED
 
-    #     application = Application(**app_kwargs)
+    #     # fallback resume from profile if not provided
+    #     if not app_kwargs.get("resume_url"):
+    #         app_kwargs["resume_url"] = getattr(candidate, "resume_url", None)
+
+    #     # ── 7. Create application ──────────────────────────────
+    #     application = Application(
+    #         job_id=job.id,
+    #         candidate_id=candidate.id,
+    #         pipeline_id=pipeline.id,
+    #         current_stage_id=default_stage_id,
+    #         status=ApplicationStatus.APPLIED,
+    #         stage_updated_at=datetime.now(timezone.utc),
+    #         **app_kwargs
+    #     )
+
     #     db.add(application)
 
-    #     # bump application count on job
+    #     # ── 8. Increment job count ─────────────────────────────
     #     job.application_count = (job.application_count or 0) + 1
-    #     await db.flush()
+
+    #     # ── 9. Flush (important for ID + constraints) ──────────
+    #     try:
+    #         await db.flush()
+    #     except IntegrityError:
+    #         # handles race condition (double click / retry)
+    #         raise ConflictError("You have already applied to this job")
+
     #     return application
+

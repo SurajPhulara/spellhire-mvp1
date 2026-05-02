@@ -6,12 +6,12 @@ import {
   FiBookmark, FiMapPin, FiClock, FiZap,
   FiGlobe, FiBriefcase, FiStar, FiUsers, FiDollarSign
 } from 'react-icons/fi';
-import { Job, JobPublic } from '@/types/job';
+import { Job, JobPreview } from '@/types/job';
 import JobService from '@/lib/api/services/jobs';
 import styles from './CandidateJobCard.module.css';
 
 interface CandidateJobCardProps {
-  job: JobPublic;
+  job: JobPreview;
   onSave?: (jobId: string, nextSaved: boolean) => void;
   isSaved?: boolean;
   index?: number;
@@ -40,7 +40,7 @@ const expLabel: Record<string, string> = {
   EXECUTIVE: 'Executive',
 };
 
-function formatSalary(job: Job): string | null {
+function formatSalary(job: JobPreview): string | null {
   if (!job.salary_min && !job.salary_max) return null;
   const sym =
     job.salary_currency === 'USD' ? '$'
@@ -56,7 +56,8 @@ function formatSalary(job: Job): string | null {
   return `Up to ${fmt(job.salary_max!)}`;
 }
 
-function getDaysAgo(d: string | Date): string {
+function getDaysAgo(d: string | undefined): string {
+  if (!d) return 'not available'
   const diff = Date.now() - new Date(d).getTime();
   const days = Math.floor(diff / 86400000);
   if (days === 0) return 'Today';
@@ -204,7 +205,7 @@ export default function CandidateJobCard({
           </span>
           <span className={styles.footerSep} />
           <span className={styles.footerItem}>
-            <FiClock /> {getDaysAgo(job.created_at)}
+            <FiClock /> {getDaysAgo(job.published_at)}
           </span>
           <span className={styles.cta}>View details →</span>
         </div>

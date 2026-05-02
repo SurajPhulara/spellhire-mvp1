@@ -120,7 +120,48 @@ export interface JobPublic {
   published_at?: string;
 }
 
+export interface JobPreview {
+  id: string;
+  title: string;
 
+  // org
+  organization_name?: string;
+  logo_url?: string;
+
+  // classification
+  job_type: JobType;
+  work_mode: WorkMode;
+  experience_level: ExperienceLevel;
+
+  // grouping
+  department?: string;
+  category?: string;
+
+  // flags
+  is_featured?: boolean;
+
+  // location
+  location?: {
+    city?: string;
+    country?: string;
+  };
+
+  // salary
+  salary_min?: number;
+  salary_max?: number;
+  salary_currency?: string;
+
+  // skills
+  required_skills?: string[];
+
+  // stats
+  application_count?: number;
+  published_at?: string;
+
+  // 🔥 important for UI sync
+  is_saved?: boolean;
+  has_applied?: boolean;
+}
 
 // ============================================================================
 // JOB REQUEST/RESPONSE TYPES
@@ -173,7 +214,7 @@ export interface JobSearchFilters {
 }
 
 export interface JobListResponse {
-  jobs: Job[] | JobPublic[];
+  jobs: JobPreview[];
 }
 
 // ============================================================================
@@ -221,19 +262,21 @@ export interface PipelineStage {
   order: number;
 }
 
-export interface AppliedJobItem {
-  id: string; // application id
-  status: string;
-  current_stage_id: string | null;
+export interface AppliedJobApplication {
+  application_id: string;
+
   applied_at: string;
   last_updated_at: string;
-  stage_updated_at?: string;
-  job: Partial<JobPublic>;
-  pipeline: {
-    stages: PipelineStage[];
-  };
+  stage_updated_at: string;   // ✅ IMPORTANT
+
+  status: string;
+  current_stage_id: string;
+
+  job: JobPreview;
+
+  pipeline_stages: PipelineStage[];
 }
 
 export interface AppliedJobsResponse {
-  applications: AppliedJobItem[];
+  applications: AppliedJobApplication[];
 }

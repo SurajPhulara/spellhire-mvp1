@@ -1,8 +1,10 @@
+//candidate/jobs/saved/page.tsx
+
 'use client';
 
 import React, { useEffect, useState } from 'react';
 import { FiBookmark } from 'react-icons/fi';
-import { Job, JobPublic } from '@/types/job';
+import { JobPreview } from '@/types/job';
 import { JobService } from '@/lib/api/services/jobs';
 import CandidateJobCard from '@/components/candidate/job/CandidateJobCard';
 import Pagination from '@/components/ui/Pagination';
@@ -10,7 +12,7 @@ import styles from '../page.module.css'; // reuse same styles
 import { PaginationMeta } from '@/types';
 
 export default function SavedJobsPage() {
-  const [jobs, setJobs] = useState<JobPublic[]>([]);
+  const [jobs, setJobs] = useState<JobPreview[]>([]);
   const [meta, setMeta] = useState<PaginationMeta>({
     total: 0,
     limit: 10,
@@ -27,7 +29,7 @@ export default function SavedJobsPage() {
       const res = await JobService.getSavedJobs(offset);
 
       if (res.success && res.data) {
-        setJobs(res.data.jobs as JobPublic[]);
+        setJobs(res.data.jobs as JobPreview[]);
         setMeta(res.meta as unknown as PaginationMeta);
       }
     } catch (err) {

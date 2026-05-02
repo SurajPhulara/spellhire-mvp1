@@ -26,7 +26,7 @@ from app.api.v1.endpoints.employer_profile import router as employer_profile_rou
 from app.api.v1.endpoints.organization_profile import router as organization_profile_router
 from app.api.v1.endpoints.jobs import router as jobs_router
 from app.api.v1.endpoints.files_management import router as files_management_router
-
+from app.api.v1.endpoints.job_applications import router as job_applications_router
 logger = logging.getLogger(__name__)
 
 api_router = APIRouter()
@@ -84,4 +84,10 @@ api_router.include_router(jobs_router, prefix="/jobs", tags=["Jobs"], )
 api_router.include_router(files_management_router, prefix="/files", tags=["File Management"], )
 
 
-logger.info("API v1 routes registered: auth, candidate, employer, organization")
+# ---------------------------------------------------------------------------
+# Job applications routes
+# ---------------------------------------------------------------------------
+api_router.include_router(job_applications_router, prefix="/applications", tags=["Job Applications"], )
+
+
+logger.info("API v1 routes registered: auth, candidate, employer, organization, jobs, files, job applications")

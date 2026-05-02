@@ -112,9 +112,9 @@ export class ApplicationService {
   // ============================================================================
 
   // Apply for Job
-  static async applyForJob(data: ApplicationCreate): Promise<ApiResponse<ApplicationResponse>> {
-    return await apiClient.post<ApplicationResponse>('/applications/', data);
-  }
+  // static async applyForJob(data: ApplicationCreate): Promise<ApiResponse<ApplicationResponse>> {
+  //   return await apiClient.post<ApplicationResponse>('/applications/', data);
+  // }
 
   // Get My Applications
   static async getMyApplications(

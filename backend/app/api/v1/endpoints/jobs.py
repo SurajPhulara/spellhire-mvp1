@@ -13,9 +13,11 @@ from app.core.responses import success_response
 from app.core.exceptions import AppException, NotFoundError, ConflictError
 
 from app.services.job_service import JobService
-from app.schemas.jobs import ApplicationReadSchema, Job, JobPublic, ApplicationCreateSchema 
+from app.schemas.jobs import Job, JobPreview, JobPublic 
+# from app.schemas.applications import ApplicationReadSchema
 from app.models.enums import JobStatus, ApplicationStatus
 from app.schemas.base import PaginationMeta   
+from app.services.application_service import ApplicationService
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -190,7 +192,7 @@ async def list_jobs(
             offset=offset,
             candidate_user_id=candidate_user_id,
         )
-        job_list = [JobPublic.model_validate(j) for j in jobs]
+        job_list = [JobPreview.model_validate(j) for j in jobs]
         meta = PaginationMeta(total=total, limit=limit, offset=offset, has_next=offset + limit < total, has_prev=offset > 0)
         return success_response(message="OK", data={"jobs": job_list}, meta=meta)
     except Exception as e:
@@ -380,7 +382,7 @@ async def get_saved_jobs(
             offset=offset
         )
 
-        job_list = [JobPublic.model_validate(j) for j in jobs]
+        job_list = [JobPreview.model_validate(j) for j in jobs]
 
         meta = PaginationMeta(total=total, limit=limit, offset=offset, has_next=offset + limit < total, has_prev=offset > 0)
 
@@ -399,19 +401,17 @@ async def get_saved_jobs(
 @router.post("/{job_id}/apply", status_code=status.HTTP_201_CREATED)
 async def apply_to_job(
     job_id: str,
-    background_tasks: BackgroundTasks,
-    payload: ApplicationCreateSchema,
     current_user: dict = Depends(require_candidate),
     db: AsyncSession = Depends(get_db)
 ):
     try:
         candidate_user_id = current_user.get("sub")
 
-        application = await JobService.create_application(
+        application = await ApplicationService.create_application(
             db=db,
             job_id=job_id,
             candidate_user_id=candidate_user_id,
-            payload=payload.model_dump(exclude_none=True)
+            # payload=payload.model_dump(exclude_none=True)
         )
 
         await db.commit()
@@ -419,7 +419,7 @@ async def apply_to_job(
 
         return success_response(
             message="Applied successfully",
-            data=ApplicationReadSchema.model_validate(application).model_dump()
+            # data=ApplicationReadSchema.model_validate(application).model_dump()
         )
 
     except ConflictError as e:
