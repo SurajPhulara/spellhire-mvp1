@@ -10,15 +10,37 @@ import uuid
 from app.models.enums import JobType, WorkMode, ExperienceLevel, JobStatus
 
 
+from pydantic import BaseModel, Field, field_validator
+import re
+
+HEX_COLOR_REGEX = re.compile(r"^#(?:[0-9a-fA-F]{3}){1,2}$")
+
+
 class PipelineStageSchema(BaseModel):
-    id: str = Field(..., example="applied")
-    name: str = Field(..., example="Applied")
-    order: int = Field(..., example=1)
-    isDefault: Optional[bool] = Field(False, example=True)
+    id: str | None = None
+    name: str = Field(..., min_length=1, max_length=50)
+    order: int
+
+    color: str = Field(default="#9ca3af")
+    description: str = Field(default="No description", max_length=200)
+
+    locked: bool = False
+    count: int = 0
 
     model_config = {
-        "from_attributes": True
+        "from_attributes": True,
+        "str_strip_whitespace": True,
     }
+    # -------------------------
+    # COLOR validation (fallback if invalid)
+    # -------------------------
+    @field_validator("color")
+    @classmethod
+    def validate_color(cls, v: str) -> str:
+        v = v.strip()
+        if not HEX_COLOR_REGEX.match(v):
+            return "#9ca3af"
+        return v
 
 
 class PipelineSchema(BaseModel):

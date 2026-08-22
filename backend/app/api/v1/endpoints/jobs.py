@@ -168,7 +168,7 @@ async def list_jobs(
     sort_by: Optional[str] = "published_at",  # published_at | salary_min | title
     sort_order: Optional[str] = "desc",       # asc | desc
     offset: int = 0,
-    current_user: Optional[dict] = Depends(require_candidate),
+    current_user: Optional[dict] = Depends(get_current_user_optional),
     db: AsyncSession = Depends(get_db)
 ):
     try:

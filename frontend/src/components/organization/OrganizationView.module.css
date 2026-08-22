@@ -1,0 +1,620 @@
+.page {
+  min-height: 100vh;
+  position: relative;
+  width: 100%;
+}
+
+.page::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0) 35%),
+    radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.16), transparent 20%);
+}
+
+.pageContent {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding: 1.5rem;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.84);
+  border: 1px solid rgba(255, 255, 255, 0.34);
+  box-shadow:
+    0 24px 80px rgba(15, 23, 42, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+/* ── Page header ──────────────────────────────────────────────────────────── */
+
+.pageHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 0.9rem 1.1rem;
+  border-radius: 1.2rem;
+  background: linear-gradient(90deg,
+      rgba(37, 99, 235, 0.7),
+      rgba(79, 70, 229, 0.7),
+      rgba(124, 58, 237, 0.7));
+  border: 1px solid rgba(255, 255, 255, 0.42);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.pageHeaderLeft {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.pageIcon {
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 0.85rem;
+  display: grid;
+  place-items: center;
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.12);
+  flex-shrink: 0;
+}
+
+.pageTitle {
+  margin: 0;
+  color: #ffffff;
+  font-size: 1.35rem;
+  line-height: 1.2;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+}
+
+.pageSubtitle {
+  margin: 0.35rem 0 0;
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 0.88rem;
+  line-height: 1.6;
+}
+
+.pageHeaderActions {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+}
+
+.primaryBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.42rem;
+  border-radius: 999px;
+  padding: 0.55rem 0.95rem;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 0.82rem;
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform 0.18s ease, background 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+
+.primaryBtn:hover {
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.55);
+  box-shadow: 0 10px 18px rgba(15, 23, 42, 0.14);
+}
+
+/* ── Hero card ────────────────────────────────────────────────────────────── */
+
+.heroCard {
+  position: relative;
+  overflow: hidden;
+  padding: 1.25rem 1.3rem;
+  border-radius: 1.45rem;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.94), rgba(248, 250, 255, 0.92));
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  box-shadow:
+    0 12px 32px rgba(15, 23, 42, 0.07),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.heroCard::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto auto 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, #2563eb, #4f46e5, #7c3aed);
+}
+
+.heroTop {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.logoWrap {
+  flex-shrink: 0;
+}
+
+.orgLogoHero {
+  width: 4.6rem;
+  height: 4.6rem;
+  border-radius: 1rem;
+  object-fit: contain;
+  border: 3px solid rgba(255, 255, 255, 0.85);
+  box-shadow: 0 14px 28px rgba(37, 99, 235, 0.2);
+  background: white;
+}
+
+.orgLogoFallback {
+  width: 4.6rem;
+  height: 4.6rem;
+  border-radius: 1rem;
+  display: grid;
+  place-items: center;
+  color: white;
+  font-size: 1.35rem;
+  font-weight: 900;
+  background: linear-gradient(135deg, #2563eb, #4f46e5, #7c3aed);
+  box-shadow: 0 14px 28px rgba(37, 99, 235, 0.2);
+}
+
+.heroTextBlock {
+  min-width: 0;
+}
+
+.heroKicker {
+  margin: 0;
+  font-size: 0.72rem;
+  font-weight: 900;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.heroTitle {
+  margin: 0.3rem 0 0;
+  font-size: 1.3rem;
+  line-height: 1.25;
+  font-weight: 900;
+  color: #0f172a;
+  letter-spacing: -0.03em;
+}
+
+.heroMetaLine {
+  margin: 0.35rem 0 0;
+  font-size: 0.84rem;
+  font-weight: 800;
+  color: #1d4ed8;
+}
+
+.heroText {
+  margin: 0.6rem 0 0;
+  font-size: 0.92rem;
+  line-height: 1.75;
+  color: #475569;
+  /* max-width: 62ch; */
+}
+
+.heroPills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: 1rem;
+}
+
+.heroPill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.35rem 0.72rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #1d4ed8;
+  background: rgba(37, 99, 235, 0.08);
+  border: 1px solid rgba(37, 99, 235, 0.16);
+}
+
+.heroPillActive {
+  color: #15803d;
+  background: rgba(21, 128, 61, 0.08);
+  border-color: rgba(21, 128, 61, 0.2);
+}
+
+/* ── Error box ────────────────────────────────────────────────────────────── */
+
+.errorBox {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.9rem;
+  padding: 1rem 1.05rem;
+  border-radius: 1rem;
+  background: rgba(254, 242, 242, 0.92);
+  border: 1px solid rgba(248, 113, 113, 0.2);
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.06);
+}
+
+.errorIcon {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background: rgba(239, 68, 68, 0.12);
+  color: #dc2626;
+  font-weight: 900;
+  flex-shrink: 0;
+}
+
+.errorText {
+  flex: 1;
+  min-width: 0;
+}
+
+.errorText h3 {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #991b1b;
+  font-weight: 900;
+}
+
+.errorText p {
+  margin: 0.3rem 0 0;
+  font-size: 0.85rem;
+  color: #b91c1c;
+  line-height: 1.65;
+}
+
+.errorClose {
+  border: none;
+  background: transparent;
+  color: #ef4444;
+  font-size: 1.3rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+/* ── Fact cards grid (2-col now that Brand Story is gone) ─────────────────── */
+
+.profileGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+/* ── Prose sections ───────────────────────────────────────────────────────── */
+
+.proseStack {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.proseRow {
+  position: relative;
+
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+
+  gap: 0.75rem;
+
+  padding: 1.2rem 1.25rem 1.2rem 1.5rem;
+
+  border-radius: 1.45rem;
+
+  background: linear-gradient(145deg,
+      rgba(255, 255, 255, 0.92),
+      rgba(248, 250, 255, 0.9));
+
+  border: 1px solid rgba(226, 232, 240, 0.9);
+
+  box-shadow:
+    0 12px 32px rgba(15, 23, 42, 0.07),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+/* Vertical blue accent line */
+.proseRow::before {
+  content: '';
+
+  position: absolute;
+
+  left: 37;
+  top: 4rem;
+  bottom: 1.2rem;
+
+  width: 3px;
+
+  border-radius: 999px;
+
+  background: linear-gradient(180deg,
+      #2563eb,
+      #4f46e5,
+      #7c3aed);
+}
+
+.proseIcon {
+  width: 2rem;
+  height: 2rem;
+
+  border-radius: 0.6rem;
+
+  display: grid;
+  place-items: center;
+
+  color: #2563eb;
+
+  background: rgba(37, 99, 235, 0.08);
+
+  border: 1px solid rgba(37, 99, 235, 0.14);
+
+  margin-bottom: 0.25rem;
+}
+
+.proseRowLabel {
+  margin: 0;
+
+  font-size: large;
+  font-weight: 900;
+
+  color: #64748b;
+
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.proseText {
+  margin: 0;
+
+  padding-left: 2.5rem;
+
+  font-size: 0.9rem;
+  line-height: 1.75;
+
+  color: #334155;
+
+  white-space: pre-wrap;
+}
+
+
+
+/* ── Profile sections ───────────────────────────────────────────────────────── */
+.profileCard {
+  position: relative;
+  overflow: hidden;
+  padding: 1.2rem;
+  border-radius: 1.45rem;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.92), rgba(248, 250, 255, 0.9));
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  box-shadow:
+    0 12px 32px rgba(15, 23, 42, 0.07),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.profileCard::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto auto 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, #2563eb, #4f46e5, #7c3aed);
+}
+
+.cardHeader {
+  margin-bottom: 0.9rem;
+}
+
+.cardHeader h3 {
+  margin: 0;
+  font-size: 0.96rem;
+  font-weight: 900;
+  color: #0f172a;
+}
+
+.detailList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.detailRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.8rem;
+  align-items: baseline;
+  padding: 0.5rem 0.65rem;
+  border-radius: 0.85rem;
+  background: rgba(248, 250, 252, 0.96);
+  border: 1px solid rgba(226, 232, 240, 0.95);
+}
+
+.detailRow span {
+  font-size: 0.78rem;
+  color: #94a3b8;
+  font-weight: 700;
+}
+
+.detailRow strong {
+  font-size: 0.82rem;
+  color: #0f172a;
+  font-weight: 800;
+  text-align: right;
+}
+
+/* ── Modal shell ──────────────────────────────────────────────────────────── */
+
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 1.25rem;
+  overflow-y: auto;
+}
+
+.modalCard {
+  width: 100%;
+  max-width: 980px;
+  margin: auto;
+  position: relative;
+  border-radius: 1.5rem;
+  background: #fff;
+  box-shadow: 0 24px 80px rgba(15, 23, 42, 0.28);
+  overflow: hidden;
+}
+
+.modalCard::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto auto 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, #2563eb, #4f46e5, #7c3aed);
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1.1rem 1.2rem 0.9rem;
+  border-bottom: 1px solid #eef2ff;
+}
+
+.modalKicker {
+  margin: 0;
+  font-size: 0.72rem;
+  font-weight: 900;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.modalTitle {
+  margin: 0.3rem 0 0;
+  font-size: 1.05rem;
+  font-weight: 900;
+  color: #0f172a;
+}
+
+.modalClose {
+  border: none;
+  background: rgba(248, 250, 252, 0.96);
+  color: #64748b;
+  width: 2.1rem;
+  height: 2.1rem;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 1.25rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+/* modalBody just gives the form component breathing room */
+.modalBody {
+  padding: 1.5rem 0 0;
+  max-height: calc(100vh - 10rem);
+  overflow-y: auto;
+  padding-bottom: 2rem;
+}
+
+/* ── Responsive ───────────────────────────────────────────────────────────── */
+
+@media (max-width: 900px) {
+  .page {
+    padding: 1rem 0.75rem 5rem;
+  }
+
+  .pageContent {
+    padding: 1rem;
+    border-radius: 20px;
+  }
+
+  .profileGrid {
+    grid-template-columns: 1fr;
+  }
+
+
+  .pageHeader {
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 700px) {
+  .pageHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1rem 1.1rem;
+  }
+
+  .heroTop {
+    flex-direction: column;
+  }
+
+  .pageTitle {
+    font-size: 1.18rem;
+  }
+
+  .heroTitle {
+    font-size: 1.15rem;
+  }
+
+  .profileCard,
+  .heroCard {
+    padding: 1rem;
+    border-radius: 1.3rem;
+  }
+
+  .proseRow {
+    padding: 1rem 1rem 1rem 1.25rem;
+    border-radius: 1.3rem;
+  }
+
+  .detailRow {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .detailRow strong {
+    text-align: left;
+  }
+
+  .modalOverlay {
+    padding: 0.75rem;
+  }
+
+  .modalCard {
+    border-radius: 1.2rem;
+  }
+}

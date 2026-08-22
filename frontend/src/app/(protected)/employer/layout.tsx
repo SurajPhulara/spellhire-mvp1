@@ -20,11 +20,9 @@ export default function CandidateLayout({ children }: { children: React.ReactNod
     const showSidebar = !pathname.includes("onboarding");
 
     return (
-        <div className="flex space-between">
+        <div className="flex gap-6" style={{ '--sidebar-top': '50px' }}>
             {showSidebar && <EmployerSidebar />}
-            <div className="flex-1">
-                {children}
-            </div>
+            {children}
         </div>
     );
 }

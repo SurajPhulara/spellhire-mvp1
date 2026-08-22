@@ -25,9 +25,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.database import get_db
 from app.core.responses import success_response, error_response
 from app.core.exceptions import AppException, NotFoundError, ConflictError
-from app.core.security import require_candidate, get_current_user
+from app.core.security import get_current_user_optional, require_candidate, get_current_user
 from app.services.candidate_service import CandidateService
 from app.schemas.user import CandidateProfileSchema
+from app.services.auth_service import AuthService
+from app.models.enums import UserType
 
 logger = logging.getLogger(__name__)
 
@@ -58,39 +60,50 @@ async def get_my_profile(
         logger.exception("Unexpected error fetching profile for user=%s", user_id)
         return error_response(message="Internal server error", status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+@router.get("/public/{user_id}", status_code=status.HTTP_200_OK)
+async def get_public_candidate_profile(
+    user_id: str,
+    db: AsyncSession = Depends(get_db),
+    current_user: dict = Depends(get_current_user_optional),
+):
+    try:
+        user = await AuthService._get_user(
+            db=db,
+            user_id=user_id,
+            user_type=UserType.CANDIDATE
+        )
 
-# @router.post("", status_code=status.HTTP_201_CREATED)
-# async def create_profile(
-#     payload: CandidateProfileSchema,
-#     current_user: dict = Depends(require_candidate),
-#     db: AsyncSession = Depends(get_db),
-# ):
-#     """
-#     Create candidate profile for authenticated user.
-#     Caller must provide necessary profile fields in the body (all optional for flexibility).
-#     This endpoint commits the DB transaction on success.
-#     """
-#     user_id = current_user.get("sub")
-#     try:
-#         profile = await CandidateService.create_profile(db, user_id, payload.model_dump(exclude_unset=True))
-#         await db.commit()
-#         await db.refresh(profile)
-#         return success_response(message="Profile created", data={"candidate": CandidateProfileSchema.model_validate(profile)}, status_code=status.HTTP_201_CREATED)
-#     except ConflictError as e:
-#         await db.rollback()
-#         return error_response(message=str(e), status_code=status.HTTP_409_CONFLICT, errors=e.details)
-#     except NotFoundError as e:
-#         await db.rollback()
-#         return error_response(message=str(e), status_code=status.HTTP_404_NOT_FOUND, errors=e.details)
-#     except AppException as e:
-#         await db.rollback()
-#         logger.exception("Error creating profile for user=%s: %s", user_id, e)
-#         return error_response(message=str(e), status_code=e.status_code, errors=e.details)
-#     except Exception as e:
-#         await db.rollback()
-#         logger.exception("Unexpected error creating profile for user=%s", user_id)
-#         return error_response(message="Internal server error", status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        if not user or not user.candidate_profile:
+            raise NotFoundError("Candidate not found")
 
+        profile = user.candidate_profile
+
+        # 🔥 serialize profile
+        data = CandidateProfileSchema.model_validate(profile).model_dump()
+
+        # 🔥 inject from USER (correct place)
+        data["profile_picture_url"] = user.profile_picture_url
+
+        # 🔥 mask salaries
+        requester_id = current_user.get("sub") if current_user else None
+        if requester_id != user_id:
+            data["current_salary"] = 0.0
+            data["expected_salary"] = 0.0
+
+        return success_response(
+            message="OK",
+            data={"candidate": data}
+        )
+
+    except NotFoundError as e:
+        return error_response(message=str(e), status_code=404)
+
+    except Exception as e:
+        logger.exception("public profile fetch failed: %s", e)
+        return error_response(
+            message="Failed to fetch candidate profile",
+            status_code=500
+        )
 
 @router.patch("", status_code=status.HTTP_200_OK)
 async def update_profile(

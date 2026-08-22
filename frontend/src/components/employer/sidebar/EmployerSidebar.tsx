@@ -146,7 +146,19 @@ export default function EmployerSidebar() {
         </svg>
       ),
       disabled: !userId
-    }
+    },
+    {
+      id: 'organization',
+      text: 'My Organization',
+      href: '/employer/organization',
+      icon: (
+        <svg className={styles.navIcon} viewBox="0 0 24 24" fill="none">
+          <path d="M4 7h16v10H4V7Z" stroke="#6366F1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" stroke="#6366F1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M8 11H16M8 15H12" stroke="#6366F1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      ),
+    },
   ];
 
   const handleLogout = async () => {

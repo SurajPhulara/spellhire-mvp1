@@ -31,6 +31,8 @@ export default function ProtectedLayout({
     }
   }, [isLoading, isAuthenticated, user, pathname, router]);
 
+
+  
   if (isLoading || !isAuthenticated) {
     return <Loading message="" />;
   }

@@ -13,17 +13,6 @@ export enum JobStatus {
   CLOSED = "CLOSED",
 }
 
-export enum ApplicationStatus {
-  APPLIED = "APPLIED",
-  IN_REVIEW = "IN_REVIEW",
-  INTERVIEW_SCHEDULED = "INTERVIEW_SCHEDULED",
-  INTERVIEWED = "INTERVIEWED",
-  SHORTLISTED = "SHORTLISTED",
-  REJECTED = "REJECTED",
-  HIRED = "HIRED",
-  WITHDRAWN = "WITHDRAWN",
-}
-
 // ============================================================================
 // JOB SCHEMAS
 // ============================================================================
@@ -220,7 +209,6 @@ export interface JobListResponse {
 // ============================================================================
 // JOB STATUS UPDATE
 // ============================================================================
-
 export interface JobStatusUpdateRequest {
   new_status: JobStatus;
 }
@@ -228,7 +216,6 @@ export interface JobStatusUpdateRequest {
 // ============================================================================
 // JOB MANAGEMENT QUERY PARAMETERS
 // ============================================================================
-
 export interface JobManagementFilters {
   page?: number;
   offset?: number;
@@ -241,7 +228,6 @@ export interface JobManagementFilters {
 // ============================================================================
 // JOB STATISTICS
 // ============================================================================
-
 export interface JobStats {
   total_jobs: number;
   active_jobs: number;
@@ -253,30 +239,14 @@ export interface JobStats {
   total_applications: number;
 }
 
-// ============================================================================
-// JOB APPLICATION TYPES 
-// ============================================================================
-export interface PipelineStage {
+
+export interface Pipeline {
   id: string;
   name: string;
   order: number;
-}
 
-export interface AppliedJobApplication {
-  application_id: string;
-
-  applied_at: string;
-  last_updated_at: string;
-  stage_updated_at: string;   // ✅ IMPORTANT
-
-  status: string;
-  current_stage_id: string;
-
-  job: JobPreview;
-
-  pipeline_stages: PipelineStage[];
-}
-
-export interface AppliedJobsResponse {
-  applications: AppliedJobApplication[];
+  color?: string;
+  description?: string;
+  locked?: boolean;
+  count?: number;
 }

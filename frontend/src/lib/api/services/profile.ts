@@ -33,8 +33,9 @@ export class ProfileService {
   }
 
   // Get Candidate Profile (Public)
-  static async getCandidateProfilePublic(candidateId: string): Promise<ApiResponse<CandidateProfilePublicResponse>> {
-    return await apiClient.get<CandidateProfilePublicResponse>(`/candidate/public/${candidateId}`);
+  static async getCandidateProfilePublic(userId: string): Promise<ApiResponse<CandidateProfileResponse>> {
+    // the backend will check if this userId has a candidate profile, if it has it returns that 
+    return await apiClient.get<CandidateProfilePublicResponse>(`/candidate/public/${userId}`);
   }
 
   // ============================================================================
@@ -66,8 +67,8 @@ export class ProfileService {
   }
 
   // Get Organization Profile (Public)
-  static async getOrganizationProfilePublic(organizationId: string): Promise<ApiResponse<OrganizationPublicResponse>> {
-    return await apiClient.get<OrganizationPublicResponse>(`/organization/public/${organizationId}`);
+  static async getOrganizationProfilePublic(organizationId: string): Promise<ApiResponse<OrganizationResponse>> {
+    return await apiClient.get<OrganizationResponse>(`/organization/${organizationId}`);
   }
 
   // ============================================================================

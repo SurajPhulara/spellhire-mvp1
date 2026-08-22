@@ -72,14 +72,14 @@ export default function JobCard({ job, onStatusUpdate, onDelete }: JobCardProps)
   };
 
   const generateShareLink = () => {
-    const jobTitle = job.title
-      .toLowerCase()
-      .replace(/[^a-z0-9\s-]/g, "")
-      .replace(/\s+/g, "-")
-      .replace(/-+/g, "-")
-      .trim();
+    // const jobTitle = job.title
+    //   .toLowerCase()
+    //   .replace(/[^a-z0-9\s-]/g, "")
+    //   .replace(/\s+/g, "-")
+    //   .replace(/-+/g, "-")
+    //   .trim();
 
-    return `/jobs/${jobTitle}-${job.id}`;
+    return `/jobs/${job.id}`;
   };
 
   const copyToClipboard = async () => {

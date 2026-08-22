@@ -63,7 +63,7 @@ export default function EmployerOnboardingPage() {
     return <Loading></Loading>
 
   return (
-    <div className="min-h-screen py-12 px-4" style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', borderRadius: '1.5rem' }}>
+    <div className="min-h-screen py-12 px-4" style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', borderRadius: '1.5rem', width:'100%'}}>
       <div className="max-w-4xl mx-auto">
         {/* Header Card */}
         <div className="mb-8 p-8 bg-white rounded-3xl shadow-2xl text-center animate-fadeIn">

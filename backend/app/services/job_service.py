@@ -17,6 +17,7 @@ from app.models.user import EmployerProfile, CandidateProfile
 from app.models.enums import JobStatus, ApplicationStatus
 from app.services.candidate_service import CandidateService
 from app.services.employer_service import EmployerService
+from app.schemas.jobs import PipelineStageSchema
 
 logger = logging.getLogger(__name__)
 
@@ -418,6 +419,8 @@ class JobService:
         # ensure organization_id set
         job_kwargs["organization_id"] = org_id
         job_kwargs["created_by_employer_id"] = employer_profile.id
+        if payload.get("status") == JobStatus.ACTIVE:
+            job_kwargs["published_at"] = datetime.now(timezone.utc)
 
         job = Job(**job_kwargs)
         db.add(job)
@@ -642,29 +645,13 @@ class JobService:
     # Pipeline & Application helpers
     # ---------------------------
     @staticmethod
-    async def get_pipeline(db: AsyncSession, job: Job) -> Pipeline:
-        stmt = select(Pipeline).where(Pipeline.job_id == job.id)
+    async def get_pipeline(db: AsyncSession, job_id: uuid.UUID) -> Pipeline:
+        stmt = select(Pipeline).where(Pipeline.job_id == job_id)
         res = await db.execute(stmt)
         pipeline = res.scalars().first()
 
-        if pipeline:
-            return pipeline
-
-        # create default pipeline
-        pipeline = Pipeline(
-            job_id=job.id,
-            created_by_id=job.created_by_employer_id,
-            stages=[
-                {"id": "applied", "name": "Applied", "order": 1},
-                {"id": "screening", "name": "Screening", "order": 2},
-                {"id": "interview", "name": "Interview", "order": 3},
-                {"id": "offer", "name": "Offer", "order": 4},
-                {"id": "rejected", "name": "Reject", "order": 4}
-            ]
-        )
-
-        db.add(pipeline)
-        await db.flush()
+        if not pipeline:
+            raise NotFoundError("Pipeline not found")
 
         return pipeline
 
@@ -673,97 +660,159 @@ class JobService:
         """
         Create a simple default pipeline for the job (single 'Applied' stage).
         """
-        default_stages = [{"id": "applied", "name": "Applied", "order": 1, "isDefault": True}]
+        default_stages = [
+            {"id": "applied", "name": "Applied", "order": 1, "color": "#3b82f6", "description": "Application submitted"},
+            {"id": "screening", "name": "Screening", "order": 2, "color": "#f59e0b", "description": "Resume under review"},
+            {"id": "interview", "name": "Interview", "order": 3, "color": "#8b5cf6", "description": "Interview process ongoing"},
+            {"id": "offer", "name": "Offer", "order": 4, "color": "#10b981", "description": "Offer extended"},
+            {"id": "rejected", "name": "Rejected", "order": 5, "color": "#ef4444", "description": "Application rejected"}
+        ]
         pipeline = Pipeline(job_id=job.id, created_by_id=job.created_by_employer_id, stages=default_stages, is_active=True)
         db.add(pipeline)
         await db.flush()
         return pipeline
 
-    # @staticmethod
-    # async def create_application(
-    #     db: AsyncSession,
-    #     job_id: str,
-    #     candidate_user_id: str,
-    #     payload: Dict[str, Any]={},
-    # ) -> Application:
-    #     """
-    #     Candidate applies to a job.
 
-    #     Guarantees:
-    #     - Candidate profile exists
-    #     - No duplicate applications
-    #     - Pipeline exists (auto-created if needed)
-    #     - Assigns correct initial stage
-    #     """
+    @staticmethod
+    async def update_job_pipeline(
+        db: AsyncSession,
+        job_id: str,
+        stages: List[PipelineStageSchema],
+    ) -> List[PipelineStageSchema]:
+        pipeline = await JobService.get_pipeline(db, job_id)
 
-    #     # ── 1. Get job ─────────────────────────────────────────
-    #     job = await JobService.get_job(db, job_id)
+        if not stages:
+            raise AppException("Pipeline cannot be empty", status_code=400)
 
-    #     # ── 2. Get candidate profile ───────────────────────────
-    #     candidate: CandidateProfile = await CandidateService.get_profile(db, candidate_user_id)
+        locked_ids = {"applied", "screening", "offer", "rejected"}
+        existing_stage_map = {
+            s.get("id"): s
+            for s in (pipeline.stages or [])
+            if s.get("id")
+        }
 
-    #     # ── 3. Prevent duplicate (DB + app level) ──────────────
-    #     stmt = select(Application).where(
-    #         (Application.job_id == job.id) &
-    #         (Application.candidate_id == candidate.id)
-    #     )
-    #     res = await db.execute(stmt)
+        incoming_ids = [s.id for s in stages if s.id]
+        missing_locked = [sid for sid in locked_ids if sid not in incoming_ids]
+        if missing_locked:
+            raise AppException(
+                f"Locked stages missing: {', '.join(missing_locked)}",
+                status_code=400,
+            )
 
-    #     if res.scalars().first():
-    #         raise ConflictError("You have already applied to this job")
+        # Locked stages must stay at the edges
+        if stages[0].id != "applied" or stages[1].id != "screening":
+            raise AppException("Applied and Screening must remain first", status_code=400)
 
-    #     # ── 4. Get / create pipeline ───────────────────────────
-    #     pipeline = await JobService.get_pipeline(db, job)
+        if stages[-2].id != "offer" or stages[-1].id != "rejected":
+            raise AppException("Offer and Rejected must remain last", status_code=400)
 
-    #     if not pipeline:
-    #         pipeline = await JobService.create_default_pipeline(db, job)
+        # Validate custom stages are only in the middle
+        for stage in stages:
+            if stage.id in locked_ids and stage.id not in {"applied", "screening", "offer", "rejected"}:
+                raise AppException("Invalid locked stage", status_code=400)
 
-    #     # ── 5. Determine default stage ─────────────────────────
-    #     default_stage_id = None
 
-    #     if pipeline.stages:
-    #         # try to find default stage
-    #         default_stage = next(
-    #             (s for s in pipeline.stages if s.get("isDefault")),
-    #             None
-    #         )
 
-    #         if default_stage:
-    #             default_stage_id = default_stage.get("id")
-    #         else:
-    #             # fallback → first stage
-    #             default_stage_id = pipeline.stages[0].get("id")
+        # Prevent deleting a custom stage if applicants are already in it
+        removed_stage_ids = [
+            sid for sid in existing_stage_map.keys()
+            if sid not in incoming_ids and sid not in locked_ids
+        ]
 
-    #     # ── 6. Prepare payload ─────────────────────────────────
-    #     allowed = {"cover_letter", "resume_url", "notes"}
-    #     app_kwargs = {k: v for k, v in payload.items() if k in allowed}
+        if removed_stage_ids:
+            stmt = (
+                select(
+                    Application.current_stage_id,
+                    func.count(Application.id).label("cnt")
+                )
+                .where(
+                    Application.job_id == pipeline.job_id,
+                    Application.current_stage_id.in_(removed_stage_ids),
+                )
+                .group_by(Application.current_stage_id)
+            )
+            res = await db.execute(stmt)
+            rows = res.all()
 
-    #     # fallback resume from profile if not provided
-    #     if not app_kwargs.get("resume_url"):
-    #         app_kwargs["resume_url"] = getattr(candidate, "resume_url", None)
+            blocked = [
+                f"{row[0]} ({row[1]})"
+                for row in rows
+                if row[1] and row[1] > 0
+            ]
 
-    #     # ── 7. Create application ──────────────────────────────
-    #     application = Application(
-    #         job_id=job.id,
-    #         candidate_id=candidate.id,
-    #         pipeline_id=pipeline.id,
-    #         current_stage_id=default_stage_id,
-    #         status=ApplicationStatus.APPLIED,
-    #         stage_updated_at=datetime.now(timezone.utc),
-    #         **app_kwargs
-    #     )
+            if blocked:
+                raise AppException(
+                    "Cannot delete stage(s) with active applicants: " + ", ".join(blocked),
+                    status_code=400,
+                )
 
-    #     db.add(application)
+        normalized: List[PipelineStageSchema] = []
+        used_ids: set[str] = set()
 
-    #     # ── 8. Increment job count ─────────────────────────────
-    #     job.application_count = (job.application_count or 0) + 1
+        for index, stage in enumerate(stages, start=1):
+            stage_id = (stage.id or "").strip() or f"stg_{uuid.uuid4().hex}"
 
-    #     # ── 9. Flush (important for ID + constraints) ──────────
-    #     try:
-    #         await db.flush()
-    #     except IntegrityError:
-    #         # handles race condition (double click / retry)
-    #         raise ConflictError("You have already applied to this job")
+            if stage_id in used_ids:
+                raise AppException("Duplicate stage ids in request", status_code=400)
 
-    #     return application
+            used_ids.add(stage_id)
+
+            name = (stage.name or "").strip()
+            if not name:
+                raise AppException("Stage name cannot be empty", status_code=400)
+
+            color = (stage.color or "#9ca3af").strip()
+            description = (stage.description or "No description").strip()
+            locked = False
+            count = stage.count or 0
+
+            # preserve locked stage data from DB, never from client
+            if stage_id in locked_ids:
+                db_stage = existing_stage_map.get(stage_id)
+                if not db_stage:
+                    raise AppException(
+                        f"Locked stage missing in existing pipeline: {stage_id}",
+                        status_code=500,
+                    )
+
+                name = db_stage.get("name", name)
+                color = db_stage.get("color") or color
+                description = db_stage.get("description") or description
+                locked = True
+                count = 0
+
+            normalized.append(
+                PipelineStageSchema(
+                    id=stage_id,
+                    name=name,
+                    order=index,
+                    color=color,
+                    description=description,
+                    locked=locked,
+                    count=count,
+                )
+            )
+
+        pipeline.stages = [s.model_dump(exclude={"count"}) for s in normalized]
+        pipeline.updated_at = datetime.now(timezone.utc)
+
+        await db.flush()
+
+        count_stmt = (
+            select(
+                Application.current_stage_id,
+                func.count(Application.id).label("cnt")
+            )
+            .where(Application.job_id == pipeline.job_id)
+            .group_by(Application.current_stage_id)
+        )
+
+        count_res = await db.execute(count_stmt)
+        count_rows = count_res.all()
+        stage_counts = {row[0]: row[1] for row in count_rows}
+
+        for stage in normalized:
+            stage.count = int(stage_counts.get(stage.id, 0))
+
+        return normalized
 

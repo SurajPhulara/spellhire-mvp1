@@ -6,7 +6,7 @@ import {
   FiBookmark, FiMapPin, FiClock, FiZap,
   FiGlobe, FiBriefcase, FiStar, FiUsers, FiDollarSign
 } from 'react-icons/fi';
-import { Job, JobPreview } from '@/types/job';
+import { JobPreview } from '@/types/job';
 import JobService from '@/lib/api/services/jobs';
 import styles from './CandidateJobCard.module.css';
 

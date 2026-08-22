@@ -59,9 +59,6 @@ export interface CandidateProfileResponse {
   candidate: CandidateProfile;
 }
 
-export interface CandidateProfilePublicResponse {
-  candidate: Omit<CandidateProfile, 'current_salary' | 'id' | 'is_profile_complete' | 'created_at' | 'updated_at'>;
-}
 
 // ============================================================================
 // EMPLOYER PROFILE TYPES
@@ -135,6 +132,6 @@ export interface OrganizationResponse {
   organization: Organization;
 }
 
-export interface OrganizationPublicResponse {
-  organization: Omit<Organization, 'id' | 'is_profile_complete' | 'created_at' | 'updated_at'>;
-}
+// export interface OrganizationPublicResponse {
+//   organization: Omit<Organization, 'id' | 'is_profile_complete' | 'created_at' | 'updated_at'>;
+// }

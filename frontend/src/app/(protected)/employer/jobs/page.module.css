@@ -1,0 +1,182 @@
+.page {
+    padding: 0 16px 32px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  .container {
+    /* max-width: 1300px; */
+    margin: 0 auto;
+    box-sizing: border-box;
+  }
+  
+  .card {
+    background: white;
+    border-radius: 24px;
+    padding: 32px;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+    margin-bottom: 32px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  .cardSmall {
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    margin-bottom: 24px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  .headerFlex {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+  
+  @media (min-width: 768px) {
+    .headerFlex {
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+    }
+  }
+  
+  .title {
+    font-size: 36px;
+    font-weight: bold;
+    margin-bottom: 12px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    -webkit-background-clip: text;
+    color: transparent;
+  }
+  
+  .subtitle {
+    color: #6b7280;
+    font-size: 18px;
+  }
+  
+  .primaryBtn {
+    padding: 16px 32px;
+    background: linear-gradient(to right, #4f46e5, #7c3aed);
+    color: white;
+    border-radius: 12px;
+    font-weight: 600;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  
+  .primaryBtn:hover {
+    transform: scale(1.05);
+  }
+  
+  .icon {
+    width: 20px;
+    height: 20px;
+  }
+  
+  .filterRow {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  @media (min-width: 768px) {
+    .filterRow {
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+    }
+  }
+  
+  .filterLeft {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .filterIcon {
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0; /* VERY IMPORTANT */
+    color: #6b7280;
+  }
+  
+  .select {
+    padding: 10px 16px;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    font-weight: 500;
+  }
+  
+  .stats {
+    color: #6b7280;
+  }
+  
+  .errorBox {
+    margin-bottom: 24px;
+  }
+  
+  .errorInner {
+    display: flex;
+    gap: 16px;
+    padding: 24px;
+    background: white;
+    border-left: 4px solid red;
+    border-radius: 16px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  .retryBtn {
+    padding: 8px 16px;
+    background: #fee2e2;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  
+  .loaderWrap {
+    text-align: center;
+    padding: 80px 0;
+  }
+  
+  .loader {
+    width: 64px;
+    height: 64px;
+    border: 4px solid #c7d2fe;
+    border-top: 4px solid #4f46e5;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: auto;
+  }
+  
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  
+  /* Main fix */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(330px, 100%), 1fr));
+    gap: 24px;
+    margin-bottom: 32px;
+    align-items: stretch;
+  }
+  
+  /* Makes each JobCard fill its grid cell and prevents overlap/overflow */
+  .grid > * {
+    min-width: 0;
+    width: 100%;
+  }
+  
+  .empty {
+    text-align: center;
+  }

@@ -80,7 +80,7 @@ class ApplicationStatus(str, enum.Enum):
     INTERVIEWED = "INTERVIEWED"
     SHORTLISTED = "SHORTLISTED"
     REJECTED = "REJECTED"
-    HIRED = "HIRED"
+    OFFER = "OFFER"
     WITHDRAWN = "WITHDRAWN"
 
 

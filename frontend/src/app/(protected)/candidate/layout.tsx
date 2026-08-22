@@ -1,4 +1,4 @@
-// frontend/src/app/(protected)/(candidate)/layout.tsx
+// frontend/src/app/(protected)/candidate/layout.tsx
 "use client";
 import CandidateSidebar from "@/components/candidate/sidebar/CandidateSidebar";
 import React, { useEffect } from "react";
@@ -16,6 +16,7 @@ export default function CandidateLayout({ children }: { children: React.ReactNod
         if(user?.user_type != UserType.CANDIDATE)
             router.replace("/")
     },[user])
+
     
 
     const showSidebar = !pathname.includes("onboarding");
