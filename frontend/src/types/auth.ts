@@ -1,5 +1,5 @@
 // authentication types
-import { UserType, AccessTokenResponse, UserSummary } from './base';
+import { UserType, AccessTokenResponse, UserSummary, EmployerRole } from './base';
 
 // ============================================================================
 // REQUEST TYPES
@@ -59,6 +59,8 @@ export interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   userType: UserType | null;
+  /** Authenticated employer org role from the access token. Not UserType.EMPLOYER. */
+  employerRole: EmployerRole | null;
 }
 
 export interface AuthContextType extends AuthState {

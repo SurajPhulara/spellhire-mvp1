@@ -5,6 +5,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import styles from './EmployerSidebar.module.css';
 import { useAuth } from '@/contexts/AuthContext';
+import { employerRoleLabel, getEmployerRoleFromAccessToken } from '@/lib/utils';
 import { FiMenu, FiX } from 'react-icons/fi';
 
 export default function EmployerSidebar() {
@@ -67,7 +68,8 @@ export default function EmployerSidebar() {
           .toUpperCase() || 'SP';
         setUserInitials(initials);
         setUserName(name);
-        const role = (employer?.professionalInfo?.jobTitle as string) || (user.position as string) || (user.role as string) || 'Employer';
+        const jwtRole = auth.employerRole ?? getEmployerRoleFromAccessToken(auth.tokens?.access_token);
+        const role = employerRoleLabel(jwtRole) || (employer?.professionalInfo?.jobTitle as string) || (user.position as string) || 'Employer';
         setUserRole(role);
         const uid = user.uid ?? user.id ?? user._id ?? null;
         setUserId(uid);
@@ -82,7 +84,7 @@ export default function EmployerSidebar() {
       }
     };
     fetchUserData();
-  }, [user, employer, mounted]);
+  }, [user, employer, mounted, auth.employerRole, auth.tokens?.access_token]);
 
   const handleNavClick = (href: string) => {
     router.push(href);

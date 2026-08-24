@@ -8,6 +8,7 @@ import { ProfileService } from '@/lib/api/services/profile';
 import Loading from '@/app/loading';
 import { useAuth } from '@/contexts/AuthContext';
 import styles from './page.module.css';
+import { employerRoleLabel } from "@/lib/utils";
 
 function getInitials(name?: string | null) {
   if (!name) return 'E';
@@ -106,7 +107,7 @@ export default function EmployerProfilePage() {
     [employerProfile?.first_name, employerProfile?.last_name].filter(Boolean).join(' ') ||
     'Employer Profile';
 
-  const roleLabel = employerProfile?.role ?? 'Employer';
+  const roleLabel = employerRoleLabel(employerProfile?.role);
   const profileStatus = user?.is_profile_complete ? 'Complete' : 'Incomplete';
 
   const orgName = organization?.name || 'Organization';
@@ -300,7 +301,7 @@ export default function EmployerProfilePage() {
             <div className={styles.detailList}>
               <div className={styles.detailRow}>
                 <span>Role</span>
-                <strong>{employerProfile?.role ?? 'N/A'}</strong>
+                <strong>{employerRoleLabel(employerProfile?.role)}</strong>
               </div>
               <div className={styles.detailRow}>
                 <span>Active</span>

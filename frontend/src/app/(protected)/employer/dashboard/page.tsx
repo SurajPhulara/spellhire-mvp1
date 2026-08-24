@@ -19,7 +19,7 @@ import {
 
 export default function DashboardPage() {
   const router = useRouter();
-  const { user, isAuthenticated, isLoading, logout, userType } = useAuth();
+  const { user, isAuthenticated, isLoading, logout, userType, employerRole } = useAuth();
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -106,7 +106,7 @@ export default function DashboardPage() {
                     </>
                   ) : (
                     <>
-                      <FiBriefcase /> Employer
+                      <FiBriefcase /> {employerRole === 'ADMIN' ? 'Admin' : employerRole === 'RECRUITER' ? 'Recruiter' : 'Employer'}
                     </>
                   )}
                 </span>

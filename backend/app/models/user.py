@@ -5,7 +5,7 @@ from sqlalchemy import Column, String, Boolean, DateTime, Integer, Float, Foreig
 from sqlalchemy.dialects.postgresql import UUID, ARRAY
 from sqlalchemy.orm import relationship
 from app.models.base import Base
-from app.models.enums import AuthMethod, Gender, UserStatus, Role, JobType, WorkMode, EmployerRole
+from app.models.enums import AuthMethod, Gender, UserStatus, JobType, UserType, WorkMode, EmployerRole
 
 
 class User(Base):
@@ -47,7 +47,7 @@ class UserRole(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
-    role = Column(SQLEnum(Role), nullable=False)
+    role = Column(SQLEnum(UserType), nullable=False)
     created_at = Column(DateTime(timezone=True), default=datetime.utcnow, nullable=False)
 
     # Relationships

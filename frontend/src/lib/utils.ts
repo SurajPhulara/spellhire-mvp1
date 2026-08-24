@@ -1,12 +1,46 @@
 // lib/utils.ts - Utility functions
 
-import { UserType, UserSummary } from "@/types/base";
+import { EmployerRole, UserSummary } from "@/types/base";
 
 /**
  * Check if user is an employer
  */
 export function isEmployer(user: UserSummary | null | undefined): boolean {
   return user?.user_type === "EMPLOYER";
+}
+
+/** Map stored/JWT employer roles onto ADMIN | RECRUITER. UserType.EMPLOYER is not a role. */
+export function normalizeEmployerRole(role?: string | null): EmployerRole | null {
+  if (role === EmployerRole.ADMIN) return EmployerRole.ADMIN;
+  if (role === EmployerRole.RECRUITER || role === "HR" || role === "EMPLOYER") {
+    return EmployerRole.RECRUITER;
+  }
+  return null;
+}
+
+export function getEmployerRoleFromAccessToken(accessToken?: string | null): EmployerRole | null {
+  if (!accessToken) return null;
+  try {
+    const payload = JSON.parse(atob(accessToken.split(".")[1].replace(/-/g, "+").replace(/_/g, "/")));
+    return normalizeEmployerRole(payload?.role);
+  } catch {
+    return null;
+  }
+}
+
+export function isEmployerAdmin(role?: EmployerRole | string | null): boolean {
+  return role === EmployerRole.ADMIN;
+}
+
+/** Authenticated employer recruiting access: ADMIN or RECRUITER. */
+export function canRecruit(role?: EmployerRole | string | null): boolean {
+  return role === EmployerRole.ADMIN || role === EmployerRole.RECRUITER;
+}
+
+export function employerRoleLabel(role?: EmployerRole | string | null): string {
+  if (role === EmployerRole.ADMIN) return "Admin";
+  if (role === EmployerRole.RECRUITER) return "Recruiter";
+  return "Employer";
 }
 
 /**

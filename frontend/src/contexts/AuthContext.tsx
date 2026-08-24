@@ -18,6 +18,7 @@ import {
   AccessTokenResponse,
 } from '@/types';
 import { useRouter } from 'next/navigation';
+import { getEmployerRoleFromAccessToken } from '@/lib/utils';
 
 // ============================================================================
 // CONTEXT
@@ -249,12 +250,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // - userType is DERIVED from user
   // - Never persisted separately
 
+  const employerRole =
+    user?.user_type === UserType.EMPLOYER
+      ? getEmployerRoleFromAccessToken(tokens?.access_token)
+      : null;
+
   const value: AuthContextType = {
     user,
     tokens,
     isAuthenticated,
     isLoading,
     userType: user?.user_type ?? null,
+    employerRole,
 
     login,
     register,

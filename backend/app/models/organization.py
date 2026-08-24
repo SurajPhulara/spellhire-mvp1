@@ -39,7 +39,8 @@ class Organization(Base):
     employers = relationship("EmployerProfile", back_populates="organization")
     jobs = relationship("Job", back_populates="organization", cascade="all, delete-orphan")
     conversations = relationship("Conversation", back_populates="organization", cascade="all, delete-orphan")
-
+    members = relationship("OrganizationMember", back_populates="organization", cascade="all, delete-orphan", )
+    
     __table_args__ = (
         Index("ix_organizations_name", "name"),
         Index("ix_organizations_is_active", "is_active"),

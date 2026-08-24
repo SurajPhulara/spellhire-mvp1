@@ -1,6 +1,7 @@
 "use client";
 
 import { EmployerProfile } from "@/types";
+import { employerRoleLabel } from "@/lib/utils";
 
 interface EmployerProfileViewProps {
   profile: EmployerProfile;
@@ -99,7 +100,7 @@ export default function EmployerProfileView({
             <div className="space-y-2 text-sm">
               <DetailRow label="Employment Type" value={profile.employment_type} />
               <DetailRow label="Hire Date" value={profile.hire_date} />
-              <DetailRow label="Role" value={profile.role} />
+              <DetailRow label="Role" value={employerRoleLabel(profile.role)} />
             </div>
           </div>
         </div>

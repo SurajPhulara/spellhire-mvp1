@@ -13,6 +13,7 @@ import {
 } from "@/types";
 import { FileService } from "@/lib/api/services/files";
 import { useAuth } from "@/contexts/AuthContext";
+import { normalizeEmployerRole } from "@/lib/utils";
 
 interface EmployerProfileFormProps {
   initialData: EmployerProfile | null;
@@ -81,7 +82,7 @@ export default function EmployerProfileForm({
         jobTitle: initialData.job_title || "",
         employmentType: initialData.employment_type || "",
         hireDate: initialData.hire_date || "",
-        role: initialData.role || "",
+        role: normalizeEmployerRole(initialData.role) || "",
         skills: initialData.skills || [],
       });
     }

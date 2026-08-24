@@ -21,17 +21,9 @@ class UserStatus(str, enum.Enum):
     SUSPENDED = "SUSPENDED"
     DEACTIVATED = "DEACTIVATED"
 
-
-class Role(str, enum.Enum):
-    """User roles - stored in user_roles table"""
-    CANDIDATE = "CANDIDATE"
-    EMPLOYER = "EMPLOYER"
-
-
 class EmployerRole(str, enum.Enum):
     ADMIN = "ADMIN"
     RECRUITER = "RECRUITER"
-
 
 class JobType(str, enum.Enum):
     FULL_TIME = "FULL_TIME"
@@ -94,6 +86,27 @@ class FileType(str, enum.Enum):
 class UserType(str, enum.Enum):
     CANDIDATE = "CANDIDATE"
     EMPLOYER = "EMPLOYER"
+
+# class Role(str, enum.Enum):
+#     """User roles - stored in user_roles table"""
+#     CANDIDATE = "CANDIDATE"
+#     EMPLOYER = "EMPLOYER"
+
+
+
+class TeamMemberRole(str, enum.Enum):
+    RECRUITER = "RECRUITER"
+    INTERVIEWER = "INTERVIEWER"
+
+
+class TeamMemberStatus(str, enum.Enum):
+    INVITED = "INVITED"
+    ACTIVE = "ACTIVE"
+    REJECTED = "REJECTED"
+    DISABLED = "DISABLED"
+
+
+
 
 
 class ConversationType(str, enum.Enum):
