@@ -1,0 +1,137 @@
+.modalBackdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.36);
+    display: grid;
+    place-items: center;
+    z-index: 60;
+    padding: 1rem;
+  }
+  
+  .modalCard {
+    width: min(620px, 100%);
+    border-radius: 1.2rem;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 24px 70px rgba(15, 23, 42, 0.18);
+    padding: 1rem;
+  }
+  
+  .modalHeader {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+  }
+  
+  .modalKicker {
+    margin: 0;
+    font-size: 0.72rem;
+    font-weight: 900;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  
+  .modalTitle {
+    margin: 0.25rem 0 0;
+    font-size: 1.05rem;
+    font-weight: 900;
+    color: #111827;
+  }
+  
+  .modalClose {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 0.6rem;
+    border: 1px solid #e5e7eb;
+    background: #fff;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+  }
+  
+  .modalFields {
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+  }
+  
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+  }
+  
+  .field span {
+    font-size: 0.78rem;
+    font-weight: 800;
+    color: #475569;
+  }
+  
+  .input {
+    width: 100%;
+    border-radius: 0.85rem;
+    border: 1px solid #dbe3ef;
+    background: #fff;
+    color: #111827;
+    padding: 0.75rem 0.85rem;
+    font: inherit;
+    outline: none;
+  }
+  
+  .input:focus {
+    border-color: #c7d2fe;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.08);
+  }
+  
+  .colorRow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+  }
+  
+  .colorSwatch {
+    width: 1.9rem;
+    height: 1.9rem;
+    border-radius: 999px;
+    border: 2px solid transparent;
+    cursor: pointer;
+  }
+  
+  .colorSwatchActive {
+    box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.08);
+    border-color: #fff;
+  }
+  
+  .modalActions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.6rem;
+    margin-top: 1rem;
+  }
+  
+  .modalCancel,
+  .modalSave {
+    border-radius: 999px;
+    padding: 0.55rem 0.95rem;
+    font-size: 0.82rem;
+    font-weight: 900;
+    cursor: pointer;
+    border: 1px solid #e5e7eb;
+  }
+  
+  .modalCancel {
+    background: #fff;
+    color: #475569;
+  }
+  
+  .modalSave {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: #111827;
+    color: #fff;
+    border-color: #111827;
+  }

@@ -1,0 +1,295 @@
+.pageHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    padding: 0.95rem 1.1rem;
+    border-radius: 1.2rem;
+    background: linear-gradient(
+      135deg,
+      rgba(37, 99, 235, 0.8),
+      rgba(79, 70, 229, 0.8)
+    );
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+  }
+  
+  .pageHeaderLeft {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-width: 0;
+  }
+  
+  .pageIcon {
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 0.85rem;
+    display: grid;
+    place-items: center;
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.16);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    flex-shrink: 0;
+  }
+  
+  .pageTitle {
+    margin: 0;
+    color: #ffffff;
+    font-size: 1.35rem;
+    line-height: 1.2;
+    font-weight: 900;
+    letter-spacing: -0.03em;
+  }
+  
+  .pageSubtitle {
+    margin: 0.35rem 0 0;
+    color: rgba(255, 255, 255, 0.88);
+    font-size: 0.88rem;
+    line-height: 1.6;
+  }
+  
+  .pageHeaderActions {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    flex-wrap: wrap;
+  }
+  
+  .viewJobBtn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.42rem;
+    border-radius: 999px;
+    padding: 0.55rem 0.95rem;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.12);
+    color: #ffffff;
+    font-weight: 800;
+    font-size: 0.82rem;
+    cursor: pointer;
+    text-decoration: none;
+    transition:
+      transform 0.18s ease,
+      background 0.18s ease,
+      box-shadow 0.18s ease,
+      border-color 0.18s ease;
+  }
+  
+  .viewJobBtn:hover {
+    transform: translateY(-1px);
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.55);
+    box-shadow: 0 10px 18px rgba(15, 23, 42, 0.12);
+    text-decoration: none;
+  }
+  
+  .statsGrid {
+    display: grid;
+    grid-template-columns: repeat(
+      4,
+      minmax(0, 1fr)
+    );
+    gap: 0.85rem;
+  }
+  
+  .statCard {
+    position: relative;
+    overflow: hidden;
+    padding: 1rem 1.05rem;
+    border-radius: 1.15rem;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 8px 22px rgba(15, 23, 42, 0.05);
+  }
+  
+  .statCard::before {
+    content: '';
+    position: absolute;
+    inset: 0 auto auto 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(
+      90deg,
+      #4f46e5,
+      #3b82f6
+    );
+  }
+  
+  .statTop {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    margin-bottom: 0.9rem;
+  }
+  
+  .statIcon {
+    width: 1.9rem;
+    height: 1.9rem;
+    border-radius: 0.7rem;
+    display: grid;
+    place-items: center;
+    color: #4f46e5;
+    background: #eef2ff;
+    border: 1px solid #e0e7ff;
+    flex-shrink: 0;
+  }
+  
+  .statLabel {
+    font-size: 0.72rem;
+    font-weight: 900;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  
+  .statValue {
+    display: block;
+    font-size: 1.3rem;
+    line-height: 1.05;
+    font-weight: 900;
+    color: #0f172a;
+  }
+  
+  .statSubtext {
+    margin: 0.45rem 0 0;
+    color: #6b7280;
+    font-size: 0.82rem;
+    line-height: 1.65;
+  }
+  
+  .boardWrap {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1.2rem;
+    border-radius: 1.45rem;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 8px 22px rgba(15, 23, 42, 0.05);
+  }
+  
+  .boardHeader {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+  
+  .sectionKicker {
+    margin: 0;
+    font-size: 0.72rem;
+    font-weight: 900;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  
+  .sectionTitle {
+    margin: 0.25rem 0 0;
+    font-size: 1rem;
+    font-weight: 900;
+    color: #111827;
+  }
+  
+  .boardHeaderActions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .addStageBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    border-radius: 999px;
+    padding: 0.55rem 0.9rem;
+    border: 1px solid #dbe3ef;
+    background: #f8fafc;
+    color: #0f172a;
+    font-size: 0.82rem;
+    font-weight: 900;
+    cursor: pointer;
+  }
+  
+  .addStageBtn:hover {
+    background: #eef2ff;
+    border-color: #c7d2fe;
+  }
+  
+  /* Kanban board */
+  
+  .board {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 320px;
+    gap: 0.85rem;
+  
+    overflow-x: auto;
+    overflow-y: hidden;
+  
+    padding-bottom: 0.5rem;
+    align-items: stretch;
+  
+    /*
+     * The mouse wheel is intentionally NOT
+     * captured here.
+     *
+     * This means:
+     * - mouse wheel -> page scrolls vertically
+     * - trackpad horizontal gesture -> board scrolls horizontally
+     * - horizontal scrollbar -> board scrolls horizontally
+     */
+    overscroll-behavior-x: contain;
+  
+    scrollbar-width: auto;
+    scrollbar-color: #cbd5e1 #f1f5f9;
+  }
+  
+  .board::-webkit-scrollbar {
+    height: 10px;
+  }
+  
+  .board::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 999px;
+  }
+  
+  .board::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 999px;
+    border: 2px solid #f1f5f9;
+  }
+  
+  .board::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+  }
+  
+  @media (max-width: 1100px) {
+    .statsGrid {
+      grid-template-columns: repeat(
+        2,
+        minmax(0, 1fr)
+      );
+    }
+  }
+  
+  @media (max-width: 700px) {
+    .pageHeader {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+      padding: 1rem 1.1rem;
+    }
+  
+    .statsGrid {
+      grid-template-columns: 1fr;
+    }
+  
+    .board {
+      grid-auto-columns: 320px;
+    }
+  }
