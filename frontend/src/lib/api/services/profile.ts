@@ -71,6 +71,14 @@ export class ProfileService {
     return await apiClient.get<OrganizationResponse>(`/organization/${organizationId}`);
   }
 
+  static async listOrganizations(q?: string, limit = 20, offset = 0): Promise<ApiResponse<{ organizations: Organization[] }>> {
+    return await apiClient.get<{ organizations: Organization[] }>('/organization/list', {
+      q: q || undefined,
+      limit,
+      offset,
+    });
+  }
+
   // ============================================================================
   // UTILITY METHODS
   // ============================================================================

@@ -34,7 +34,7 @@ from app.core.responses import success_response, error_response
 from app.core.exceptions import AppException, NotFoundError, ConflictError
 from app.services.organization_service import OrganizationService
 from app.schemas.organization import OrganizationSchema
-from app.core.security import require_employer
+from app.core.security import require_admin, require_employer
 
 logger = logging.getLogger(__name__)
 
@@ -148,7 +148,7 @@ async def get_organization(
 async def update_organization(
     payload: OrganizationSchema,
     db: AsyncSession = Depends(get_db),
-    current_user: dict = Depends(require_employer),
+    current_user: dict = Depends(require_admin),
 ):
     """
     Patch/update organization fields. Only provided fields are applied.
@@ -177,6 +177,7 @@ async def update_organization(
 async def delete_organization(
     organization_id: str,
     db: AsyncSession = Depends(get_db),
+    current_user: dict = Depends(require_admin),
 ):
     """
     Delete an organization (hard delete). Caller should consider soft-delete instead.

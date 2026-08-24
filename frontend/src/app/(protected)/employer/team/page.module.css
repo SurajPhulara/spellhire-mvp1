@@ -1,0 +1,270 @@
+.page {
+  padding: 0 16px 32px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.container {
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+.card,
+.tableCard {
+  background: white;
+  border-radius: 24px;
+  padding: 32px;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.12);
+  margin-bottom: 24px;
+}
+
+.cardSmall {
+  background: white;
+  border-radius: 16px;
+  padding: 20px 24px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+  margin-bottom: 24px;
+}
+
+.headerFlex {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+@media (min-width: 768px) {
+  .headerFlex {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
+
+.title {
+  font-size: 36px;
+  font-weight: bold;
+  margin-bottom: 12px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+.subtitle {
+  color: #6b7280;
+  font-size: 18px;
+}
+
+.primaryBtn {
+  padding: 16px 32px;
+  background: linear-gradient(to right, #4f46e5, #7c3aed);
+  color: white;
+  border-radius: 12px;
+  font-weight: 600;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.primaryBtn:hover {
+  transform: scale(1.03);
+}
+
+.icon {
+  width: 20px;
+  height: 20px;
+}
+
+.filterRow {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+@media (min-width: 768px) {
+  .filterRow {
+    flex-direction: row;
+  }
+}
+
+.search,
+.select {
+  padding: 12px 16px;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  font-weight: 500;
+}
+
+.search {
+  flex: 1;
+}
+
+.errorInner {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 24px;
+  background: white;
+  border-left: 4px solid #dc2626;
+  border-radius: 16px;
+  margin-bottom: 24px;
+}
+
+.retryBtn {
+  padding: 8px 16px;
+  background: #fee2e2;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.loaderWrap {
+  text-align: center;
+  padding: 80px 0;
+}
+
+.loader {
+  width: 64px;
+  height: 64px;
+  border: 4px solid #c7d2fe;
+  border-top: 4px solid #4f46e5;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: auto;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.empty {
+  text-align: center;
+}
+
+.fadeIn {
+  animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.tableHead,
+.tableRow {
+  display: none;
+  grid-template-columns: 1.4fr 1.6fr 0.9fr 0.9fr 1.1fr;
+  gap: 16px;
+  align-items: center;
+}
+
+.tableHead {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #6b7280;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.tableRow {
+  padding: 16px 0;
+  border-bottom: 1px solid #f3f4f6;
+  color: #374151;
+}
+
+.tableRow:last-child {
+  border-bottom: none;
+}
+
+.nameCell {
+  font-weight: 600;
+  color: #111827;
+}
+
+.roleBadge,
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.roleBadge {
+  background: #eef2ff;
+  color: #4f46e5;
+}
+
+.statusActive {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.statusInvited {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.statusRejected {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.statusDisabled {
+  background: #f3f4f6;
+  color: #4b5563;
+}
+
+.cardGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+.memberCard {
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+}
+
+.cardTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.cardTop h3 {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.meta {
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.skills {
+  margin-top: 8px;
+  font-size: 13px;
+  color: #4f46e5;
+}
+
+@media (min-width: 900px) {
+  .tableHead,
+  .tableRow {
+    display: grid;
+  }
+
+  .cardGrid {
+    display: none;
+  }
+}

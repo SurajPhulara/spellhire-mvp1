@@ -62,6 +62,14 @@ export enum SkillLevel {
 export enum EmployerRole {
   ADMIN = "ADMIN",
   RECRUITER = "RECRUITER",
+  INTERVIEWER = "INTERVIEWER",
+}
+
+export enum EmployerProfileStatus {
+  INVITED = "INVITED",
+  ACTIVE = "ACTIVE",
+  REJECTED = "REJECTED",
+  DISABLED = "DISABLED",
 }
 
 export enum CompanySize {

@@ -5,7 +5,8 @@ import {
   Gender, 
   JobType, 
   WorkMode, 
-  EmployerRole, 
+  EmployerRole,
+  EmployerProfileStatus,
   CompanySize, 
   Skill, 
   Experience, 
@@ -66,30 +67,47 @@ export interface CandidateProfileResponse {
 
 export interface EmployerProfile {
   id?: string;
-  created_at: string; // ISO date string
-  updated_at: string; // ISO date string
+  user_id?: string | null;
+  organization_id?: string;
   first_name?: string;
-  last_name?: string;
+  last_name?: string | null;
+  email?: string;
   gender?: Gender;
   bio?: string;
   profile_picture_url?: string;
   phone?: string;
   work_phone?: string;
   work_location?: string;
-  organization_id?: string;
-  department?: string;
+  department?: string | null;
   reporting_manager_id?: string;
-  job_title?: string;
+  job_title?: string | null;
   employment_type?: JobType;
   hire_date?: string; // ISO date string
   role?: EmployerRole;
+  status?: EmployerProfileStatus;
   skills?: Skill[];
+  experience_years?: number | null;
+  invited_at?: string | null;
+  accepted_at?: string | null;
   is_active?: boolean;
   is_profile_complete?: boolean;
+  created_at?: string; // ISO date string
+  updated_at?: string; // ISO date string
 }
 
 export interface EmployerRequest {
-  employer: Omit<EmployerProfile, 'id' | 'is_profile_complete' | 'created_at' | 'updated_at' | 'organization_id'>;
+  employer: Omit<
+    EmployerProfile,
+    | 'id'
+    | 'is_profile_complete'
+    | 'created_at'
+    | 'updated_at'
+    | 'organization_id'
+    | 'user_id'
+    | 'status'
+    | 'invited_at'
+    | 'accepted_at'
+  >;
 }
 
 export interface EmployerResponse {

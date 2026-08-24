@@ -1,11 +1,11 @@
 import uuid
 from datetime import datetime
 from typing import Optional, List
-from sqlalchemy import Column, String, Boolean, DateTime, Integer, Float, ForeignKey, Index, Enum as SQLEnum, JSON, Date
+from sqlalchemy import Column, String, Boolean, DateTime, Integer, Float, ForeignKey, Index, Enum as SQLEnum, JSON, Date, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID, ARRAY
 from sqlalchemy.orm import relationship
 from app.models.base import Base
-from app.models.enums import AuthMethod, Gender, UserStatus, JobType, UserType, WorkMode, EmployerRole
+from app.models.enums import AuthMethod, Gender, UserStatus, JobType, UserType, WorkMode, EmployerRole, EmployerProfileStatus
 
 
 class User(Base):
@@ -152,54 +152,62 @@ class CandidateProfile(Base):
 
 class EmployerProfile(Base):
     """
-    Minimal placeholder for employer profile.
-    References unified users table and organization. Can be expanded later.
+    Organization member profile (admin, recruiter, or interviewer).
+    Login-capable members (ADMIN, RECRUITER) have a User; interviewers do not.
     """
     __tablename__ = "employer_profiles"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), unique=True, nullable=False)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), unique=True, nullable=True)
     organization_id = Column(UUID(as_uuid=True), ForeignKey("organizations.id", ondelete="CASCADE"), nullable=True)
+    invited_by_employer_id = Column(UUID(as_uuid=True), ForeignKey("employer_profiles.id", ondelete="SET NULL"), nullable=True)
     reporting_manager_id = Column(UUID(as_uuid=True), ForeignKey("employer_profiles.id"), nullable=True)
 
-    # Basic fields (minimal placeholder)
     first_name = Column(String(255), default="", nullable=True)
     last_name = Column(String(255), default="", nullable=True)
+    email = Column(String(255), nullable=True)
     phone = Column(String(50), default="", nullable=True)
     gender = Column(SQLEnum(Gender), default=Gender.FEMALE, nullable=True)
     department = Column(String(255), nullable=True)
 
-    # Job information
     job_title = Column(String(255), default="", nullable=True)
     employment_type = Column(SQLEnum(JobType), default=JobType.FULL_TIME, nullable=False)
     role = Column(SQLEnum(EmployerRole), default=EmployerRole.RECRUITER, nullable=False)
+    status = Column(SQLEnum(EmployerProfileStatus, name="employerprofilestatus"), default=EmployerProfileStatus.ACTIVE, nullable=False)
     hire_date = Column(Date, nullable=True)
     work_phone = Column(String(50), default="", nullable=True)
     work_location = Column(String(500), default="", nullable=True)
     bio = Column(String, default="", nullable=True)
+    experience_years = Column(Float, nullable=True)
 
-    # Skills
     skills = Column(JSON, default=[], nullable=True)
-    # Structure: [
-    #   {
-    #     "name": "Python",
-    #     "level": "advanced",  // beginner, intermediate, advanced, expert
-    #     "years_experience": 4,  // optional
-    #     "last_used": 2024       // optional
-    #   }
-    # ]
 
-    # Status
+    invitation_token = Column(String(255), unique=True, nullable=True)
+    invitation_expires_at = Column(DateTime(timezone=True), nullable=True)
+    invited_at = Column(DateTime(timezone=True), nullable=True)
+    accepted_at = Column(DateTime(timezone=True), nullable=True)
+    rejected_at = Column(DateTime(timezone=True), nullable=True)
+
     is_active = Column(Boolean, default=True, nullable=False)
     is_profile_complete = Column(Boolean, default=False, nullable=False)
 
     created_at = Column(DateTime(timezone=True), default=datetime.utcnow, nullable=False)
     updated_at = Column(DateTime(timezone=True), default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
 
-    # Relationships
     user = relationship("User", back_populates="employer_profile")
     organization = relationship("Organization", back_populates="employers")
-    reporting_manager = relationship("EmployerProfile", remote_side=[id], backref="direct_reports")
+    invited_by = relationship(
+        "EmployerProfile",
+        remote_side=[id],
+        foreign_keys=[invited_by_employer_id],
+        backref="invited_members",
+    )
+    reporting_manager = relationship(
+        "EmployerProfile",
+        remote_side=[id],
+        foreign_keys=[reporting_manager_id],
+        backref="direct_reports",
+    )
     created_jobs = relationship("Job", back_populates="created_by", foreign_keys="Job.created_by_employer_id")
     created_pipelines = relationship("Pipeline", back_populates="created_by")
     interview_assignments = relationship("InterviewAssignment", back_populates="interviewer")
@@ -212,6 +220,9 @@ class EmployerProfile(Base):
         Index("ix_employer_profiles_user_id", "user_id"),
         Index("ix_employer_profiles_organization_id", "organization_id"),
         Index("ix_employer_profiles_role", "role"),
+        Index("ix_employer_profiles_email", "email"),
+        Index("ix_employer_profiles_status", "status"),
+        UniqueConstraint("organization_id", "email", name="uq_employer_profiles_org_email"),
     )
 
 

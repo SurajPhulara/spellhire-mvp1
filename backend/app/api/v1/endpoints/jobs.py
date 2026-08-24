@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
 from app.core.database import get_db
-from app.core.security import get_current_user_optional, require_candidate, require_employer
+from app.core.security import get_current_user_optional, require_candidate, require_recruiter
 from app.core.responses import success_response
 from app.core.exceptions import AppException, NotFoundError, ConflictError
 
@@ -26,7 +26,7 @@ router = APIRouter()
 @router.post("", status_code=status.HTTP_201_CREATED)
 async def create_job(
     payload: Job,
-    current_user: dict = Depends(require_employer),
+    current_user: dict = Depends(require_recruiter),
     db: AsyncSession = Depends(get_db)
 ):
     """
@@ -53,11 +53,11 @@ async def create_job(
 async def update_job(
     job_id: str,
     payload: Job,
-    current_user: dict = Depends(require_employer),
+    current_user: dict = Depends(require_recruiter),
     db: AsyncSession = Depends(get_db)
 ):
     try:
-        employer_user_id = current_user.get("sub") if current_user.get("user_type") == "EMPLOYER" else None
+        employer_user_id = current_user.get("sub")
         job = await JobService.update_job(db=db, job_id=job_id, payload=payload.model_dump(exclude_none=True), employer_user_id=employer_user_id)
         await db.commit()
         await db.refresh(job)
@@ -75,11 +75,11 @@ async def update_job(
 async def update_job(
     job_id: str,
     status: JobStatus,
-    current_user: dict = Depends(require_employer),
+    current_user: dict = Depends(require_recruiter),
     db: AsyncSession = Depends(get_db)
 ):
     try:
-        employer_user_id = current_user.get("sub") if current_user.get("user_type") == "EMPLOYER" else None
+        employer_user_id = current_user.get("sub")
         job = await JobService.update_job(db=db, job_id=job_id, payload={"status":status}, employer_user_id=employer_user_id)
         await db.commit()
         await db.refresh(job)
@@ -100,7 +100,7 @@ async def list_jobs_organization(
     work_mode: Optional[str] = None,
     status: Optional[str] = None,
     offset: int = 0,
-    current_user: dict = Depends(require_employer),
+    current_user: dict = Depends(require_recruiter),
     db: AsyncSession = Depends(get_db)
 ):
     try:
@@ -122,7 +122,7 @@ async def list_jobs_employer(
     work_mode: Optional[str] = None,
     status: Optional[str] = None,
     offset: int = 0,
-    current_user: dict = Depends(require_employer),
+    current_user: dict = Depends(require_recruiter),
     db: AsyncSession = Depends(get_db)
 ):
     try:
@@ -137,7 +137,7 @@ async def list_jobs_employer(
         raise HTTPException(status_code=500, detail="Failed to fetch jobs")
 
 @router.get("/employer/{job_id}", status_code=status.HTTP_200_OK)
-async def get_job(job_id: str, db: AsyncSession = Depends(get_db), current_user: dict = Depends(require_employer)):
+async def get_job(job_id: str, db: AsyncSession = Depends(get_db), current_user: dict = Depends(require_recruiter)):
     try:
         user_id = current_user.get("sub")
         job = await JobService.get_job_employer(db=db, job_id=job_id, user_id=user_id)
@@ -241,9 +241,9 @@ async def get_job(
         raise HTTPException(status_code=500, detail="Failed to fetch job")
 
 @router.delete("/{job_id}", status_code=status.HTTP_200_OK)
-async def delete_job(job_id: str, current_user: dict = Depends(require_employer), db: AsyncSession = Depends(get_db)):
+async def delete_job(job_id: str, current_user: dict = Depends(require_recruiter), db: AsyncSession = Depends(get_db)):
     try:
-        employer_user_id = current_user.get("sub") if current_user.get("user_type") == "EMPLOYER" else None
+        employer_user_id = current_user.get("sub")
         await JobService.delete_job(db=db, job_id=job_id, employer_user_id=employer_user_id)
         await db.commit()
         return success_response(message="Job deleted", data={})
@@ -257,7 +257,7 @@ async def delete_job(job_id: str, current_user: dict = Depends(require_employer)
 
 
 @router.post("/{job_id}/publish", status_code=status.HTTP_200_OK)
-async def publish_job(job_id: str, current_user: dict = Depends(require_employer), db: AsyncSession = Depends(get_db)):
+async def publish_job(job_id: str, current_user: dict = Depends(require_recruiter), db: AsyncSession = Depends(get_db)):
     try:
         if current_user.get("user_type") != "EMPLOYER":
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only employers can publish jobs")

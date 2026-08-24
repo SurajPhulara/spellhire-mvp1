@@ -59,12 +59,14 @@ export interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   userType: UserType | null;
-  /** Authenticated employer org role from the access token. Not UserType.EMPLOYER. */
+  /** Org role from the access token: ADMIN | RECRUITER | INTERVIEWER. Not UserType.EMPLOYER. Interviewers typically do not login. */
   employerRole: EmployerRole | null;
 }
 
 export interface AuthContextType extends AuthState {
   login: (email: string, password: string, userType: UserType) => Promise<void>;
+  /** Returns true when this user_type authenticated. Used by unified login to try candidate then employer without extra toasts. */
+  attemptLogin: (email: string, password: string, userType: UserType) => Promise<boolean>;
   register: (email: string, password: string, userType: UserType) => Promise<void>;
   googleAuth: (googleToken: string, userType: UserType) => Promise<void>;
   logout: () => Promise<void>;

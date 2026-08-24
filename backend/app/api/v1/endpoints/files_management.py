@@ -17,7 +17,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
 from app.core.database import get_db
-from app.core.security import get_current_user, require_candidate
+from app.core.security import get_current_user, require_admin, require_candidate
 from app.core.responses import success_response
 from app.core.exceptions import FileUploadError
 
@@ -163,13 +163,11 @@ async def upload_profile_picture(
 @router.post("/organization-logo", status_code=status.HTTP_200_OK)
 async def upload_organization_logo(
     file: UploadFile = File(...),
-    current_user: dict = Depends(get_current_user),
+    current_user: dict = Depends(require_admin),
     db: AsyncSession = Depends(get_db),
 ):
     try:
         user_id = current_user.get("sub")
-        if current_user.get("user_type") != "EMPLOYER":
-            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only employers may upload organization logo")
 
         employer_profile = await EmployerService.get_employer_profile(db, user_id)
         if not employer_profile or not employer_profile.organization_id:
@@ -276,11 +274,9 @@ async def delete_profile_picture(current_user: dict = Depends(get_current_user),
 
 
 @router.delete("/organization-logo", status_code=status.HTTP_200_OK)
-async def delete_organization_logo(current_user: dict = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+async def delete_organization_logo(current_user: dict = Depends(require_admin), db: AsyncSession = Depends(get_db)):
     try:
         user_id = current_user.get("sub")
-        if current_user.get("user_type") != "EMPLOYER":
-            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only employers may delete org logo")
 
         employer_profile = await EmployerService.get_employer_profile(db, user_id)
         if not employer_profile or not employer_profile.organization_id:

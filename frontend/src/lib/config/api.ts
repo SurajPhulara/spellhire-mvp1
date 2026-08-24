@@ -63,6 +63,10 @@ export const API_CONFIG = {
         PUBLIC: '/profile/organization/public',
       },
     },
+    TEAM: {
+      LIST: '/team',
+      CREATE: '/team',
+    },
   },
   
   // Error messages

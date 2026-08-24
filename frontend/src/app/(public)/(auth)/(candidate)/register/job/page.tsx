@@ -5,14 +5,14 @@ import AuthForm from '@/components/auth/AuthForm';
 import { UserType } from '@/types';
 import Loading from '@/app/loading';
 
-export default function EmployerRegisterPage() {
+export default function CandidateRegisterPage() {
   return (
     <Suspense fallback={<Loading />}>
       <AuthForm
         mode="register"
-        userType={UserType.EMPLOYER}
-        heading="Create your organization account"
-        subtitle="You'll become an administrator of this organization after you set it up."
+        userType={UserType.CANDIDATE}
+        heading="Create your account"
+        subtitle="Search jobs, apply, and track applications."
       />
     </Suspense>
   );

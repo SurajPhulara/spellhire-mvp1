@@ -1,19 +1,21 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
-import { redirect, usePathname, useRouter } from 'next/navigation';
+import { useState, useCallback } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import styles from './AuthForm.module.css';
 import { FiMail, FiLock, FiAlertCircle, FiCheck, FiX, FiEye, FiEyeOff } from 'react-icons/fi';
 import { useAuth } from '@/contexts/AuthContext';
 import { UserType } from '@/types';
 import Loading from '@/app/loading';
 import GoogleSignInButton from './GoogleSignInButton';
-import { getRedirectPath } from '@/lib/utils';
 import AuthService from '@/lib/api/services/auth';
+import { toast } from 'react-hot-toast';
 
 interface AuthFormProps {
   mode: 'login' | 'register';
-  userType: UserType;
+  userType?: UserType;
+  heading?: string;
+  subtitle?: string;
 }
 
 // Password validation function
@@ -32,8 +34,9 @@ const validatePassword = (password: string) => {
   };
 };
 
-export default function AuthForm({ mode, userType }: AuthFormProps) {
+export default function AuthForm({ mode, userType, heading, subtitle }: AuthFormProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -44,11 +47,15 @@ export default function AuthForm({ mode, userType }: AuthFormProps) {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isPasswordFocused, setIsPasswordFocused] = useState(false);
   const [isConfirmPasswordFocused, setIsConfirmPasswordFocused] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { login, register, googleAuth, isLoading, isAuthenticated, user } = useAuth();
+  const { attemptLogin, register, googleAuth, isLoading, isAuthenticated } = useAuth();
   
   const isRegister = mode === 'register';
-  const isCandidate = userType === UserType.CANDIDATE;
+  const asEmployer = searchParams.get('as') === 'employer';
+  const preferredType =
+    userType ?? (asEmployer ? UserType.EMPLOYER : UserType.CANDIDATE);
+  const isCandidate = preferredType === UserType.CANDIDATE;
 
   // const pathname = usePathname();
   // useEffect(() => {
@@ -110,10 +117,25 @@ export default function AuthForm({ mode, userType }: AuthFormProps) {
     }
 
     try {
+      setIsSubmitting(true);
       if (isRegister) {
-        await register(email, password, userType);
+        await register(email, password, preferredType);
       } else {
-        await login(email, password, userType);
+        const order =
+          preferredType === UserType.EMPLOYER
+            ? [UserType.EMPLOYER, UserType.CANDIDATE]
+            : [UserType.CANDIDATE, UserType.EMPLOYER];
+        let signedIn = false;
+        for (const type of order) {
+          signedIn = await attemptLogin(email, password, type);
+          if (signedIn) break;
+        }
+        if (!signedIn) {
+          setErrorMsg('Invalid email or password. Please try again or reset your password.');
+          setshowForgotPasswordMenu(true);
+          return;
+        }
+        toast.success('Logged in successfully');
       }
     } catch (error: any) {
       if (isRegister) {
@@ -132,19 +154,21 @@ export default function AuthForm({ mode, userType }: AuthFormProps) {
           setErrorMsg('An error occurred during sign in. Please try again.');
         }
       }
+    } finally {
+      setIsSubmitting(false);
     }
-  }, [email, password, confirmPassword, userType, isRegister, login, register, passwordValidation.isValid]);
+  }, [email, password, confirmPassword, preferredType, isRegister, attemptLogin, register, passwordValidation.isValid]);
 
   // Handle Google sign-in
   const handleGoogleSignIn = useCallback(async (googleToken: string) => {
     setErrorMsg('');
 
     try {
-      await googleAuth(googleToken, userType);
+      await googleAuth(googleToken, preferredType);
     } catch (error: any) {
       setErrorMsg(error.message || 'Google authentication failed');
     }
-  }, [userType, googleAuth]);
+  }, [preferredType, googleAuth]);
 
   // Handle forgot password
   const handleForgotPassword = useCallback(async () => {
@@ -156,32 +180,22 @@ export default function AuthForm({ mode, userType }: AuthFormProps) {
 
     try {
       // TODO: Implement password reset API call
-      await AuthService.forgotPassword({email, "user_type":userType})
+      await AuthService.forgotPassword({ email, user_type: preferredType });
       setErrorMsg('Password reset email sent! Check your inbox.');
       setshowForgotPasswordMenu(false);
     } catch (error: any) {
       setErrorMsg('Error sending password reset email. Please try again.');
     }
-  }, [email]);
+  }, [email, preferredType]);
 
   // Get route paths
   const getAlternateModePath = () => {
     if (isRegister) {
-      return isCandidate ? '/login' : '/employer/login';
-    } else {
-      return isCandidate ? '/register' : '/employer/register';
+      return isCandidate ? '/login' : '/login?as=employer';
     }
+    return isCandidate ? '/register/job' : '/register/hire';
   };
 
-  const getAlternateUserTypePath = () => {
-    if (isCandidate) {
-      return isRegister ? '/employer/register' : '/employer/login';
-    } else {
-      return isRegister ? '/register' : '/login';
-    }
-  };
-
-  // Show loading state while auth is initializing or during login/registration
   if (isLoading || isAuthenticated) {
     return <Loading />;
   }
@@ -189,12 +203,16 @@ export default function AuthForm({ mode, userType }: AuthFormProps) {
   return (
     <div className={styles.authContainer}>
       <div className={styles.authCard}>
-        <h1>{isRegister ? 'Create Your Account' : 'Welcome Back'}</h1>
+        <h1>{heading || (isRegister ? 'Create your account' : 'Welcome back')}</h1>
         <p className={styles.authSubtitle}>
-          {isRegister ? 'Sign up' : 'Sign in'} as a{' '}
-          <span style={{ fontWeight: 600, color: 'var(--primary)' }}>
-            {isCandidate ? 'Candidate' : 'Employer'}
-          </span>
+          {subtitle ||
+            (isRegister
+              ? isCandidate
+                ? 'Create an account to search jobs and track applications.'
+                : "Create an account to hire. You'll become an administrator of your organization."
+              : asEmployer
+                ? 'Sign in to your organization with your work email.'
+                : 'Sign in with your email and password.')}
         </p>
 
         <div className={styles.inputGroup}>
@@ -334,9 +352,11 @@ export default function AuthForm({ mode, userType }: AuthFormProps) {
         <button
           className={`${styles.authButton} ${styles.primary}`}
           onClick={handleEmailAuth}
-          disabled={isLoading}
+          disabled={isLoading || isSubmitting}
         >
-          {isLoading ? (isRegister ? 'Creating Account...' : 'Signing In...') : (isRegister ? 'Sign Up' : 'Sign In')}
+          {isLoading || isSubmitting
+            ? (isRegister ? 'Creating Account...' : 'Signing In...')
+            : (isRegister ? 'Sign Up' : 'Sign In')}
         </button>
 
         <div className={styles.authDivider}>
@@ -360,13 +380,34 @@ export default function AuthForm({ mode, userType }: AuthFormProps) {
         </p>
 
         <p className={styles.authFooter}>
-          {isCandidate ? 'Are you an employer?' : 'Are you a candidate?'}{' '}
-          <button
-            className={styles.textButton}
-            onClick={() => router.push(getAlternateUserTypePath())}
-          >
-            {isCandidate ? 'Employer' : 'Candidate'} {isRegister ? 'sign up' : 'sign in'}
-          </button>
+          {isRegister ? (
+            <>
+              Looking for something else?{' '}
+              <button
+                className={styles.textButton}
+                onClick={() => router.push('/register')}
+              >
+                Choose another path
+              </button>
+            </>
+          ) : asEmployer ? (
+            <>
+              Looking for a job?{' '}
+              <button className={styles.textButton} onClick={() => router.push('/login')}>
+                Sign in
+              </button>
+            </>
+          ) : (
+            <>
+              Hiring for a company?{' '}
+              <button
+                className={styles.textButton}
+                onClick={() => router.push('/login?as=employer')}
+              >
+                Organization sign in
+              </button>
+            </>
+          )}
         </p>
       </div>
     </div>

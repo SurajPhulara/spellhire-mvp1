@@ -1,6 +1,6 @@
 // lib/utils.ts - Utility functions
 
-import { EmployerRole, UserSummary } from "@/types/base";
+import { EmployerProfileStatus, EmployerRole, UserSummary } from "@/types/base";
 
 /**
  * Check if user is an employer
@@ -9,12 +9,11 @@ export function isEmployer(user: UserSummary | null | undefined): boolean {
   return user?.user_type === "EMPLOYER";
 }
 
-/** Map stored/JWT employer roles onto ADMIN | RECRUITER. UserType.EMPLOYER is not a role. */
+/** Map stored/JWT org roles onto ADMIN | RECRUITER | INTERVIEWER. UserType.EMPLOYER is not a role. */
 export function normalizeEmployerRole(role?: string | null): EmployerRole | null {
   if (role === EmployerRole.ADMIN) return EmployerRole.ADMIN;
-  if (role === EmployerRole.RECRUITER || role === "HR" || role === "EMPLOYER") {
-    return EmployerRole.RECRUITER;
-  }
+  if (role === EmployerRole.RECRUITER) return EmployerRole.RECRUITER;
+  if (role === EmployerRole.INTERVIEWER) return EmployerRole.INTERVIEWER;
   return null;
 }
 
@@ -40,7 +39,16 @@ export function canRecruit(role?: EmployerRole | string | null): boolean {
 export function employerRoleLabel(role?: EmployerRole | string | null): string {
   if (role === EmployerRole.ADMIN) return "Admin";
   if (role === EmployerRole.RECRUITER) return "Recruiter";
-  return "Employer";
+  if (role === EmployerRole.INTERVIEWER) return "Interviewer";
+  return "";
+}
+
+export function employerProfileStatusLabel(status?: EmployerProfileStatus | string | null): string {
+  if (status === EmployerProfileStatus.INVITED) return "Invited";
+  if (status === EmployerProfileStatus.ACTIVE) return "Active";
+  if (status === EmployerProfileStatus.REJECTED) return "Rejected";
+  if (status === EmployerProfileStatus.DISABLED) return "Disabled";
+  return "";
 }
 
 /**
@@ -130,7 +138,11 @@ export function isPublicRoute(pathname: string): boolean {
     "/register",
     "/forgot-password",
     "/reset-password",
-    "/verify-email", // Email verification is accessible when authenticated
+    "/verify-email",
+    "/organizations",
+    "/organization",
+    "/invite",
+    "/team/invite",
   ];
   
   return publicRoutes.some(route => pathname === route || pathname.startsWith(route));
@@ -140,7 +152,7 @@ export function isPublicRoute(pathname: string): boolean {
  * Check if route is an auth route (login/register)
  */
 export function isAuthRoute(pathname: string): boolean {
-  const authRoutes = ["/login", "/register", "/verify-email"];
+  const authRoutes = ["/login", "/register", "/employer/login", "/employer/register", "/verify-email"];
   return authRoutes.some(route => pathname.startsWith(route));
 }
 

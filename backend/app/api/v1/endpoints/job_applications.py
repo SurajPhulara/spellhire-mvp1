@@ -3,7 +3,7 @@ import logging
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.security import require_candidate, require_employer
+from app.core.security import require_candidate, require_recruiter
 from app.core.database import get_db
 from app.services.application_service import ApplicationService
 from app.core.responses import success_response
@@ -27,10 +27,11 @@ router = APIRouter()
 @router.get("/job/{job_id}/board", status_code=status.HTTP_200_OK)
 async def get_job_applications_board(
     job_id: str,
-    current_user: dict = Depends(require_employer),
+    current_user: dict = Depends(require_recruiter),
     db: AsyncSession = Depends(get_db),
 ):
     try:
+        await JobService.get_job_employer(db=db, job_id=job_id, user_id=current_user.get("sub"))
         data = await ApplicationService.get_job_applications_board(db=db, job_id=job_id)
 
         return success_response(
@@ -51,10 +52,11 @@ async def get_job_applications_board(
 async def update_job_pipeline(
     job_id: str,
     payload: UpdatePipelineRequestSchema,
-    current_user: dict = Depends(require_employer),
+    current_user: dict = Depends(require_recruiter),
     db: AsyncSession = Depends(get_db),
 ):
     try:
+        await JobService.get_job_employer(db=db, job_id=job_id, user_id=current_user.get("sub"))
         pipeline_stages = await JobService.update_job_pipeline(
             db=db,
             job_id=job_id,
@@ -85,10 +87,11 @@ async def move_application_stage(
     job_id: str,
     application_id: str,
     payload: MoveApplicationStageRequestSchema,
-    current_user: dict = Depends(require_employer),
+    current_user: dict = Depends(require_recruiter),
     db: AsyncSession = Depends(get_db),
 ):
     try:
+        await JobService.get_job_employer(db=db, job_id=job_id, user_id=current_user.get("sub"))
         changed_by_id = current_user.get("sub")
 
         app = await ApplicationService.move_application_stage(
@@ -127,10 +130,11 @@ async def update_application_notes(
     job_id: str,
     application_id: str,
     payload: UpdateApplicationNotesRequestSchema,
-    current_user: dict = Depends(require_employer),
+    current_user: dict = Depends(require_recruiter),
     db: AsyncSession = Depends(get_db),
 ):
     try:
+        await JobService.get_job_employer(db=db, job_id=job_id, user_id=current_user.get("sub"))
         app = await ApplicationService.update_application_notes(
             db=db,
             job_id=job_id,

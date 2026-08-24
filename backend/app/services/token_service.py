@@ -91,17 +91,28 @@ class TokenService:
                 "profile_complete": user.candidate_profile.is_profile_complete,
             })
 
-        # Employer
-        if user.employer_profile:
-            employer_role = user.employer_profile.role
+        # Employer claims only when authenticating as EMPLOYER
+        if user_type == UserType.EMPLOYER and user.employer_profile:
+            profile = user.employer_profile
+            employer_role = profile.role
             role_value = employer_role.value if hasattr(employer_role, "value") else str(employer_role)
+            status_value = profile.status.value if hasattr(profile.status, "value") else str(profile.status or "")
+
+            if role_value == "INTERVIEWER":
+                raise AuthenticationError("Interviewers cannot log in")
+            if status_value and status_value != "ACTIVE":
+                raise AuthenticationError("Employer membership is not active")
+            if profile.is_active is False:
+                raise AuthenticationError("Employer profile is inactive")
+
             claims.update({
-                "first_name": user.employer_profile.first_name,
-                "last_name": user.employer_profile.last_name,
-                "organization_id": str(user.employer_profile.organization_id),
+                "first_name": profile.first_name,
+                "last_name": profile.last_name,
+                "organization_id": str(profile.organization_id) if profile.organization_id else None,
                 "role": role_value,
+                "employer_status": status_value,
                 "permissions": [role_value] if role_value else [],
-                "profile_complete": user.employer_profile.is_profile_complete,
+                "profile_complete": profile.is_profile_complete,
             })
 
         return claims

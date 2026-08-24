@@ -1,49 +1,31 @@
-// hiring team (organization specific)
+// hiring team (organization EmployerProfiles)
 
-import { EmployerRole } from './base';
-
-export enum TeamMemberRole {
-  RECRUITER = 'RECRUITER',
-  INTERVIEWER = 'INTERVIEWER',
-}
-
-export enum TeamMemberStatus {
-  INVITED = 'INVITED',
-  ACTIVE = 'ACTIVE',
-  REJECTED = 'REJECTED',
-  DISABLED = 'DISABLED',
-}
-
-export interface TeamMember {
-  id: string;
-
-  first_name: string;
-  last_name?: string | null;
-  email: string;
-
-  role: TeamMemberRole;
-  status: TeamMemberStatus;
-
-  job_title?: string | null;
-  experience_years?: number | null;
-  skills?: Array<Record<string, unknown>>;
-
-  invited_at: string;
-  accepted_at?: string | null;
-}
+import { EmployerRole, Skill } from './base';
+import { EmployerProfile } from './profile';
 
 export interface TeamMembersResponse {
-  members: TeamMember[];
+  members: EmployerProfile[];
 }
 
 export interface TeamMemberCreate {
   first_name: string;
   last_name?: string;
   email: string;
-
-  role: TeamMemberRole;
-
+  role: EmployerRole;
   job_title?: string;
   experience_years?: number;
-  skills?: Array<Record<string, unknown>>;
+  skills?: Skill[];
+}
+
+export interface TeamMemberInviteResponse {
+  member: EmployerProfile;
+}
+
+export interface TeamInviteAccept {
+  password?: string;
+  first_name?: string;
+  last_name?: string;
+  job_title?: string;
+  experience_years?: number;
+  skills?: Skill[];
 }

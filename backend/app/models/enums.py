@@ -24,6 +24,14 @@ class UserStatus(str, enum.Enum):
 class EmployerRole(str, enum.Enum):
     ADMIN = "ADMIN"
     RECRUITER = "RECRUITER"
+    INTERVIEWER = "INTERVIEWER"
+
+
+class EmployerProfileStatus(str, enum.Enum):
+    INVITED = "INVITED"
+    ACTIVE = "ACTIVE"
+    REJECTED = "REJECTED"
+    DISABLED = "DISABLED"
 
 class JobType(str, enum.Enum):
     FULL_TIME = "FULL_TIME"
@@ -91,22 +99,6 @@ class UserType(str, enum.Enum):
 #     """User roles - stored in user_roles table"""
 #     CANDIDATE = "CANDIDATE"
 #     EMPLOYER = "EMPLOYER"
-
-
-
-class TeamMemberRole(str, enum.Enum):
-    RECRUITER = "RECRUITER"
-    INTERVIEWER = "INTERVIEWER"
-
-
-class TeamMemberStatus(str, enum.Enum):
-    INVITED = "INVITED"
-    ACTIVE = "ACTIVE"
-    REJECTED = "REJECTED"
-    DISABLED = "DISABLED"
-
-
-
 
 
 class ConversationType(str, enum.Enum):

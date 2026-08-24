@@ -417,7 +417,7 @@ export default function EmployerProfileForm({
                       onChange={(e) => updateFormData({ jobTitle: e.target.value })}
                       required
                       className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
-                      placeholder="HR Manager, Recruiter, CEO"
+                      placeholder="Talent Lead, Recruiter, CEO"
                     />
                   </div>
                   <div>
@@ -490,6 +490,11 @@ export default function EmployerProfileForm({
                         Recruiter (Jobs, Applications, Interviews)
                       </>
                     )}
+                    {formData.role === EmployerRole.INTERVIEWER && (
+                      <>
+                        Interviewer
+                      </>
+                    )}
                     {!formData.role && (
                       <>—</>
                     )}
@@ -497,6 +502,7 @@ export default function EmployerProfileForm({
                   <p className="text-xs text-gray-500 mt-2">
                     {formData.role === EmployerRole.ADMIN && "Full access to all organization features"}
                     {formData.role === EmployerRole.RECRUITER && "Can post jobs, manage applications, and schedule interviews"}
+                    {formData.role === EmployerRole.INTERVIEWER && "Interviewers do not log in; they use invitation and interview links"}
                   </p>
                 </div>
 
@@ -512,10 +518,12 @@ export default function EmployerProfileForm({
                     <option value="">Select Role</option>
                     <option value={EmployerRole.ADMIN}>Admin (Full Access)</option>
                     <option value={EmployerRole.RECRUITER}>Recruiter (Jobs, Applications, Interviews)</option>
+                    <option value={EmployerRole.INTERVIEWER}>Interviewer</option>
                   </select>
                   <p className="text-xs text-gray-500 mt-2">
                     {formData.role === EmployerRole.ADMIN && "Full access to all organization features"}
                     {formData.role === EmployerRole.RECRUITER && "Can post jobs, manage applications, and schedule interviews"}
+                    {formData.role === EmployerRole.INTERVIEWER && "Interviewers do not log in; they use invitation and interview links"}
                   </p>
                 </div> */}
 

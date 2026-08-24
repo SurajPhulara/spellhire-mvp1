@@ -184,6 +184,10 @@ class ApplicationStageHistory(Base):
 class InterviewAssignment(Base):
     """
     Interview scheduling and management for applications.
+
+    interviewer_id references EmployerProfile (including INTERVIEWER members
+    who have no User / cannot log in). Rating (1-10) and detailed feedback
+    live on this row; scheduling/video is deferred.
     """
     __tablename__ = "interview_assignments"
 

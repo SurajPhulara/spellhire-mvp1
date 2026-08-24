@@ -40,7 +40,7 @@ from app.models.user import (
     Token as TokenModel,
     UserSession,
 )
-from app.models.enums import AuthMethod, UserType, UserStatus
+from app.models.enums import AuthMethod, UserType, UserStatus, EmployerRole, EmployerProfileStatus
 from app.services.email_service import EmailService
 from app.services.token_service import TokenService
 from app.schemas.user import UserSummary
@@ -128,6 +128,35 @@ class AuthService:
 
         res = await db.execute(q)
         return res.scalars().first()
+
+    @staticmethod
+    def _assert_employer_can_authenticate(user: User) -> None:
+        profile = user.employer_profile
+        if not profile:
+            raise AuthenticationError("Employer profile not found")
+        role = profile.role.value if hasattr(profile.role, "value") else str(profile.role)
+        status_value = profile.status.value if hasattr(profile.status, "value") else str(profile.status or "")
+        if role == EmployerRole.INTERVIEWER.value:
+            raise AuthenticationError("Interviewers cannot log in")
+        if status_value != EmployerProfileStatus.ACTIVE.value:
+            raise AuthenticationError("Employer membership is not active")
+        if not profile.is_active:
+            raise AuthenticationError("Employer profile is inactive")
+
+    @staticmethod
+    def _new_employer_profile(*, user_id, organization_id, email: str, first_name: str = "", last_name: str = "") -> EmployerProfile:
+        now = datetime.now(timezone.utc)
+        return EmployerProfile(
+            user_id=user_id,
+            organization_id=organization_id,
+            email=email,
+            first_name=first_name or "",
+            last_name=last_name or "",
+            role=EmployerRole.ADMIN,
+            status=EmployerProfileStatus.ACTIVE,
+            accepted_at=now,
+            is_active=True,
+        )
 
     @staticmethod
     async def _create_and_send_verification_otp(
@@ -273,12 +302,10 @@ class AuthService:
                 organization = await OrganizationService.create_organization(db)
                 organization_id = organization.id
 
-                # For MVP: allow None, but in production you might require it
-                # raise AppException("Organization ID is required for employer registration", status_code=400)
-                pass
-            profile = EmployerProfile(
-                user_id=user.id, 
-                organization_id=organization_id
+            profile = AuthService._new_employer_profile(
+                user_id=user.id,
+                organization_id=organization_id,
+                email=email,
             )
             db.add(profile)
         else:
@@ -400,9 +427,10 @@ class AuthService:
                     db.add(profile)
                 elif user_type == UserType.EMPLOYER and not user.employer_profile:
                     organization = await OrganizationService.create_organization(db)
-                    profile = EmployerProfile(
+                    profile = AuthService._new_employer_profile(
                         user_id=user.id,
                         organization_id=organization.id,
+                        email=email,
                         first_name=first_name,
                         last_name=last_name,
                     )
@@ -470,6 +498,9 @@ class AuthService:
             await db.flush()
 
         await db.refresh(user)
+
+        if user_type == UserType.EMPLOYER:
+            AuthService._assert_employer_can_authenticate(user)
             
         # Create token pair
         tokens = await TokenService.create_token_pair(
@@ -537,6 +568,9 @@ class AuthService:
         
         if user.status == UserStatus.DEACTIVATED:
             raise AuthenticationError("Your account has been deactivated.")
+
+        if user_type == UserType.EMPLOYER:
+            AuthService._assert_employer_can_authenticate(user)
 
         # 5. Update last login timestamp
         user.last_login_at = datetime.now(timezone.utc)

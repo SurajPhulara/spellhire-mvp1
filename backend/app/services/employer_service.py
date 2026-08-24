@@ -18,9 +18,10 @@ from datetime import datetime, timezone
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.exceptions import NotFoundError, ConflictError, AppException
+from app.core.exceptions import NotFoundError, ConflictError, AppException, ForbiddenError
 from app.models.user import EmployerProfile, User  # models paths per your repo
 from app.models.organization import Organization
+from app.models.enums import EmployerRole, EmployerProfileStatus
 import logging
 import uuid
 
@@ -79,14 +80,21 @@ class EmployerService:
         # Only set allowed fields to prevent unexpected kwargs
         allowed = {
             "organization_id", "reporting_manager_id", "first_name", "last_name",
-            "phone", "gender", "department", "job_title",
-            "employment_type", "role", "hire_date", "work_phone", "work_location",
-            "bio", "skills",
+            "email", "phone", "gender", "department", "job_title",
+            "employment_type", "hire_date", "work_phone", "work_location",
+            "bio", "skills", "experience_years",
             "is_active", "is_profile_complete"
         }
         profile_kwargs = {k: v for k, v in payload.items() if k in allowed}
+        profile_kwargs.setdefault("email", user.email)
 
-        profile = EmployerProfile(user_id=user_id, **profile_kwargs)
+        profile = EmployerProfile(
+            user_id=user_id,
+            role=EmployerRole.ADMIN,
+            status=EmployerProfileStatus.ACTIVE,
+            accepted_at=datetime.now(timezone.utc),
+            **profile_kwargs,
+        )
         db.add(profile)
         await db.flush()
         return profile
@@ -100,10 +108,10 @@ class EmployerService:
         profile = await EmployerService.get_employer_profile(db, user_id)
 
         allowed = {
-            "organization_id", "reporting_manager_id", "first_name", "last_name",
+            "reporting_manager_id", "first_name", "last_name",
             "phone", "gender", "department", "profile_picture_url", "job_title",
-            "employment_type", "role", "hire_date", "work_phone", "work_location",
-            "bio", "skills",
+            "employment_type", "hire_date", "work_phone", "work_location",
+            "bio", "skills", "experience_years",
             "is_active", "is_profile_complete"
         }
 
@@ -141,8 +149,18 @@ class EmployerService:
 
         profile = await EmployerService.get_employer_profile_optional(db, user_id)
         if not profile:
-            # create minimal profile with organization
-            profile = EmployerProfile(user_id=user_id, organization_id=organization_id)
+            q = select(User).where(User.id == user_id)
+            user_res = await db.execute(q)
+            user = user_res.scalars().first()
+            profile = EmployerProfile(
+                user_id=user_id,
+                organization_id=organization_id,
+                email=user.email if user else None,
+                role=EmployerRole.ADMIN,
+                status=EmployerProfileStatus.ACTIVE,
+                accepted_at=datetime.now(timezone.utc),
+                is_active=True,
+            )
             db.add(profile)
             await db.flush()
             return profile
@@ -174,3 +192,25 @@ class EmployerService:
         q = select(EmployerProfile).where(EmployerProfile.organization_id == organization_id).limit(limit).offset(offset)
         res = await db.execute(q)
         return res.scalars().all()
+
+    @staticmethod
+    def _role_value(profile: EmployerProfile) -> str:
+        role = profile.role
+        return role.value if hasattr(role, "value") else str(role)
+
+    @staticmethod
+    def _status_value(profile: EmployerProfile) -> str:
+        status = profile.status
+        return status.value if hasattr(status, "value") else str(status or "")
+
+    @staticmethod
+    async def get_recruiting_member(db: AsyncSession, user_id: str) -> EmployerProfile:
+        """Active ADMIN or RECRUITER membership for a logged-in user."""
+        profile = await EmployerService.get_employer_profile(db, user_id)
+        if not profile.organization_id:
+            raise ForbiddenError("Organization membership required")
+        if not profile.is_active or EmployerService._status_value(profile) != EmployerProfileStatus.ACTIVE.value:
+            raise ForbiddenError("Employer membership is not active")
+        if EmployerService._role_value(profile) not in (EmployerRole.ADMIN.value, EmployerRole.RECRUITER.value):
+            raise ForbiddenError("Recruiter access required")
+        return profile

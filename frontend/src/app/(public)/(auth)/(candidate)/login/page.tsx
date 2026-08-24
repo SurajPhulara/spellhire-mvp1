@@ -1,9 +1,13 @@
-// app/candidate/login/page.tsx
 'use client';
 
+import { Suspense } from 'react';
 import AuthForm from '@/components/auth/AuthForm';
-import { UserType } from '@/types';
+import Loading from '@/app/loading';
 
-export default function CandidateLoginPage() {
-  return <AuthForm mode="login" userType={UserType.CANDIDATE} />;
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<Loading />}>
+      <AuthForm mode="login" />
+    </Suspense>
+  );
 }

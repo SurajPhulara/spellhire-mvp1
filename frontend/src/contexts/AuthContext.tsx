@@ -129,6 +129,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // - Calls backend
   // - Mutates global auth state
 
+  const applySession = (nextUser: UserSummary, nextTokens: AccessTokenResponse) => {
+    saveTokens(nextTokens);
+    setUser(nextUser);
+    setTokens(nextTokens);
+    setIsAuthenticated(true);
+  };
+
+  const attemptLogin = async (
+    email: string,
+    password: string,
+    user_type: UserType
+  ): Promise<boolean> => {
+    const res = await AuthService.login({ email, password, user_type });
+    if (!res.success || !res.data?.user || !res.data?.tokens) {
+      return false;
+    }
+    applySession(res.data.user, res.data.tokens);
+    return true;
+  };
+
   const login = async (
     email: string,
     password: string,
@@ -136,25 +156,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   ) => {
     setIsLoading(true);
     try {
-      const res = await AuthService.login({email, password, user_type })
-      
-      if(!res.success)
-        toast.error(res.message);
-      else {
-
-
-        const { user, tokens } = res.data;
-
-        saveTokens(tokens);
-        setUser(user);
-        setTokens(tokens);
-        setIsAuthenticated(true);
-        
-        toast.success('Logged in successfully');
+      const ok = await attemptLogin(email, password, user_type);
+      if (!ok) {
+        toast.error("Invalid email or password");
+        const err: Error & { status?: number } = new Error("Login failed");
+        err.status = 401;
+        throw err;
       }
+      toast.success("Logged in successfully");
     } catch (err) {
-      alert(err)
-      toast.error('Login failed');
+      if (!(err instanceof Error && (err as Error & { status?: number }).status === 401)) {
+        toast.error("Login failed");
+      }
       throw err;
     } finally {
       setIsLoading(false);
@@ -250,6 +263,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // - userType is DERIVED from user
   // - Never persisted separately
 
+  // Employer-side permissions come from EmployerProfile.role on the JWT (ADMIN | RECRUITER).
+  // INTERVIEWER is a valid org role but interviewers do not login, so they will not appear here.
   const employerRole =
     user?.user_type === UserType.EMPLOYER
       ? getEmployerRoleFromAccessToken(tokens?.access_token)
@@ -264,6 +279,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     employerRole,
 
     login,
+    attemptLogin,
     register,
     googleAuth,
     logout,

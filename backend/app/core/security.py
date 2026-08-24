@@ -169,8 +169,17 @@ def require_user_type(*allowed_types: str) -> Callable:
 
 
 # Convenience specific dependencies
+def require_employer(current_user: dict = Depends(get_current_user)) -> dict:
+    """Require an authenticated employer who can log in (ADMIN or RECRUITER)."""
+    if current_user.get("user_type") != "EMPLOYER":
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied")
+    role = current_user.get("role")
+    if role == "INTERVIEWER":
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied")
+    return current_user
+
+
 require_candidate = require_user_type("CANDIDATE")
-require_employer = require_user_type("EMPLOYER")
 
 
 def require_complete_profile(current_user: dict = Depends(get_current_user)) -> dict:
@@ -187,11 +196,11 @@ def require_verified_email(current_user: dict = Depends(get_current_user)) -> di
     return current_user
 
 
-def require_employer_permission(*required_permissions: str):
-    """Factory dependency to require a permission inside current_user['permissions']"""
+def require_employer_permission(*required_roles: str):
+    """Require the JWT employer role to be one of required_roles (ADMIN / RECRUITER)."""
     def dependency(current_user: dict = Depends(require_employer)) -> dict:
-        perms = current_user.get("permissions", [])
-        if not any(p in perms for p in required_permissions):
+        role = current_user.get("role")
+        if role not in required_roles:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied")
         return current_user
     return dependency

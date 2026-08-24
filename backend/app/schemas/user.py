@@ -15,7 +15,7 @@ from typing import Optional, List, Any
 from datetime import date, datetime
 from pydantic import BaseModel, ConfigDict, Field, HttpUrl
 import uuid
-from app.models.enums import Gender, JobType, UserStatus, UserType, WorkMode, EmployerRole
+from app.models.enums import Gender, JobType, UserStatus, UserType, WorkMode, EmployerRole, EmployerProfileStatus
 from app.schemas.base import Language, Skills
 
 
@@ -104,24 +104,26 @@ class EmployerProfileSchema(BaseModel):
     user_id: Optional[uuid.UUID] = Field(None, description="Associated user UUID", example=str(uuid.uuid4()))
     organization_id: Optional[uuid.UUID] = Field(None, description="Organization UUID", example=str(uuid.uuid4()))
     reporting_manager_id: Optional[uuid.UUID] = Field(None, description="Reporting manager profile UUID", example=str(uuid.uuid4()))
+    invited_by_employer_id: Optional[uuid.UUID] = Field(None, description="Inviting member profile UUID", example=str(uuid.uuid4()))
 
     first_name: Optional[str] = Field(None, description="First name", example="Priya")
     last_name: Optional[str] = Field(None, description="Last name", example="Shah")
+    email: Optional[str] = Field(None, description="Member email", example="priya@example.com")
     phone: Optional[str] = Field(None, description="Phone number", example="+91-9123456780")
     gender: Optional[Gender] = Field(None, description="Gender", example="FEMALE")
     department: Optional[str] = Field(None, description="Department", example="Engineering")
     profile_picture_url: Optional[str] = Field(None, description="Public URL to profile picture", example="https://cdn.example.com/profile/priya.jpg")
 
-    # Job / role information
     job_title: Optional[str] = Field(None, description="Job title", example="Head of Talent")
     employment_type: Optional[JobType] = Field(None, description="Employment type", example="FULL_TIME")
-    role: Optional[EmployerRole] = Field(None, description="Employer role", example="ADMIN")
+    role: Optional[EmployerRole] = Field(None, description="Organization member role", example="ADMIN")
+    status: Optional[EmployerProfileStatus] = Field(None, description="Membership status", example="ACTIVE")
     hire_date: Optional[date] = Field(None, description="Hire date (YYYY-MM-DD)", example="2020-08-01")
     work_phone: Optional[str] = Field(None, description="Work phone", example="+91-1122334455")
     work_location: Optional[str] = Field(None, description="Work location address", example="Bengaluru, India")
     bio: Optional[str] = Field(None, description="Short bio", example="Talent leader with 8 years experience.")
+    experience_years: Optional[float] = Field(None, description="Years of experience", example=8)
 
-    # Skills and status
     skills: Optional[List[Skills]] = Field(None, description="Skills / expertise list", example=["hiring", "interviewing"])
     is_active: Optional[bool] = Field(None, description="Is employer profile active", example=True)
     is_profile_complete: Optional[bool] = Field(None, description="Has employer completed profile", example=False)

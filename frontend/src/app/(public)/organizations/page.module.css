@@ -1,0 +1,130 @@
+.page {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 3rem;
+}
+
+.hero {
+  background: #ffffff;
+  border-radius: 28px;
+  padding: 2rem;
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.12);
+  margin-bottom: 1.5rem;
+}
+
+.kicker {
+  color: #7c3aed;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.75rem;
+}
+
+.hero h1 {
+  font-size: 2rem;
+  font-weight: 800;
+  margin: 0.4rem 0;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+.hero p {
+  color: #6b7280;
+}
+
+.search {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+.search input {
+  flex: 1;
+  border: 2px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 0.9rem 1rem;
+}
+
+.search button {
+  border: none;
+  border-radius: 14px;
+  padding: 0.9rem 1.2rem;
+  font-weight: 700;
+  color: white;
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  cursor: pointer;
+}
+
+.hint {
+  margin-top: 0.75rem;
+  font-size: 0.85rem;
+}
+
+.error,
+.empty,
+.status {
+  background: white;
+  border-radius: 20px;
+  padding: 1.5rem;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+}
+
+.empty a {
+  display: inline-block;
+  margin-top: 0.75rem;
+  color: #4f46e5;
+  font-weight: 700;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 720px) {
+  .grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.orgCard {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  background: white;
+  border-radius: 20px;
+  padding: 1.1rem;
+  text-decoration: none;
+  color: inherit;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+}
+
+.orgCard h3 {
+  font-weight: 800;
+}
+
+.orgCard p {
+  color: #6b7280;
+  font-size: 0.92rem;
+}
+
+.logo {
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}

@@ -276,6 +276,20 @@ class EmailService:
         )
 
     @classmethod
+    def send_team_invitation_email(
+        cls,
+        to_email: str,
+        context: Optional[Dict[str, Any]] = None,
+        raise_on_error: bool = False,
+    ) -> None:
+        cls.send_template_email(
+            to_email=to_email,
+            template_name="team_invitation",
+            context=context or {},
+            raise_on_error=raise_on_error,
+        )
+
+    @classmethod
     def send_welcome_email(
         cls,
         to_email: str,

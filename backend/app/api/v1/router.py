@@ -90,4 +90,10 @@ api_router.include_router(files_management_router, prefix="/files", tags=["File 
 # ---------------------------------------------------------------------------
 api_router.include_router(job_applications_router, prefix="/applications", tags=["Job Applications"], )
 
-logger.info("API v1 routes registered: auth, candidate, employer, organization, jobs, files, job applications")
+
+# ---------------------------------------------------------------------------
+# Team routes
+# ---------------------------------------------------------------------------
+api_router.include_router(team_router, prefix="/team", tags=["Team"], )
+
+logger.info("API v1 routes registered: auth, candidate, employer, organization, jobs, files, job applications, team")

@@ -5,6 +5,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
+import { employerRoleLabel } from '@/lib/utils';
 import styles from './page.module.css';
 import { 
   FiUser, 
@@ -106,7 +107,7 @@ export default function DashboardPage() {
                     </>
                   ) : (
                     <>
-                      <FiBriefcase /> {employerRole === 'ADMIN' ? 'Admin' : employerRole === 'RECRUITER' ? 'Recruiter' : 'Employer'}
+                      <FiBriefcase /> {employerRoleLabel(employerRole) || 'Employer'}
                     </>
                   )}
                 </span>

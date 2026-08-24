@@ -29,15 +29,9 @@ class JobService:
 
     @staticmethod
     async def get_job_employer(db: AsyncSession, job_id: str, user_id: str) -> Job:
-        employer : EmployerProfile = await EmployerService.get_employer_profile(db, user_id)
+        employer: EmployerProfile = await EmployerService.get_recruiting_member(db, user_id)
         q = select(Job).where(
-            (Job.id == job_id) 
-            &
-            (
-                (Job.created_by_employer_id == employer.id) 
-                |
-                (Job.collaborator_employer_ids.any(employer.id))
-            )
+            (Job.id == job_id) & (Job.organization_id == employer.organization_id)
         )
         res = await db.execute(q)
         job = res.scalars().first()
@@ -120,8 +114,7 @@ class JobService:
 
         filters = []
 
-        # candidate = CandidateService.get_profile(db, employer_user_id)
-        employer = await EmployerService.get_employer_profile(db, employer_user_id)
+        employer = await EmployerService.get_recruiting_member(db, employer_user_id)
 
 
         if not employer:
@@ -179,6 +172,45 @@ class JobService:
         jobs = res.scalars().all()
 
         return jobs, total
+
+    @staticmethod
+    async def list_jobs_employer(
+        db: AsyncSession,
+        q: Optional[str] = None,
+        employer_user_id: Optional[str] = None,
+        job_type: Optional[str] = None,
+        work_mode: Optional[str] = None,
+        status: Optional[str] = None,
+        limit: int = 20,
+        offset: int = 0,
+    ) -> Tuple[List[Job], int]:
+        employer = await EmployerService.get_recruiting_member(db, employer_user_id)
+        filters = [Job.created_by_employer_id == employer.id]
+
+        if q:
+            ilike_q = f"%{q}%"
+            filters.append(
+                Job.title.ilike(ilike_q) |
+                Job.description.ilike(ilike_q) |
+                Job.requirements.ilike(ilike_q)
+            )
+        if job_type:
+            filters.append(Job.job_type == job_type)
+        if work_mode:
+            filters.append(Job.work_mode == work_mode)
+        if status:
+            filters.append(Job.status == status)
+
+        total = await db.scalar(select(func.count(Job.id)).where(*filters))
+        data_stmt = (
+            select(Job)
+            .where(*filters)
+            .order_by(Job.created_at.desc())
+            .limit(limit)
+            .offset(offset)
+        )
+        res = await db.execute(data_stmt)
+        return res.scalars().all(), total
 
 
     # @staticmethod
@@ -391,12 +423,7 @@ class JobService:
         - Ensure employer profile exists and organization exists.
         - Does not commit.
         """
-        # Validate employer profile exists
-        q = select(EmployerProfile).where(EmployerProfile.user_id == employer_user_id)
-        r = await db.execute(q)
-        employer_profile = r.scalars().first()
-        if not employer_profile:
-            raise NotFoundError("Employer profile not found")
+        employer_profile = await EmployerService.get_recruiting_member(db, employer_user_id)
 
         org_id = employer_profile.organization_id
         if not org_id:
@@ -435,16 +462,6 @@ class JobService:
         """
         job = await JobService.get_job_employer(db, job_id, employer_user_id)
 
-        # permission check: verify employer_user_id corresponds to created_by_employer_id
-        if employer_user_id:
-            q = select(EmployerProfile).where(EmployerProfile.user_id == employer_user_id)
-            r = await db.execute(q)
-            employer_profile = r.scalars().first()
-            if not employer_profile:
-                raise NotFoundError("Employer profile not found")
-            if str(job.created_by_employer_id) != str(employer_profile.id):
-                raise AppException("Forbidden: cannot edit job you didn't create", status_code=403)
-
         allowed = {
             "title", "description", "requirements", "responsibilities", "vacancies",
             "job_type", "work_mode", "experience_level", "required_skills", "preferred_skills",
@@ -481,13 +498,7 @@ class JobService:
         """
         Mark job as ACTIVE and set published_at.
         """
-        job = await JobService.get_job(db, job_id)
-        if employer_user_id:
-            q = select(EmployerProfile).where(EmployerProfile.user_id == employer_user_id)
-            r = await db.execute(q)
-            employer_profile = r.scalars().first()
-            if not employer_profile or str(job.created_by_employer_id) != str(employer_profile.id):
-                raise AppException("Forbidden: cannot publish job you didn't create", status_code=403)
+        job = await JobService.get_job_employer(db, job_id, employer_user_id)
 
         job.status = JobStatus.ACTIVE
         job.published_at = datetime.now(timezone.utc)
