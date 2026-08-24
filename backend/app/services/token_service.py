@@ -93,11 +93,14 @@ class TokenService:
 
         # Employer
         if user.employer_profile:
+            employer_role = user.employer_profile.role
+            role_value = employer_role.value if hasattr(employer_role, "value") else str(employer_role)
             claims.update({
                 "first_name": user.employer_profile.first_name,
                 "last_name": user.employer_profile.last_name,
                 "organization_id": str(user.employer_profile.organization_id),
-                "role": user.employer_profile.role,
+                "role": role_value,
+                "permissions": [role_value] if role_value else [],
                 "profile_complete": user.employer_profile.is_profile_complete,
             })
 

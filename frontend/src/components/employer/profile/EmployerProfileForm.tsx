@@ -37,7 +37,6 @@ interface FormState {
   employmentType: JobType | "";
   hireDate: string;
   role: EmployerRole | "";
-  canInterview: boolean;
   skills: Skill[];
 }
 
@@ -64,7 +63,6 @@ export default function EmployerProfileForm({
     employmentType: "",
     hireDate: "",
     role: "",
-    canInterview: false,
     skills: [],
   });
 
@@ -84,7 +82,6 @@ export default function EmployerProfileForm({
         employmentType: initialData.employment_type || "",
         hireDate: initialData.hire_date || "",
         role: initialData.role || "",
-        canInterview: initialData.can_interview ?? false,
         skills: initialData.skills || [],
       });
     }
@@ -186,7 +183,6 @@ export default function EmployerProfileForm({
         employment_type: formData.employmentType || undefined,
         hire_date: formData.hireDate || undefined,
         role: formData.role || undefined,
-        can_interview: formData.canInterview,
         skills: formData.skills.length > 0 ? formData.skills : undefined,
       },
     };
@@ -488,14 +484,9 @@ export default function EmployerProfileForm({
                         Admin (Full Access)
                       </>
                     )}
-                    {formData.role === EmployerRole.HR && (
+                    {formData.role === EmployerRole.RECRUITER && (
                       <>
-                        HR (Manage Jobs & Candidates)
-                      </>
-                    )}
-                    {formData.role === EmployerRole.EMPLOYER && (
-                      <>
-                        Employer (View & Interview)
+                        Recruiter (Jobs, Applications, Interviews)
                       </>
                     )}
                     {!formData.role && (
@@ -504,8 +495,7 @@ export default function EmployerProfileForm({
                   </div>
                   <p className="text-xs text-gray-500 mt-2">
                     {formData.role === EmployerRole.ADMIN && "Full access to all organization features"}
-                    {formData.role === EmployerRole.HR && "Can post jobs, manage applications, and interview candidates"}
-                    {formData.role === EmployerRole.EMPLOYER && "Can view applications and conduct interviews"}
+                    {formData.role === EmployerRole.RECRUITER && "Can post jobs, manage applications, and schedule interviews"}
                   </p>
                 </div>
 
@@ -520,29 +510,14 @@ export default function EmployerProfileForm({
                   >
                     <option value="">Select Role</option>
                     <option value={EmployerRole.ADMIN}>Admin (Full Access)</option>
-                    <option value={EmployerRole.HR}>HR (Manage Jobs & Candidates)</option>
-                    <option value={EmployerRole.EMPLOYER}>Employer (View & Interview)</option>
+                    <option value={EmployerRole.RECRUITER}>Recruiter (Jobs, Applications, Interviews)</option>
                   </select>
                   <p className="text-xs text-gray-500 mt-2">
                     {formData.role === EmployerRole.ADMIN && "Full access to all organization features"}
-                    {formData.role === EmployerRole.HR && "Can post jobs, manage applications, and interview candidates"}
-                    {formData.role === EmployerRole.EMPLOYER && "Can view applications and conduct interviews"}
+                    {formData.role === EmployerRole.RECRUITER && "Can post jobs, manage applications, and schedule interviews"}
                   </p>
                 </div> */}
 
-
-                {/* <div className="flex items-center gap-3 p-4 bg-purple-50 rounded-xl">
-                  <input
-                    type="checkbox"
-                    id="canInterview"
-                    checked={formData.canInterview}
-                    onChange={(e) => updateFormData({ canInterview: e.target.checked })}
-                    className="w-5 h-5 text-purple-600 rounded focus:ring-purple-500"
-                  />
-                  <label htmlFor="canInterview" className="text-sm font-semibold text-gray-700">
-                    I can conduct interviews with candidates
-                  </label>
-                </div> */}
 
                 <div className="space-y-4">
                   <h3 className="text-xl font-semibold text-gray-900 flex items-center gap-2">

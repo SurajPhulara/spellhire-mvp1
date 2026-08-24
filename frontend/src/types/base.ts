@@ -61,8 +61,7 @@ export enum SkillLevel {
 
 export enum EmployerRole {
   ADMIN = "ADMIN",
-  HR = "HR",
-  EMPLOYER = "EMPLOYER",
+  RECRUITER = "RECRUITER",
 }
 
 export enum CompanySize {

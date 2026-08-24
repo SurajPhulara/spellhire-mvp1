@@ -83,15 +83,13 @@ export interface EmployerProfile {
   employment_type?: JobType;
   hire_date?: string; // ISO date string
   role?: EmployerRole;
-  has_recruiter_permission?: boolean;
-  can_interview?: boolean;
   skills?: Skill[];
   is_active?: boolean;
   is_profile_complete?: boolean;
 }
 
 export interface EmployerRequest {
-  employer: Omit<EmployerProfile, 'id' | 'is_profile_complete' | 'created_at' | 'updated_at' | 'organization_id' | 'has_recruiter_permission'>;
+  employer: Omit<EmployerProfile, 'id' | 'is_profile_complete' | 'created_at' | 'updated_at' | 'organization_id'>;
 }
 
 export interface EmployerResponse {

@@ -299,12 +299,8 @@ export default function EmployerProfilePage() {
 
             <div className={styles.detailList}>
               <div className={styles.detailRow}>
-                <span>Recruiter permission</span>
-                <strong>{employerProfile?.has_recruiter_permission ? 'Enabled' : 'Disabled'}</strong>
-              </div>
-              <div className={styles.detailRow}>
-                <span>Can interview</span>
-                <strong>{employerProfile?.can_interview ? 'Enabled' : 'Disabled'}</strong>
+                <span>Role</span>
+                <strong>{employerProfile?.role ?? 'N/A'}</strong>
               </div>
               <div className={styles.detailRow}>
                 <span>Active</span>

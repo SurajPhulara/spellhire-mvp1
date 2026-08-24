@@ -161,7 +161,7 @@ async def attach_organization(
 
 @router.post("/permission", status_code=status.HTTP_200_OK)
 async def set_permission(
-    body: Dict[str, Any] = Body(..., example={"permission_flag": "has_recruiter_permission", "value": True}),
+    body: Dict[str, Any] = Body(..., example={"permission_flag": "is_active", "value": True}),
     current_user: dict = Depends(require_employer),
     db: AsyncSession = Depends(get_db),
 ):

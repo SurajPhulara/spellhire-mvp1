@@ -198,5 +198,4 @@ def require_employer_permission(*required_permissions: str):
 
 
 require_admin = require_employer_permission("ADMIN")
-require_hr = require_employer_permission("HR", "ADMIN")
 require_recruiter = require_employer_permission("RECRUITER", "ADMIN")

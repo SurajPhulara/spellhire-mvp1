@@ -30,8 +30,7 @@ class Role(str, enum.Enum):
 
 class EmployerRole(str, enum.Enum):
     ADMIN = "ADMIN"
-    HR = "HR"
-    EMPLOYER = "EMPLOYER"
+    RECRUITER = "RECRUITER"
 
 
 class JobType(str, enum.Enum):

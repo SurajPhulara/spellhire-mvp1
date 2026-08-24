@@ -119,11 +119,7 @@ class EmployerProfileSchema(BaseModel):
     hire_date: Optional[date] = Field(None, description="Hire date (YYYY-MM-DD)", example="2020-08-01")
     work_phone: Optional[str] = Field(None, description="Work phone", example="+91-1122334455")
     work_location: Optional[str] = Field(None, description="Work location address", example="Bengaluru, India")
-    bio: Optional[str] = Field(None, description="Short bio", example="HR leader with 8 years experience.")
-
-    # Permissions
-    has_recruiter_permission: Optional[bool] = Field(None, description="Can act as recruiter", example=True)
-    can_interview: Optional[bool] = Field(None, description="Can conduct interviews", example=True)
+    bio: Optional[str] = Field(None, description="Short bio", example="Talent leader with 8 years experience.")
 
     # Skills and status
     skills: Optional[List[Skills]] = Field(None, description="Skills / expertise list", example=["hiring", "interviewing"])

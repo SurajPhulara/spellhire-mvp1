@@ -172,15 +172,11 @@ class EmployerProfile(Base):
     # Job information
     job_title = Column(String(255), default="", nullable=True)
     employment_type = Column(SQLEnum(JobType), default=JobType.FULL_TIME, nullable=False)
-    role = Column(SQLEnum(EmployerRole), default=EmployerRole.EMPLOYER, nullable=False)
+    role = Column(SQLEnum(EmployerRole), default=EmployerRole.RECRUITER, nullable=False)
     hire_date = Column(Date, nullable=True)
     work_phone = Column(String(50), default="", nullable=True)
     work_location = Column(String(500), default="", nullable=True)
     bio = Column(String, default="", nullable=True)
-
-    # Permissions
-    has_recruiter_permission = Column(Boolean, default=True, nullable=True)
-    can_interview = Column(Boolean, default=True, nullable=True)
 
     # Skills
     skills = Column(JSON, default=[], nullable=True)

@@ -81,7 +81,7 @@ class EmployerService:
             "organization_id", "reporting_manager_id", "first_name", "last_name",
             "phone", "gender", "department", "job_title",
             "employment_type", "role", "hire_date", "work_phone", "work_location",
-            "bio", "has_recruiter_permission", "can_interview", "skills",
+            "bio", "skills",
             "is_active", "is_profile_complete"
         }
         profile_kwargs = {k: v for k, v in payload.items() if k in allowed}
@@ -103,7 +103,7 @@ class EmployerService:
             "organization_id", "reporting_manager_id", "first_name", "last_name",
             "phone", "gender", "department", "profile_picture_url", "job_title",
             "employment_type", "role", "hire_date", "work_phone", "work_location",
-            "bio", "has_recruiter_permission", "can_interview", "skills",
+            "bio", "skills",
             "is_active", "is_profile_complete"
         }
 
@@ -155,7 +155,7 @@ class EmployerService:
     @staticmethod
     async def set_employer_permission(db: AsyncSession, user_id: str, permission_flag: str, value: bool) -> EmployerProfile:
         """
-        Toggle simple permission flags (e.g., has_recruiter_permission).
+        Toggle simple boolean flags on the employer profile.
         `permission_flag` must be a valid attribute on EmployerProfile.
         """
         profile = await EmployerService.get_employer_profile(db, user_id)
