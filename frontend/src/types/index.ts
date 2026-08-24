@@ -9,9 +9,6 @@ export * from './auth';
 // Profile types (candidate, employer, organization)
 export * from './profile';
 
-// related to hiring team per organization
-export * from './team';
-
 // Job types
 export * from './job';
 

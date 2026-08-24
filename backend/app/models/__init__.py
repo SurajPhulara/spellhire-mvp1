@@ -4,7 +4,6 @@ This file imports all models to ensure they are registered with SQLAlchemy.
 """
 
 from app.models.base import Base
-from app.models.organization_member import OrganizationMember
 from app.models.enums import (
     AuthMethod,
     Gender,
@@ -78,7 +77,6 @@ __all__ = [
     "PlatformAdminSession",
     # Organization
     "Organization",
-    "OrganizationMember",
     # Job models
     "Job",
     "Pipeline",

@@ -1,0 +1,65 @@
+[33mcommit 0fb703073eb718b2f8f24d8e87e0d6a32930b3d8[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m
+Author: surajphulara <suraj66171@gmail.com>
+Date:   Mon Aug 24 20:05:05 2026 +0530
+
+    fixed missing code bugs and errors
+
+[33mcommit 157834331a645383e8b3703b8c71310be91bc29c[m
+Author: surajphulara <suraj66171@gmail.com>
+Date:   Mon Aug 24 09:31:25 2026 +0530
+
+    update: changed employer roles
+
+[33mcommit f26b17a75b49d3e7a2928877d8aeb088a9f927af[m
+Author: surajphulara <suraj66171@gmail.com>
+Date:   Mon Aug 24 08:36:44 2026 +0530
+
+    update and fix: modularized manage job applications page and added horizontal scrollbar to kahban board
+
+[33mcommit 7945f9569260812ce3eec1042a40affb85992485[m
+Author: surajphulara <suraj66171@gmail.com>
+Date:   Sun Aug 23 01:52:27 2026 +0530
+
+    minor fix : job models overflow and shadow problem
+
+[33mcommit 155f17c24ea913c145c69772b1a858a8400f98e7[m
+Author: surajphulara <suraj66171@gmail.com>
+Date:   Sun May 3 02:29:55 2026 +0530
+
+    added: apply jobs and fetch applied jobs feature along with their ui and implemented preview jobs schema
+
+[33mcommit d1fd9c56fd558875670af6187e45f549d57b212a[m
+Author: surajphulara <suraj66171@gmail.com>
+Date:   Sat May 2 00:54:50 2026 +0530
+
+    added: save, apply , view saved jobs
+
+[33mcommit 04db3e3803a572cf57d137f70712f82fa02971e5[m
+Author: surajphulara <suraj66171@gmail.com>
+Date:   Tue Mar 10 16:27:55 2026 +0530
+
+    done with login and basic stuff
+
+[33mcommit 9e1bbcb91af6e3444368f0631c7a8e6335e0e404[m
+Author: surajphulara <suraj66171@gmail.com>
+Date:   Tue Feb 10 01:25:00 2026 +0530
+
+    added: google oauth login
+
+[33mcommit d570fadc97ea844f14433b5a498623b722f87f01[m
+Author: surajphulara <suraj66171@gmail.com>
+Date:   Sat Jan 24 19:18:53 2026 +0530
+
+    completed auth but oauth still remains
+
+[33mcommit bd87c7d2d69a7705e099db446979b66133a0e4a9[m
+Author: surajphulara <suraj66171@gmail.com>
+Date:   Sun Jan 4 02:09:44 2026 +0530
+
+    iteration 2: created backend auth apis and frontent context and auth api handlers
+
+[33mcommit fb1d723c3822ecfcd068f22cd9efa42fbc31dff5[m
+Author: surajphulara <suraj66171@gmail.com>
+Date:   Mon Dec 15 13:19:13 2025 +0530
+
+    first commit
