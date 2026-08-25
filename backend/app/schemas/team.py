@@ -43,6 +43,12 @@ class TeamMemberCreateSchema(BaseModel):
 
 
 class TeamInviteAcceptSchema(BaseModel):
-    password: Optional[str] = Field(None, min_length=8)
     first_name: Optional[str] = None
     last_name: Optional[str] = None
+    phone: Optional[str] = None
+    job_title: Optional[str] = None
+    department: Optional[str] = None
+    bio: Optional[str] = None
+    skills: Optional[list] = None
+    experience_years: Optional[int] = None
+    password: Optional[str] = None

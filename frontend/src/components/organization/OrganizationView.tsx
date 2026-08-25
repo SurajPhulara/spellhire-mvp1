@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Loading from '@/app/loading';
@@ -63,7 +64,7 @@ export default function OrganizationView({ mode, orgId }: OrganizationViewProps)
         const response = await ProfileService.getOrganizationProfile();
         org = response.data?.organization;
       } else {
-        const response = await ProfileService.getOrganizationById(orgId!);
+        const response = await ProfileService.getOrganizationProfilePublic(orgId!);
         org = response.data?.organization;
       }
 
@@ -163,11 +164,23 @@ export default function OrganizationView({ mode, orgId }: OrganizationViewProps)
             </div>
           </div>
 
-          {isEditMode && (
+          {isEditMode ? (
             <div className={styles.pageHeaderActions}>
               <button className={styles.primaryBtn} onClick={() => setIsEditOpen(true)}>
                 Edit Organization
               </button>
+            </div>
+          ) : (
+            <div className={styles.pageHeaderActions}>
+              <Link href={`/jobs?organization=${orgId || organization?.id || ''}`} className={styles.primaryBtn}>
+                View Jobs
+              </Link>
+              <Link
+                href={`/login?as=employer`}
+                className={styles.primaryBtn}
+              >
+                Organization Login
+              </Link>
             </div>
           )}
         </div>
@@ -215,6 +228,14 @@ export default function OrganizationView({ mode, orgId }: OrganizationViewProps)
             </div>
           </div>
         </div>
+
+        {!isEditMode && (
+          <div className={styles.heroCard} style={{ padding: '1rem 1.3rem' }}>
+            <p className={styles.heroText}>
+              Joining this organization is invitation-only. If you already have a member account, use Organization Login.
+            </p>
+          </div>
+        )}
 
         {/* ── Error box ───────────────────────────────────────────────── */}
         {error && (

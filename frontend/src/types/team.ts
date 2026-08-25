@@ -22,10 +22,13 @@ export interface TeamMemberInviteResponse {
 }
 
 export interface TeamInviteAccept {
-  password?: string;
   first_name?: string;
   last_name?: string;
+  phone?: string;
   job_title?: string;
+  department?: string;
+  bio?: string;
+  skills?: Array<Record<string, unknown>>;
   experience_years?: number;
-  skills?: Skill[];
+  password?: string;
 }

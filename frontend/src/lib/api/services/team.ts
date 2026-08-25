@@ -1,36 +1,25 @@
 import { apiClient } from '../client';
-import {
-  ApiResponse,
-  EmployerProfile,
-  TeamInviteAccept,
-  TeamMemberCreate,
-  TeamMemberInviteResponse,
-  TeamMembersResponse,
-} from '@/types';
-import { API_CONFIG } from '@/lib/config/api';
+import { ApiResponse, TeamInviteAccept, TeamMemberCreate, TeamMemberInviteResponse, TeamMembersResponse } from '@/types';
 
 export class TeamService {
   static async listTeam(): Promise<ApiResponse<TeamMembersResponse>> {
-    return await apiClient.get<TeamMembersResponse>(API_CONFIG.ENDPOINTS.TEAM.LIST);
+    return await apiClient.get<TeamMembersResponse>('/team');
   }
 
   static async inviteMember(data: TeamMemberCreate): Promise<ApiResponse<TeamMemberInviteResponse>> {
-    return await apiClient.post<TeamMemberInviteResponse>(API_CONFIG.ENDPOINTS.TEAM.CREATE, data);
+    return await apiClient.post<TeamMemberInviteResponse>('/team', data);
   }
 
   static async getInvitation(token: string): Promise<ApiResponse<TeamMemberInviteResponse>> {
-    return await apiClient.get<TeamMemberInviteResponse>(`/team/invite/${token}`);
+    return await apiClient.get<TeamMemberInviteResponse>(`/team/invite/${encodeURIComponent(token)}`);
   }
 
-  static async acceptInvitation(
-    token: string,
-    data: TeamInviteAccept = {}
-  ): Promise<ApiResponse<TeamMemberInviteResponse>> {
-    return await apiClient.post<TeamMemberInviteResponse>(`/team/invite/${token}/accept`, data);
+  static async acceptInvitation(token: string, data: TeamInviteAccept = {}): Promise<ApiResponse<TeamMemberInviteResponse>> {
+    return await apiClient.post<TeamMemberInviteResponse>(`/team/invite/${encodeURIComponent(token)}/accept`, data);
   }
 
   static async rejectInvitation(token: string): Promise<ApiResponse<TeamMemberInviteResponse>> {
-    return await apiClient.post<TeamMemberInviteResponse>(`/team/invite/${token}/reject`);
+    return await apiClient.post<TeamMemberInviteResponse>(`/team/invite/${encodeURIComponent(token)}/reject`, {});
   }
 }
 

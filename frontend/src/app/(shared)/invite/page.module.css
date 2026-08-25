@@ -1,0 +1,450 @@
+.page {
+    min-height: 100vh;
+    padding: 2rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  
+    background:
+      radial-gradient(
+        circle at top left,
+        rgba(59, 130, 246, 0.16),
+        transparent 36%
+      ),
+      radial-gradient(
+        circle at bottom right,
+        rgba(79, 70, 229, 0.14),
+        transparent 36%
+      ),
+      #f6f8fc;
+  }
+  
+  .card {
+    width: min(680px, 100%);
+    background: white;
+    border: 1px solid #e6eaf1;
+    border-radius: 1.4rem;
+    padding: 1.5rem;
+  
+    box-shadow:
+      0 25px 70px rgba(15, 23, 42, 0.1);
+  }
+  
+  /* ───── Brand ───── */
+  
+  .brandRow {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    padding-bottom: 1.25rem;
+    border-bottom: 1px solid #eef1f6;
+  }
+  
+  .logo {
+    width: 2.5rem;
+    height: 2.5rem;
+  
+    display: grid;
+    place-items: center;
+  
+    border-radius: 0.75rem;
+  
+    background:
+      linear-gradient(
+        135deg,
+        #2563eb,
+        #4f46e5
+      );
+  
+    color: white;
+    font-weight: 900;
+  }
+  
+  .brandName {
+    margin: 0;
+    font-size: 0.9rem;
+    font-weight: 850;
+    color: #111827;
+  }
+  
+  .brandSub {
+    margin: 0.1rem 0 0;
+    font-size: 0.7rem;
+    color: #94a3b8;
+  }
+  
+  /* ───── Header ───── */
+  
+  .inviteHeader {
+    padding: 1.5rem 0 1.1rem;
+  }
+  
+  .eyebrow {
+    color: #4f46e5;
+    font-size: 0.7rem;
+    font-weight: 850;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  
+  .inviteHeader h1 {
+    margin: 0.35rem 0 0.45rem;
+    font-size: 1.55rem;
+    font-weight: 850;
+    letter-spacing: -0.035em;
+    color: #111827;
+  }
+  
+  .inviteHeader p {
+    margin: 0;
+    color: #64748b;
+    font-size: 0.82rem;
+    line-height: 1.55;
+  }
+  
+  /* ───── Organization ───── */
+  
+  .organizationCard {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  
+    padding: 0.85rem;
+  
+    border-radius: 0.9rem;
+  
+    background: linear-gradient(
+      135deg,
+      #f8faff,
+      #f3f5ff
+    );
+  
+    border: 1px solid #e2e7ff;
+  }
+  
+  .orgIcon {
+    width: 2.3rem;
+    height: 2.3rem;
+  
+    display: grid;
+    place-items: center;
+  
+    border-radius: 0.7rem;
+  
+    background: #eef2ff;
+    color: #4f46e5;
+  }
+  
+  .organizationCard > div:nth-child(2) {
+    min-width: 0;
+    flex: 1;
+  }
+  
+  .orgLabel {
+    display: block;
+    font-size: 0.66rem;
+    font-weight: 700;
+    color: #94a3b8;
+    text-transform: uppercase;
+  }
+  
+  .organizationCard strong {
+    display: block;
+    margin-top: 0.1rem;
+    font-size: 0.82rem;
+    color: #111827;
+  }
+  
+  .inviteEmail {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+  
+    margin-top: 0.2rem;
+  
+    color: #64748b;
+    font-size: 0.7rem;
+  }
+  
+  .roleBadge {
+    flex-shrink: 0;
+  
+    padding: 0.3rem 0.55rem;
+  
+    border-radius: 999px;
+  
+    color: #3730a3;
+    background: #e0e7ff;
+    border: 1px solid #c7d2fe;
+  
+    font-size: 0.65rem;
+    font-weight: 850;
+  }
+  
+  /* ───── Form ───── */
+  
+  .form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+  
+    padding-top: 1.35rem;
+  }
+  
+  .sectionTitle {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  
+    margin-top: 0.35rem;
+  
+    color: #334155;
+  
+    font-size: 0.76rem;
+    font-weight: 850;
+  }
+  
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+  }
+  
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+  
+  .field span {
+    color: #475569;
+    font-size: 0.72rem;
+    font-weight: 800;
+  }
+  
+  .field input,
+  .field textarea {
+    width: 100%;
+  
+    padding: 0.72rem 0.78rem;
+  
+    border: 1px solid #dbe3ee;
+    border-radius: 0.7rem;
+  
+    background: white;
+    color: #111827;
+  
+    outline: none;
+  
+    font: inherit;
+    font-size: 0.79rem;
+  
+    transition:
+      border-color 0.16s ease,
+      box-shadow 0.16s ease;
+  }
+  
+  .field textarea {
+    resize: vertical;
+    min-height: 100px;
+  }
+  
+  .field input:focus,
+  .field textarea:focus {
+    border-color: #a5b4fc;
+  
+    box-shadow:
+      0 0 0 3px rgba(79,70,229,0.08);
+  }
+  
+  .field input:disabled {
+    background: #f8fafc;
+    color: #64748b;
+  }
+  
+  /* ───── Footer ───── */
+  
+  .footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  
+    gap: 1rem;
+  
+    margin-top: 0.35rem;
+    padding-top: 1rem;
+  
+    border-top: 1px solid #eef1f5;
+  }
+  
+  .expiry {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+  
+    color: #94a3b8;
+    font-size: 0.7rem;
+  }
+  
+  .actions {
+    display: flex;
+    gap: 0.5rem;
+  }
+  
+  .primaryButton,
+  .secondaryButton {
+    border-radius: 0.7rem;
+    padding: 0.65rem 0.9rem;
+  
+    font-size: 0.76rem;
+    font-weight: 800;
+  
+    cursor: pointer;
+  }
+  
+  .primaryButton {
+    border: 1px solid #4f46e5;
+    background: #4f46e5;
+    color: white;
+  
+    box-shadow:
+      0 6px 16px rgba(79,70,229,0.2);
+  }
+  
+  .secondaryButton {
+    border: 1px solid #e2e8f0;
+    background: white;
+    color: #475569;
+  }
+  
+  .primaryButton:disabled,
+  .secondaryButton:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+  
+  .formError {
+    padding: 0.65rem 0.75rem;
+  
+    border-radius: 0.7rem;
+  
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+  
+    color: #dc2626;
+  
+    font-size: 0.74rem;
+  }
+  
+  /* ───── States ───── */
+  
+  .card > h1 {
+    margin: 0.85rem 0 0.45rem;
+  
+    font-size: 1.2rem;
+    font-weight: 850;
+    color: #111827;
+  }
+  
+  .card > p {
+    margin: 0;
+  
+    color: #64748b;
+    font-size: 0.8rem;
+    line-height: 1.55;
+  }
+  
+  .stateIcon {
+    width: 3.4rem;
+    height: 3.4rem;
+  
+    display: grid;
+    place-items: center;
+  
+    border-radius: 1rem;
+  }
+  
+  .successIcon {
+    color: #15803d;
+    background: #f0fdf4;
+  }
+  
+  .errorIcon {
+    color: #dc2626;
+    background: #fef2f2;
+  }
+  
+  .warningIcon {
+    color: #c2410c;
+    background: #fff7ed;
+  }
+  
+  .successNote {
+    display: flex;
+    gap: 0.5rem;
+    align-items: flex-start;
+  
+    margin-top: 1rem;
+    padding: 0.75rem;
+  
+    border-radius: 0.75rem;
+  
+    background: #f8fafc;
+    color: #475569;
+  
+    font-size: 0.76rem;
+    line-height: 1.5;
+  }
+  
+  .spinner {
+    width: 34px;
+    height: 34px;
+  
+    border: 3px solid #e5e7eb;
+    border-top-color: #4f46e5;
+  
+    border-radius: 50%;
+  
+    animation: spin 0.7s linear infinite;
+  }
+  
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  
+  /* ───── Mobile ───── */
+  
+  @media (max-width: 640px) {
+    .page {
+      padding: 0.75rem;
+      align-items: flex-start;
+    }
+  
+    .card {
+      padding: 1.1rem;
+      border-radius: 1rem;
+    }
+  
+    .grid {
+      grid-template-columns: 1fr;
+    }
+  
+    .organizationCard {
+      align-items: flex-start;
+    }
+  
+    .roleBadge {
+      margin-left: auto;
+    }
+  
+    .footer {
+      flex-direction: column;
+      align-items: stretch;
+    }
+  
+    .actions {
+      justify-content: flex-end;
+    }
+  }

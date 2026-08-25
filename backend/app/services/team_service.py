@@ -1,3 +1,4 @@
+# backend/app/services/team_service.py
 from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
@@ -93,6 +94,8 @@ class TeamService:
         TeamService._send_invitation_email(
             member=member,
             organization_name=(org.name if org and org.name else settings.APP_NAME),
+            inviter_email=actor.email,
+            inviter_name=(actor.first_name + " " + actor.last_name) or "",
             background_tasks=background_tasks,
         )
         return member
@@ -102,6 +105,8 @@ class TeamService:
         *,
         member: EmployerProfile,
         organization_name: str,
+        inviter_email: Optional[str] = None,
+        inviter_name: Optional[str] = None,
         background_tasks: Optional[BackgroundTasks] = None,
     ) -> None:
         base = (settings.FRONTEND_BASE_URL or "").rstrip("/")
@@ -120,9 +125,11 @@ class TeamService:
                     EmailService.send_team_invitation_email,
                     to_email=member.email,
                     context=ctx,
+                    cc_email=inviter_email,
+                    cc_name=inviter_name,
                 )
             else:
-                EmailService.send_team_invitation_email(to_email=member.email, context=ctx)
+                EmailService.send_team_invitation_email(to_email=member.email, context=ctx, cc_email=inviter_email, cc_name=inviter_name)
         except Exception:
             logger.exception("Failed to send team invitation to %s", member.email)
 
@@ -148,33 +155,78 @@ class TeamService:
         token: str,
         payload: Optional[TeamInviteAcceptSchema] = None,
     ) -> EmployerProfile:
+
         member = await TeamService.get_invitation(db, token)
+
         now = datetime.now(timezone.utc)
         role = EmployerService._role_value(member)
 
-        if payload and payload.first_name:
-            member.first_name = payload.first_name
-        if payload and payload.last_name is not None:
-            member.last_name = payload.last_name
+        # ── Update profile fields supplied by the invitee ─────────────
+        if payload:
+            if payload.first_name is not None:
+                member.first_name = payload.first_name.strip()
 
+            if payload.last_name is not None:
+                member.last_name = payload.last_name.strip()
+
+            if payload.phone is not None:
+                member.phone = payload.phone.strip()
+
+            if payload.job_title is not None:
+                member.job_title = payload.job_title.strip()
+
+            if payload.department is not None:
+                member.department = payload.department.strip()
+
+            if payload.bio is not None:
+                member.bio = payload.bio.strip()
+
+            if payload.skills is not None:
+                member.skills = payload.skills
+
+            if payload.experience_years is not None:
+                member.experience_years = payload.experience_years
+
+        # ── Role-specific acceptance logic ──────────────────────────
         if role == EmployerRole.RECRUITER.value:
             password = payload.password if payload else None
-            if not password:
-                raise AppException("Password is required to accept a recruiter invitation", status_code=400)
-            await TeamService._activate_recruiter(db, member, password)
-        elif role == EmployerRole.INTERVIEWER.value:
-            member.user_id = None
-        else:
-            raise AppException("This invitation cannot be accepted", status_code=400)
 
+            if not password:
+                raise AppException(
+                    "Password is required to accept a recruiter invitation",
+                    status_code=400,
+                )
+
+            await TeamService._activate_recruiter(
+                db=db,
+                member=member,
+                password=password,
+            )
+
+        elif role == EmployerRole.INTERVIEWER.value:
+            # Interviewers remain lightweight, loginless members.
+            member.user_id = None
+
+        else:
+            raise AppException(
+                "This invitation cannot be accepted",
+                status_code=400,
+            )
+
+        # ── Finalize invitation ─────────────────────────────────────
         member.status = EmployerProfileStatus.ACTIVE
         member.accepted_at = now
         member.rejected_at = None
+
+        # Token is single-use after acceptance.
         member.invitation_token = None
         member.invitation_expires_at = None
+
         member.is_active = True
         member.updated_at = now
+
         await db.flush()
+
         return member
 
     @staticmethod
